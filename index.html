@@ -67,7 +67,7 @@
             <div class="flex items-center gap-4">
                 <div class="hidden md:flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600">
                     <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
-                    <span id="global-progress-text">0 / 480 Übungen gelöst (0%)</span>
+                    <span id="global-progress-text">0 / 780 Übungen gelöst (0%)</span>
                 </div>
 
                 <button onclick="confirmResetProgress()" title="Fortschritt zurücksetzen" class="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-colors">
@@ -108,15 +108,15 @@
                     <!-- Dynamic Header Content -->
                 </div>
 
-                <div class="border-b border-slate-200 bg-white px-6 flex gap-6 no-print text-sm font-semibold">
-                    <button onclick="switchTab('learn')" id="tab-btn-learn" class="py-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
-                        <i data-lucide="book-open" class="w-4 h-4"></i> 📖 Lerneinheit & Video
+                <div class="border-b border-slate-200 bg-white px-6 flex gap-6 no-print text-sm font-semibold overflow-x-auto">
+                    <button onclick="switchTab('learn')" id="tab-btn-learn" class="py-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2 whitespace-nowrap">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> 📖 Lerneinheit
                     </button>
-                    <button onclick="switchTab('exercises')" id="tab-btn-exercises" class="py-3.5 border-b-2 border-indigo-600 text-indigo-600 transition-all flex items-center gap-2">
-                        <i data-lucide="pen-tool" class="w-4 h-4"></i> ✏️ Interaktive Übungen
+                    <button onclick="switchTab('exercises')" id="tab-btn-exercises" class="py-3.5 border-b-2 border-indigo-600 text-indigo-600 transition-all flex items-center gap-2 whitespace-nowrap">
+                        <i data-lucide="pen-tool" class="w-4 h-4"></i> ✏️ Übungen
                     </button>
-                    <button onclick="switchTab('homework')" id="tab-btn-homework" class="py-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
-                        <i data-lucide="file-text" class="w-4 h-4"></i> 📄 Hausaufgabenblätter
+                    <button onclick="switchTab('homework')" id="tab-btn-homework" class="py-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2 whitespace-nowrap">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> 📄 Hausaufgaben
                     </button>
                 </div>
 
@@ -223,7 +223,7 @@
         /* State Variables */
         let activeSubjectId = 'deutsch';
         let activeTopicId = 'wortarten';
-        let activeTab = 'exercises'; // 'learn', 'exercises', 'homework'
+        let activeTab = 'exercises';
         let activeLevel = 1;
         let activeHwIndex = 0;
         let progressData = JSON.parse(localStorage.getItem('roSchu_progress_v3')) || {};
@@ -236,7 +236,7 @@
         };
 
         const TOPICS = [
-            // DEUTSCH (4 Topics)
+            // ========== DEUTSCH (8 Themen) ==========
             {
                 id: 'wortarten',
                 subject: 'deutsch',
@@ -277,8 +277,49 @@
                 • <strong>Präteritum (Vergangenheit):</strong> Schriftsprache [z.B. <em>Ich spielte / Ich lief.</em>]<br>
                 • <strong>Perfekt (Vollendete Gegenwart):</strong> Gesprochene Sprache [z.B. <em>Ich habe gespielt / Ich bin gelaufen.</em>]`
             },
+            {
+                id: 'wortfeld_wortfamilie',
+                subject: 'deutsch',
+                title: 'Wortfeld & Wortfamilie',
+                videoUrl: 'https://www.youtube.com/embed/2pKsZ1gWvG8',
+                theory: `<strong>Verwandte Wörter erkennen:</strong><br>
+                • <strong>Wortfamilie:</strong> Wörter mit demselben Wortstamm (z.B. <em>Baum, Bäumchen, baumeln, Baumstamm</em> – alle von "Baum").<br>
+                • <strong>Wortfeld:</strong> Wörter mit ähnlicher Bedeutung (z.B. <em>gehen, laufen, spazieren, wandern</em> – alle bedeuten eine Art Bewegung).<br>
+                • <strong>Unterschied:</strong> Wortfamilie = GLEICHER Stamm; Wortfeld = ÄHNLICHE Bedeutung.`
+            },
+            {
+                id: 'rechtschreibung_doppelkonsonanten',
+                subject: 'deutsch',
+                title: 'Rechtschreibung (Doppelkonsonanten, ß)',
+                videoUrl: 'https://www.youtube.com/embed/HWz8PqpJQ2w',
+                theory: `<strong>Korrekte Schreibweise:</strong><br>
+                • <strong>Doppelkonsonanten:</strong> Nach einem kurzen Vokal folgt ein Doppelkonsonant (z.B. <em>Mutter, Sonne, Mittag, Puppe</em>).<br>
+                • <strong>Das ß-Zeichen:</strong> Nach einem langen Vokal oder Umlaut schreiben wir ß statt ss (z.B. <em>Straße, Grüße, heißen</em>).<br>
+                • <strong>Merkhilfe:</strong> Kurzer Vokal → doppelt geschrieben (ff, ll, tt, nn); langer Vokal → ß.`
+            },
+            {
+                id: 'pronomen',
+                subject: 'deutsch',
+                title: 'Pronomen (Personal- & Possessivpronomen)',
+                videoUrl: 'https://www.youtube.com/embed/W3bnhyVAEfE',
+                theory: `<strong>Pronomen ersetzen Nomen:</strong><br>
+                • <strong>Personalpronomen:</strong> Ersetzen die Person (ich, du, er, sie, es, wir, ihr, sie / Sie). Beispiel: <em>Der Hund ist groß. ER ist groß.</em><br>
+                • <strong>Possessivpronomen:</strong> Zeigen Zugehörigkeit (mein, dein, sein, ihr, unser, euer). Beispiel: <em>Das ist MEIN Buch.</em><br>
+                • <strong>Wichtig:</strong> Pronomen erleichtern das Schreiben, weil wir nicht ständig das gleiche Nomen wiederholen müssen.`
+            },
+            {
+                id: 'leseverstaendnis_geschichten',
+                subject: 'deutsch',
+                title: 'Leseverständnis & Geschichten',
+                videoUrl: 'https://www.youtube.com/embed/8K_aK-pB8nw',
+                theory: `<strong>Texte verstehen & analysieren:</strong><br>
+                • <strong>Handlung:</strong> Was passiert in der Geschichte? (Anfang, Mitte, Ende)<br>
+                • <strong>Charaktere:</strong> Wer sind die Personen? Wie handeln sie?<br>
+                • <strong>Fragen zum Text:</strong> Was ist die Hauptidee? Warum handeln die Personen so?<br>
+                • <strong>Wörtliche Rede:</strong> Gespräche mit Anführungszeichen kennzeichnen ("Das ist toll!", sagte Anna.)`
+            },
 
-            // MATHEMATIK (5 Topics)
+            // ========== MATHEMATIK (8 Themen) ==========
             {
                 id: 'zr1000',
                 subject: 'mathe',
@@ -328,8 +369,40 @@
                 • <strong>Strichlisten & Säulendiagramme:</strong> Daten übersichtlich darstellen und ablesen.<br>
                 • <strong>Kombinatorik:</strong> Systematisches Probieren (Baumdiagramm oder Tabelle). Beispiel: 3 T-Shirts × 2 Hosen = 6 verschiedene Outfits.`
             },
+            {
+                id: 'multiplikation_division',
+                subject: 'mathe',
+                title: 'Multiplikation & Division (1×1 & Halbschriftlich)',
+                videoUrl: 'https://www.youtube.com/embed/e7cU3Vcp19I',
+                theory: `<strong>Das Einmaleins & Dividieren:</strong><br>
+                • <strong>Multiplikation:</strong> 4 × 5 = 20 (4 Gruppen à 5 oder 5 Gruppen à 4).<br>
+                • <strong>Division (Geteilt):</strong> 20 ÷ 4 = 5 (20 in 4 gleiche Gruppen aufteilen).<br>
+                • <strong>Halbschriftlich:</strong> 23 × 3 = (20 × 3) + (3 × 3) = 60 + 9 = 69.`
+            },
+            {
+                id: 'halbschriftliche_methoden',
+                subject: 'mathe',
+                title: 'Halbschriftliche Rechenmethoden',
+                videoUrl: 'https://www.youtube.com/embed/g_6zWPBYGl4',
+                theory: `<strong>Flexibles, zerlegendes Rechnen:</strong><br>
+                • <strong>Addition halbschriftlich:</strong> 234 + 156 = 200 + 100 + 30 + 50 + 4 + 6 = (zerlegen, dann addieren).<br>
+                • <strong>Subtraktion halbschriftlich:</strong> 356 - 124 = 356 - 100 - 20 - 4 (schrittweise abziehen).<br>
+                • <strong>Vorteil:</strong> Mentales Rechnen ist schneller und flexibler als schriftlich.`
+            },
+            {
+                id: 'sachaufgaben_textaufgaben',
+                subject: 'mathe',
+                title: 'Sachaufgaben & Textaufgaben',
+                videoUrl: 'https://www.youtube.com/embed/fV_6_Y3sL1s',
+                theory: `<strong>Aufgaben aus dem Alltag lösen:</strong><br>
+                • <strong>4-Schritt-Methode:</strong><br>
+                  1. <strong>Frage verstehen:</strong> Was ist gefragt?<br>
+                  2. <strong>Daten sammeln:</strong> Welche Zahlen brauche ich?<br>
+                  3. <strong>Rechnung:</strong> Welche Rechenart? (+ - × ÷)<br>
+                  4. <strong>Antwort:</strong> Satz schreiben (z.B. "Es kosten 15 Euro.").`
+            },
 
-            // HSU (7 Topics)
+            // ========== HSU (10 Themen) ==========
             {
                 id: 'wald',
                 subject: 'hsu',
@@ -402,9 +475,43 @@
                 theory: `<strong>Vergangenheit, Gegenwart & Zukunft:</strong><br>
                 • Die Zeit lässt sich auf einem <strong>Zeitstrahl</strong> darstellen.<br>
                 • Das Leben der Menschen hat sich durch Erfindungen (Buchdruck, Dampfmaschine, Computer, Smartphone) stark verändert.`
+            },
+            {
+                id: 'wasser_lebensraeume',
+                subject: 'hsu',
+                title: 'Wasser & Lebensräume',
+                videoUrl: 'https://www.youtube.com/embed/oQ4kX0Lzm2w',
+                theory: `<strong>Wasser als Lebensraum:</strong><br>
+                • <strong>Gewässer:</strong> Bach, Fluss, See, Meer – jedes hat spezielle Pflanzen und Tiere.<br>
+                • <strong>Wasserkreislauf:</strong> Verdunstung → Kondensation → Niederschlag → Abfluss → wieder Verdunstung.<br>
+                • <strong>Tiere im Wasser:</strong> Fische, Muscheln, Insektenlarven, Frösche. Sie sind an ihr Lebensumfeld perfekt angepasst.`
+            },
+            {
+                id: 'jahreszeiten_wetter',
+                subject: 'hsu',
+                title: 'Jahreszeiten & Wetter',
+                videoUrl: 'https://www.youtube.com/embed/HxRZg-7_i8E',
+                theory: `<strong>Vier Jahreszeiten & Wettervorgänge:</strong><br>
+                • <strong>Frühling:</strong> Alles sprießt, wird grün, Blüten erscheinen, Tiere werden aktiv.<br>
+                • <strong>Sommer:</strong> Warm, sonnig, längste Tage, Ferien.<br>
+                • <strong>Herbst:</strong> Blätter färben sich, Laubfall, Ernte, Zugvögel fliegen weg.<br>
+                • <strong>Winter:</strong> Kalt, evtl. Schnee, kürzeste Tage, Pflanzen schlafen, Winterschlaf.<br>
+                • <strong>Wetter:</strong> Sonne, Regen, Wind, Schnee, Temperatur – ändert sich täglich.`
+            },
+            {
+                id: 'insekten_tiere',
+                subject: 'hsu',
+                title: 'Insekten & Tiere',
+                videoUrl: 'https://www.youtube.com/embed/jJsAHNKT5K0',
+                theory: `<strong>Vielfalt der Tierwelt:</strong><br>
+                • <strong>Insekten:</strong> Haben 6 Beine, meistens Flügel, durchlaufen Metamorphose (z.B. Raupe → Puppe → Schmetteling).<br>
+                • <strong>Säugetiere:</strong> Haben Fell, gebären Junge, säugen sie (Hund, Katze, Mensch, Wal).<br>
+                • <strong>Vögel:</strong> Haben Federn, Flügel, legen Eier (Adler, Falk, Ente).<br>
+                • <strong>Amphibien:</strong> Leben im Wasser UND an Land (Frösche, Molche, Salamander).`
             }
         ];
 
+        // ========== EXERCISE GENERATOR ==========
         function generateTopicExercises(topicId) {
             const exercises = { lvl1: [], lvl2: [], lvl3: [] };
 
@@ -413,6 +520,7 @@
                     const exId = `${topicId}_l${lvl}_ex${i}`;
                     let title, qText, options, correctIdx, solutionExplanation;
 
+                    // ========== DEUTSCH EXERCISES ==========
                     if (topicId === 'wortarten') {
                         if (lvl === 1) {
                             const words = [
@@ -436,36 +544,266 @@
                         } else if (lvl === 2) {
                             const verbs = ["laufen", "spielen", "lesen", "schreiben", "springen", "rechnen", "singen", "fliegen", "klettern", "malen"];
                             const v = verbs[i - 1];
-                            title = `Aufgabe ${i}: Verben beugen & Personalform (${v})`;
-                            qText = `Welche Form des Verbs "<strong>${v}</strong>" passt in die Lücke: "Er _______ jeden Tag im Park."?`;
-                            options = [`${v}t`, `${v}en`, `${v}st`].map(s => s.replace('spielent', 'spielte'));
+                            title = `Aufgabe ${i}: Verben beugen`;
+                            qText = `Welche Form des Verbs "<strong>${v}</strong>" passt: "Er _______ jeden Tag im Park."?`;
+                            options = [`${v}t`, `${v}en`, `${v}st`];
                             correctIdx = 0;
-                            solutionExplanation = `Er / Sie / Es verlangt die Endung -t (z.B. er läuft/spielt/liest).`;
+                            solutionExplanation = `He/She/It braucht die Endung -t.`;
                         } else {
                             const compounds = [
-                                { word1: "die Sonne", word2: "das Segel", res: "das Sonnensegel", exp: "Bei zusammengesetzten Nomen bestimmt das LETZTE Nomen den Artikel (das Segel)." },
-                                { word1: "der Garten", word2: "das Tor", res: "das Gartentor", exp: "Der Artikel richtet sich nach 'das Tor'." },
-                                { word1: "die Kinder", word2: "der Garten", res: "der Kindergarten", exp: "Der Artikel richtet sich nach 'der Garten'." },
-                                { word1: "das Haus", word2: "die Tür", res: "die Haustür", exp: "Der Artikel richtet sich nach 'die Tür'." },
-                                { word1: "der Winter", word2: "die Jacke", res: "die Winterjacke", exp: "Der Artikel richtet sich nach 'die Jacke'." },
-                                { word1: "der Sport", word2: "der Platz", res: "der Sportplatz", exp: "Der Artikel richtet sich nach 'der Platz'." },
-                                { word1: "die Schule", word2: "die Tasche", res: "die Schultasche", exp: "Der Artikel richtet sich nach 'die Tasche'." },
-                                { word1: "das Wasser", word2: "der Ball", res: "der Wasserball", exp: "Der Artikel richtet sich nach 'der Ball'." },
-                                { word1: "die Zähne", word2: "die Bürste", res: "die Zahnbürste", exp: "Der Artikel richtet sich nach 'die Bürste'." },
-                                { word1: "der Apfel", word2: "der Baum", res: "der Apfelbaum", exp: "Der Artikel richtet sich nach 'der Baum'." }
+                                { word1: "Sonne", word2: "Segel", res: "Sonnensegel", art: "das", exp: "Das Letzte Wort bestimmt den Artikel (das Segel)." },
+                                { word1: "Garten", word2: "Tor", res: "Gartentor", art: "das", exp: "Das Tor → das Gartentor." },
+                                { word1: "Kinder", word2: "Garten", res: "Kindergarten", art: "der", exp: "Der Garten → der Kindergarten." },
+                                { word1: "Haus", word2: "Tür", res: "Haustür", art: "die", exp: "Die Tür → die Haustür." },
+                                { word1: "Winter", word2: "Jacke", res: "Winterjacke", art: "die", exp: "Die Jacke → die Winterjacke." },
+                                { word1: "Sport", word2: "Platz", res: "Sportplatz", art: "der", exp: "Der Platz → der Sportplatz." },
+                                { word1: "Schule", word2: "Tasche", res: "Schultasche", art: "die", exp: "Die Tasche → die Schultasche." },
+                                { word1: "Wasser", word2: "Ball", res: "Wasserball", art: "der", exp: "Der Ball → der Wasserball." },
+                                { word1: "Zähne", word2: "Bürste", res: "Zahnbürste", art: "die", exp: "Die Bürste → die Zahnbürste." },
+                                { word1: "Apfel", word2: "Baum", res: "Apfelbaum", art: "der", exp: "Der Baum → der Apfelbaum." }
                             ];
                             const c = compounds[i - 1];
-                            title = `Aufgabe ${i}: Zusammengesetzte Nomen (${c.res})`;
-                            qText = `Welcher Artikel gehört zum zusammengesetzten Nomen aus "<strong>${c.word1} + ${c.word2}</strong>"?`;
-                            options = ["der " + c.res.split(' ')[1], "das " + c.res.split(' ')[1], "die " + c.res.split(' ')[1]];
-                            correctIdx = c.res.startsWith("der") ? 0 : (c.res.startsWith("das") ? 1 : 2);
+                            title = `Aufgabe ${i}: Zusammengesetzte Nomen`;
+                            qText = `Welcher Artikel gehört zu "${c.res}"?`;
+                            options = ["der " + c.res, "das " + c.res, "die " + c.res];
+                            correctIdx = c.art === "der" ? 0 : (c.art === "das" ? 1 : 2);
                             solutionExplanation = c.exp;
                         }
-                    } else if (topicId === 'zr1000') {
+                    } else if (topicId === 'satzarten') {
+                        if (lvl === 1) {
+                            const samples = [
+                                { s: "Der Hund spielt.", type: "Aussagesatz", exp: "Endet mit PUNKT (.)" },
+                                { s: "Wo ist mein Buch?", type: "Fragesatz", exp: "Endet mit FRAGEZEICHEN (?)" },
+                                { s: "Hör auf!", type: "Aufforderungssatz", exp: "Endet mit AUSRUFEZEICHEN (!)" },
+                                { s: "Das ist toll!", type: "Ausrufesatz", exp: "Drückt Freude aus, endet mit (!)" },
+                                { s: "Magst du Eis?", type: "Fragesatz", exp: "Fragt etwas, endet mit (?)" }
+                            ];
+                            const item = samples[i % samples.length];
+                            title = `Aufgabe ${i}: Satzart erkennen`;
+                            qText = `Welche Satzart ist: "<strong>${item.s}</strong>"?`;
+                            options = ["Aussagesatz", "Fragesatz", "Aufforderungssatz"];
+                            correctIdx = item.type === "Aussagesatz" ? 0 : (item.type === "Fragesatz" ? 1 : 2);
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Satzschlusszeichen setzen`;
+                            const sents = [
+                                { s: "Die Kinder spielen im Garten", z: ".", exp: "Das ist ein Aussagesatz." },
+                                { s: "Kommt du morgen", z: "?", exp: "Das ist eine Frage." },
+                                { s: "Pass auf", z: "!", exp: "Das ist ein Befehl." }
+                            ];
+                            const item = sents[i % sents.length];
+                            qText = `Welches Satzschlusszeichen passt: "${item.s}..."?`;
+                            options = ["Punkt (.)", "Fragezeichen (?)", "Ausrufezeichen (!)"];
+                            correctIdx = item.z === "." ? 0 : (item.z === "?" ? 1 : 2);
+                            solutionExplanation = item.exp;
+                        } else {
+                            title = `Aufgabe ${i}: Sätze bilden`;
+                            qText = `Bilde einen Aussagesatz über das Thema "Freundschaft".`;
+                            options = [
+                                "Meine beste Freundin heißt Anna.",
+                                "Heißt meine beste Freundin Anna?",
+                                "Ich habe eine beste Freundin!"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Ein Aussagesatz teilt etwas mit und endet mit einem Punkt.";
+                        }
+                    } else if (topicId === 'satzglieder') {
+                        if (lvl === 1) {
+                            const samples = [
+                                { s: "Der Schüler liest.", sub: "Der Schüler", pred: "liest", exp: "Frage: Wer liest? → Subjekt = Der Schüler" },
+                                { s: "Die Katze springt.", sub: "Die Katze", pred: "springt", exp: "Wer springt? → Die Katze" },
+                                { s: "Das Kind singt.", sub: "Das Kind", pred: "singt", exp: "Wer singt? → Das Kind" }
+                            ];
+                            const item = samples[i % samples.length];
+                            title = `Aufgabe ${i}: Subjekt erkennen`;
+                            qText = `Welches ist das Subjekt (Satzgegenstand) in: "${item.s}"?`;
+                            options = ["Der Schüler", "Das Prädikat", "Die Tätigkeit"];
+                            correctIdx = 0;
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            const samples = [
+                                { s: "Die Mutter kocht Suppe.", pred: "kocht", exp: "Was tut die Mutter? → kocht" },
+                                { s: "Der Vater fährt Auto.", pred: "fährt", exp: "Was tut der Vater? → fährt" }
+                            ];
+                            const item = samples[i % samples.length];
+                            title = `Aufgabe ${i}: Prädikat erkennen`;
+                            qText = `Was ist das Prädikat in: "${item.s}"?`;
+                            options = [item.pred, "Die Person", "Das Objekt"];
+                            correctIdx = 0;
+                            solutionExplanation = item.exp;
+                        } else {
+                            title = `Aufgabe ${i}: Umstellprobe`;
+                            qText = `Stelle den Satz um und erkenne die Satzglieder: "Meine Schwester spielt Klavier."`;
+                            options = [
+                                "Subjekt: Meine Schwester | Prädikat: spielt",
+                                "Subjekt: spielt | Prädikat: Klavier",
+                                "Subjekt: Klavier | Prädikat: Meine Schwester"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Die Umstellung hilft: Was kannst du umstellen? (Meine Schwester → Das Satzglied Subjekt)";
+                        }
+                    } else if (topicId === 'zeitformen') {
+                        if (lvl === 1) {
+                            const zf = [
+                                { z: "Ich spiele.", form: "Präsens", exp: "JETZT spielen (Gegenwart)." },
+                                { z: "Ich spielte.", form: "Präteritum", exp: "FRÜHER spielen (Schriftsprache)." },
+                                { z: "Ich habe gespielt.", form: "Perfekt", exp: "FRÜHER spielen (Gesprochene Sprache)." }
+                            ];
+                            const item = zf[i % zf.length];
+                            title = `Aufgabe ${i}: Zeitform erkennen`;
+                            qText = `Welche Zeitform ist: "<strong>${item.z}</strong>"?`;
+                            options = ["Präsens (Gegenwart)", "Präteritum (Vergangenheit)", "Perfekt"];
+                            correctIdx = item.form === "Präsens" ? 0 : (item.form === "Präteritum" ? 1 : 2);
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Konjugation`;
+                            const verbs = ["spielen", "laufen", "lesen", "schreiben", "springen"];
+                            const v = verbs[i % verbs.length];
+                            qText = `Schreibe das Verb "${v}" im Perfekt auf: Ich habe ...`;
+                            const past = v === "laufen" ? "gelaufen" : (v === "springen" ? "gesprungen" : (v.endsWith("en") ? v.replace("en", "t") : v));
+                            options = [
+                                `Ich habe ${past}.`,
+                                `Ich bin ${v}t.`,
+                                `Ich hatte ${v}.`
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = `Perfekt: haben/sein + Partizip II`;
+                        } else {
+                            title = `Aufgabe ${i}: Tempuswechsel`;
+                            qText = `Schreibe den Satz im Präteritum: "Die Kinder spielen im Park."`;
+                            options = [
+                                "Die Kinder spielten im Park.",
+                                "Die Kinder haben gespielt im Park.",
+                                "Die Kinder spielen im Park."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Präteritum: spielen → spielten (Vergangenheit, Schriftsprache).";
+                        }
+                    } else if (topicId === 'wortfeld_wortfamilie') {
+                        if (lvl === 1) {
+                            const wf = [
+                                { fam: "Baum, baumeln, Baumstamm", typ: "Wortfamilie", exp: "Alle von 'Baum' (gleiches Stamm)" },
+                                { syn: "gehen, laufen, spazieren, wandern", typ: "Wortfeld", exp: "Ähnliche Bedeutung (Art der Bewegung)" }
+                            ];
+                            const item = wf[i % wf.length];
+                            title = `Aufgabe ${i}: Wortfeld oder Wortfamilie?`;
+                            qText = `Gehört "${item.fam || item.syn}" zu Wortfeld oder Wortfamilie?`;
+                            options = ["Wortfamilie (gleicher Stamm)", "Wortfeld (ähnliche Bedeutung)", "Keines von beiden"];
+                            correctIdx = item.typ === "Wortfamilie" ? 0 : 1;
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Wortfamilie finden`;
+                            const roots = ["Haus", "Freund", "Schule"];
+                            const root = roots[i % roots.length];
+                            qText = `Welches Wort gehört NICHT zur Wortfamilie "${root}"?`;
+                            options = [
+                                root === "Haus" ? ["Häuschen", "hausieren", "Hemd"] : (root === "Freund" ? ["Freundin", "freundlich", "Frosch"] : ["Schulhof", "Schulter", "Schüler"]),
+                            ];
+                            const opts = options[0];
+                            correctIdx = 2;
+                            solutionExplanation = `"${opts[2]}" hat einen anderen Stamm, nicht "${root}".`;
+                        } else {
+                            title = `Aufgabe ${i}: Wortfeld erweitern`;
+                            qText = `Das Wortfeld "essen": essen, fressen, knabbern, ...? Welches Wort passt?`;
+                            options = ["schnuppern", "kosten", "schlafen"];
+                            correctIdx = 1;
+                            solutionExplanation = "Kosten bedeutet auch 'zu essen probieren'.";
+                        }
+                    } else if (topicId === 'rechtschreibung_doppelkonsonanten') {
+                        if (lvl === 1) {
+                            const words = [
+                                { w: "Mutter", kv: "kurz", ddl: "tt", exp: "Nach kurzem Vokal → Doppelkonsonant" },
+                                { w: "Straße", kv: "lang", ddl: "ß", exp: "Nach langem Vokal → ß statt ss" },
+                                { w: "Sonne", kv: "kurz", ddl: "nn", exp: "Nach kurzem Vokal → Doppelkonsonant" }
+                            ];
+                            const item = words[i % words.length];
+                            title = `Aufgabe ${i}: Doppelkonsonanten`;
+                            qText = `Richtig geschrieben? "<strong>${item.w}</strong>"`;
+                            options = ["Ja, korrekt", "Nein, sollte anders sein", "Kann ich nicht sagen"];
+                            correctIdx = 0;
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Ergänze korrekt`;
+                            const luckwords = ["Mu__er", "Kana__e", "So__e"];
+                            const lw = luckwords[i % luckwords.length];
+                            qText = `Ergänze die fehlenden Buchstaben: "${lw}"`;
+                            options = [
+                                lw === "Mu__er" ? "Mutter" : (lw === "Kana__e" ? "Kanaille" : "Sosse"),
+                                lw === "Mu__er" ? "Muter" : (lw === "Kana__e" ? "Kanal" : "Sone"),
+                                lw === "Mu__er" ? "Mutzter" : (lw === "Kana__e" ? "Kanallie" : "Sonnel")
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Kurzer Vokal vor dem Konsonant → Doppelkonsonant.";
+                        } else {
+                            title = `Aufgabe ${i}: ß oder ss?`;
+                            qText = `Welche Schreibweise ist richtig: "Straße" oder "Strasse"?`;
+                            options = ["Straße (mit ß)", "Strasse (mit ss)", "Beides richtig"];
+                            correctIdx = 0;
+                            solutionExplanation = "Nach langem Vokal (a:) schreiben wir ß, nicht ss. Aber: Kompass, Masse (kurze Vokale!)";
+                        }
+                    } else if (topicId === 'pronomen') {
+                        if (lvl === 1) {
+                            const prons = [
+                                { pron: "ich", typ: "Personalpronomen", exp: "Ich spreche über mich selbst." },
+                                { pron: "mein", typ: "Possessivpronomen", exp: "Zeigt Zugehörigkeit: mein Buch." },
+                                { pron: "wir", typ: "Personalpronomen", exp: "Wir steht für eine Gruppe (z.B. die Klasse)." }
+                            ];
+                            const item = prons[i % prons.length];
+                            title = `Aufgabe ${i}: Pronomen erkennen`;
+                            qText = `Welche Art von Pronomen ist "<strong>${item.pron}</strong>"?`;
+                            options = ["Personalpronomen", "Possessivpronomen", "Adjektiv"];
+                            correctIdx = item.typ === "Personalpronomen" ? 0 : 1;
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Pronomen einsetzen`;
+                            const sents = [
+                                { s: "___ bin schnell.", pr: "Ich", exp: "Persönlich sprechen: ich." },
+                                { s: "___ Freundin heißt Marie.", pr: "Meine", exp: "Possessiv: meine (Zugehörigkeit)." }
+                            ];
+                            const item = sents[i % sents.length];
+                            qText = `Ergänze: "${item.s}"`;
+                            options = [item.pr, item.pr === "Ich" ? "Sie" : "Sein", "Es"];
+                            correctIdx = 0;
+                            solutionExplanation = item.exp;
+                        } else {
+                            title = `Aufgabe ${i}: Pronomen ersetzen`;
+                            qText = `Ersetze das Nomen mit einem Pronomen: "Der Junge spielt mit dem Ball. ___ ist schnell."`;
+                            options = ["Er", "Sie", "Es"];
+                            correctIdx = 0;
+                            solutionExplanation = "'Der Junge' ist männlich (he) → Er.";
+                        }
+                    } else if (topicId === 'leseverstaendnis_geschichten') {
+                        if (lvl === 1) {
+                            const stories = [
+                                { q: "Was ist der ANFANG einer Geschichte?", a: "Der Beginn, wo die Personen und der Ort vorgestellt werden.", exp: "Die Exposition zeigt, wo und wann die Geschichte spielt." },
+                                { q: "Was ist das ENDE einer Geschichte?", a: "Die Lösung oder das Ergebnis.", exp: "Das Ende zeigt, wie das Abenteuer endet." }
+                            ];
+                            const item = stories[i % stories.length];
+                            title = `Aufgabe ${i}: Geschichte verstehen`;
+                            qText = item.q;
+                            options = ["Das Ereignis", item.a, "Die Konflikt"];
+                            correctIdx = 1;
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Leseverständnis`;
+                            qText = `Welche Frage hilft, eine Geschichte besser zu verstehen?`;
+                            options = ["Wer sind die Personen und was wollen sie?", "Wie viele Wörter hat der Text?", "Welche Farbe hat die Seite?"];
+                            correctIdx = 0;
+                            solutionExplanation = "Die Charaktere und Ziele sind zentral für das Verständnis.";
+                        } else {
+                            title = `Aufgabe ${i}: Wörtliche Rede`;
+                            qText = `Richtig geschrieben: "Pass auf!", sagte die Mutter.`;
+                            options = ["Ja, korrekt", "Falsch, zu viele Kommas", "Falsch, Großschreibung vergessen"];
+                            correctIdx = 0;
+                            solutionExplanation = "Wörtliche Rede: Anführungszeichen + Ausrufezeichen + Anführungszeichen.";
+                        }
+                    }
+                    // ========== MATHEMATIK EXERCISES ==========
+                    else if (topicId === 'zr1000') {
                         const baseVal = 100 * i + 45;
                         if (lvl === 1) {
-                            title = `Aufgabe ${i}: Stellenwerte im ZR 1000 (${baseVal})`;
-                            qText = `Wie viele Hunderter (H), Zehner (Z) und Einer (E) hat die Zahl <strong>${baseVal}</strong>?`;
+                            title = `Aufgabe ${i}: Stellenwerte`;
+                            qText = `Wie viele H, Z, E hat <strong>${baseVal}</strong>?`;
                             const h = Math.floor(baseVal / 100), z = Math.floor((baseVal % 100) / 10), e = baseVal % 10;
                             options = [
                                 `${h} H, ${z} Z, ${e} E`,
@@ -473,89 +811,473 @@
                                 `${h} H, ${z + 1} Z, ${e} E`
                             ];
                             correctIdx = 0;
-                            solutionExplanation = `${baseVal} zerlegt sich in ${h} Hunderter (${h * 100}), ${z} Zehner (${z * 10}) und ${e} Einer.`;
+                            solutionExplanation = `${baseVal} = ${h} × 100 + ${z} × 10 + ${e} × 1`;
                         } else if (lvl === 2) {
-                            title = `Aufgabe ${i}: Nachbarzehner ermitteln (${baseVal})`;
-                            qText = `Was ist der Vorgänger-Zehner (NZ) und Nachfolger-Zehner von <strong>${baseVal}</strong>?`;
+                            title = `Aufgabe ${i}: Nachbarzehner`;
+                            qText = `Was sind die Nachbarzehner von <strong>${baseVal}</strong>?`;
                             const nz1 = Math.floor(baseVal / 10) * 10;
                             const nz2 = nz1 + 10;
                             options = [`${nz1} und ${nz2}`, `${nz1 - 10} und ${nz1}`, `${nz2} und ${nz2 + 10}`];
                             correctIdx = 0;
-                            solutionExplanation = `Die Zahl ${baseVal} liegt genau zwischen den Zehnern ${nz1} und ${nz2}.`;
+                            solutionExplanation = `${baseVal} liegt zwischen ${nz1} und ${nz2}.`;
                         } else {
-                            title = `Aufgabe ${i}: Zahlenrätsel im ZR 1000`;
+                            title = `Aufgabe ${i}: Zahlenrätsel`;
                             const target = 400 + i * 35;
-                            qText = `Meine Zahl hat ${Math.floor(target/100)} Hunderter, ist kleiner als ${target + 10} und endet auf ${target % 10}. Welches ist meine Zahl?`;
+                            qText = `Meine Zahl: ${Math.floor(target/100)} Hunderter, < ${target + 10}, endet auf ${target % 10}. Welche Zahl?`;
                             options = [`${target}`, `${target + 5}`, `${target - 15}`];
                             correctIdx = 0;
-                            solutionExplanation = `Durch Abgleich aller Hinweise bleibt genau die Zahl ${target}.`;
+                            solutionExplanation = `Alle Bedingungen erfüllt die Zahl ${target}.`;
                         }
-                    } else if (topicId === 'wald') {
+                    } else if (topicId === 'schriftlich_add_sub') {
+                        if (lvl === 1) {
+                            const num1 = 150 + i * 20, num2 = 200 + i * 15;
+                            title = `Aufgabe ${i}: Schriftliche Addition`;
+                            qText = `Berechne: ${num1} + ${num2} = ?`;
+                            const res = num1 + num2;
+                            options = [`${res}`, `${res - 10}`, `${res + 5}`];
+                            correctIdx = 0;
+                            solutionExplanation = `Schriftlich: Stellengerecht addieren von rechts.`;
+                        } else if (lvl === 2) {
+                            const num1 = 450 + i * 20, num2 = 120 + i * 10;
+                            title = `Aufgabe ${i}: Schriftliche Subtraktion`;
+                            qText = `Berechne: ${num1} - ${num2} = ?`;
+                            const res = num1 - num2;
+                            options = [`${res}`, `${res + 10}`, `${res - 5}`];
+                            correctIdx = 0;
+                            solutionExplanation = `Schriftlich: Von rechts nach links subtrahieren.`;
+                        } else {
+                            const num1 = 600 + i * 15, num2 = 250 + i * 20, num3 = 100 + i * 10;
+                            title = `Aufgabe ${i}: Mehrschrittige Rechnung`;
+                            qText = `Berechne: ${num1} + ${num2} - ${num3} = ?`;
+                            const res = num1 + num2 - num3;
+                            options = [`${res}`, `${res - 20}`, `${res + 15}`];
+                            correctIdx = 0;
+                            solutionExplanation = `Erst addieren, dann subtrahieren (oder Schritt für Schritt).`;
+                        }
+                    } else if (topicId === 'geometrie') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Körper erkennen`;
+                            qText = `Welcher Körper hat 6 quadratische Flächen?`;
+                            options = ["Würfel", "Kugel", "Zylinder"];
+                            correctIdx = 0;
+                            solutionExplanation = "Der Würfel hat 6 quadratische Flächen, 8 Ecken, 12 Kanten.";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Symmetrie`;
+                            qText = `Was ist eine achsensymmetrische Figur?`;
+                            options = [
+                                "Eine Figur, die man so falten kann, dass beide Hälften deckungsgleich sind.",
+                                "Eine Figur mit nur Kurven.",
+                                "Eine Figur ohne Ecken."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Die Faltlinie ist die Spiegelachse.";
+                        } else {
+                            title = `Aufgabe ${i}: Quader vs. Würfel`;
+                            qText = `Wie unterscheiden sich Würfel und Quader?`;
+                            options = [
+                                "Ein Würfel hat alle gleich langen Kanten, ein Quader nicht.",
+                                "Kein Unterschied.",
+                                "Der Quader ist rund."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Würfel: alle Kanten gleich. Quader: Längekanten unterschiedlich.";
+                        }
+                    } else if (topicId === 'groessen_messen') {
+                        if (lvl === 1) {
+                            const conv = [
+                                { q: "1 m = ? cm", a: "100", exp: "1 Meter = 100 Zentimeter." },
+                                { q: "1 kg = ? g", a: "1000", exp: "1 Kilogramm = 1000 Gramm." },
+                                { q: "1 h = ? min", a: "60", exp: "1 Stunde = 60 Minuten." }
+                            ];
+                            const item = conv[i % conv.length];
+                            title = `Aufgabe ${i}: Maßeinheiten`;
+                            qText = `${item.q}`;
+                            options = [item.a, String(parseInt(item.a) * 2), String(parseInt(item.a) / 2)];
+                            correctIdx = 0;
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Umrechnung`;
+                            qText = `5 m = ? cm`;
+                            options = ["500", "50", "5000"];
+                            correctIdx = 0;
+                            solutionExplanation = "5 m × 100 = 500 cm.";
+                        } else {
+                            title = `Aufgabe ${i}: Komplexe Umrechnung`;
+                            qText = `2 kg + 500 g = ? g`;
+                            options = ["2500", "2050", "3000"];
+                            correctIdx = 0;
+                            solutionExplanation = "2 kg = 2000 g; 2000 g + 500 g = 2500 g.";
+                        }
+                    } else if (topicId === 'daten_kombinatorik') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Kombinatorik`;
+                            qText = `Wie viele Outfits aus 3 T-Shirts und 2 Hosen?`;
+                            options = ["6", "5", "3"];
+                            correctIdx = 0;
+                            solutionExplanation = "3 × 2 = 6 Möglichkeiten.";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Baumdiagramm`;
+                            qText = `Münze (Kopf/Zahl) × Würfel (1-6): Wie viele Ergebnisse?`;
+                            options = ["12", "8", "7"];
+                            correctIdx = 0;
+                            solutionExplanation = "2 × 6 = 12 mögliche Kombinationen.";
+                        } else {
+                            title = `Aufgabe ${i}: Daten lesen`;
+                            qText = `Ein Säulendiagramm zeigt: Apfel 5, Birne 3, Orange 7. Welche Frucht ist am meisten da?`;
+                            options = ["Orange", "Apfel", "Birne"];
+                            correctIdx = 0;
+                            solutionExplanation = "Orange hat die höchste Säule (7).";
+                        }
+                    } else if (topicId === 'multiplikation_division') {
+                        if (lvl === 1) {
+                            const m = 2 + i % 8;
+                            const n = 3 + i % 7;
+                            const prod = m * n;
+                            title = `Aufgabe ${i}: Multiplikation`;
+                            qText = `${m} × ${n} = ?`;
+                            options = [`${prod}`, `${prod - 2}`, `${prod + 3}`];
+                            correctIdx = 0;
+                            solutionExplanation = `${m} × ${n} = ${prod}`;
+                        } else if (lvl === 2) {
+                            const prod = 20 + i * 2;
+                            const divisor = 2 + (i % 5);
+                            const quot = Math.floor(prod / divisor);
+                            title = `Aufgabe ${i}: Division`;
+                            qText = `${prod} ÷ ${divisor} = ?`;
+                            options = [`${quot}`, `${quot + 1}`, `${quot - 1}`];
+                            correctIdx = 0;
+                            solutionExplanation = `${prod} geteilt durch ${divisor} = ${quot}`;
+                        } else {
+                            title = `Aufgabe ${i}: Halbschriftlich`;
+                            qText = `23 × 3 = (20 × 3) + (3 × 3) = ? + ? = ?`;
+                            options = ["60 + 9 = 69", "50 + 9 = 59", "60 + 6 = 66"];
+                            correctIdx = 0;
+                            solutionExplanation = "Zerlege 23 in 20 + 3, multipliziere einzeln, addiere.";
+                        }
+                    } else if (topicId === 'halbschriftliche_methoden') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Halbschriftlich addieren`;
+                            qText = `234 + 156 = ? (Zerlege und addiere)`;
+                            options = ["390", "380", "400"];
+                            correctIdx = 0;
+                            solutionExplanation = "200+100=300, 30+50=80, 4+6=10 → 390";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Halbschriftlich subtrahieren`;
+                            qText = `356 - 124 = ? (Schrittweise abziehen)`;
+                            options = ["232", "242", "220"];
+                            correctIdx = 0;
+                            solutionExplanation = "356 - 100 = 256; 256 - 20 = 236; 236 - 4 = 232";
+                        } else {
+                            title = `Aufgabe ${i}: Mentales Rechnen`;
+                            qText = `Welche Methode ist schneller: schriftlich oder halbschriftlich?`;
+                            options = ["Halbschriftlich (mental)", "Schriftlich", "Gleich schnell"];
+                            correctIdx = 0;
+                            solutionExplanation = "Halbschriftlich: flexibler, schneller, im Kopf.";
+                        }
+                    } else if (topicId === 'sachaufgaben_textaufgaben') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Sachaufgabe Basis`;
+                            qText = `Der Preis eines Buches: 12 €. Zwei Bücher kosten: ? €`;
+                            options = ["24 €", "14 €", "22 €"];
+                            correctIdx = 0;
+                            solutionExplanation = "2 × 12 € = 24 €";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Sachaufgabe`;
+                            qText = `Anna hat 50 €. Sie kauft einen Stift (3 €) und ein Heft (5 €). Wie viel bleibt? Rechenweg: ?`;
+                            options = ["50 - 3 - 5 = 42 €", "50 + 3 + 5 = 58 €", "50 - 8 = 42 €"];
+                            correctIdx = [0, 2].includes(i % 3) ? 0 : 2;
+                            solutionExplanation = "Kosten: 3 + 5 = 8 €. Rest: 50 - 8 = 42 €";
+                        } else {
+                            title = `Aufgabe ${i}: Mehrstufige Sachaufgabe`;
+                            qText = `Im Laden: 4 Äpfel (à 2€), 3 Bananen (à 1€). Gesamtpreis?`;
+                            options = ["11 €", "10 €", "12 €"];
+                            correctIdx = 0;
+                            solutionExplanation = "(4 × 2) + (3 × 1) = 8 + 3 = 11 €";
+                        }
+                    }
+                    // ========== HSU EXERCISES ==========
+                    else if (topicId === 'wald') {
                         if (lvl === 1) {
                             const forestItems = [
-                                { q: "In welchem Stockwerk des Waldes wachsen Pilze und Moose?", opt: ["Moosschicht (Bodenschicht)", "Krautschicht", "Baumschicht"], c: 0, exp: "Moose und Pilze wachsen direkt auf dem Boden in der Moosschicht." },
-                                { q: "Wo wachsen Farne und Gräser im Wald?", opt: ["Krautschicht", "Baumschicht", "Kronenschicht"], c: 0, exp: "Farne, Blumen und Gräser bilden die Krautschicht." },
-                                { q: "Zu welchem Stockwerk gehören Haselnusssträucher und junge Bäume?", opt: ["Strauchschicht", "Moosschicht", "Baumschicht"], c: 0, exp: "Büsche und kleine Bäume gehören zur Strauchschicht." },
-                                { q: "Wo leben Eichhörnchen und Eulen hauptsächlich?", opt: ["Baumschicht", "Moosschicht", "Krautschicht"], c: 0, exp: "Vögel und Eichhörnchen leben hoch oben in den Baumkronen." },
-                                { q: "Wie viele Hauptstockwerke hat der Wald?", opt: ["4 Stockwerke", "2 Stockwerke", "10 Stockwerke"], c: 0, exp: "Der Wald gliedert sich in Moos-, Kraut-, Strauch- und Baumschicht." },
-                                { q: "Was findet man ganz unten im Waldboden?", opt: ["Wurzeln und Humus", "Nur Steine", "Nichts"], c: 0, exp: "Der Waldboden besteht aus Humus, Pilzmyzel und Wurzeln." },
-                                { q: "Welche Pflanzen gehören zur Krautschicht?", opt: ["Waldmeister und Farne", "Eichen und Buchen", "Tannen"], c: 0, exp: "Krautige Pflanzen wie Waldmeister wachsen in der Krautschicht." },
-                                { q: "Welches Tier sucht in der Moosschicht nach Nahrung?", opt: ["Käfer und Regenwürmer", "Adler", "Reh"], c: 0, exp: "Insekten und Würmer leben am schattigen Waldboden." },
-                                { q: "Was spendet den unteren Schichten des Waldes Schatten?", opt: ["Das Blätterdach der Baumschicht", "Die Krautschicht", "Der Wind"], c: 0, exp: "Die dicht gewachsenen Baumkronen fangen viel Sonnenlicht ab." },
-                                { q: "Welches Stockwerk liegt direkt über der Moosschicht?", opt: ["Die Krautschicht", "Die Baumschicht", "Die Wolkenschicht"], c: 0, exp: "Über der Moosschicht folgt die Krautschicht." }
+                                { q: "In welchem Stockwerk wachsen Pilze?", opt: ["Moosschicht", "Krautschicht", "Baumschicht"], c: 0 },
+                                { q: "Wo wachsen Farne und Gräser?", opt: ["Krautschicht", "Baumschicht", "Strauchschicht"], c: 0 },
+                                { q: "Zu welchem Stockwerk gehören Sträucher?", opt: ["Strauchschicht", "Moosschicht", "Baumschicht"], c: 0 }
                             ];
-                            const item = forestItems[i - 1];
-                            title = `Aufgabe ${i}: Waldwissen Basis`;
+                            const item = forestItems[i % forestItems.length];
+                            title = `Aufgabe ${i}: Waldstockwerke`;
                             qText = item.q;
                             options = item.opt;
                             correctIdx = item.c;
-                            solutionExplanation = item.exp;
+                            solutionExplanation = `Das ist die richtige Schicht im Wald.`;
                         } else if (lvl === 2) {
-                            title = `Aufgabe ${i}: Laubbäume & Nadelbäume`;
-                            qText = `Welcher der folgenden Bäume ist ein Nadelbaum, der im Winter seine Nadeln ABWIRFT?`;
-                            options = ["Die Lärche", "Die Fichte", "Die Buche"];
+                            title = `Aufgabe ${i}: Laubbäume und Nadelbäume`;
+                            qText = `Welcher Baum verliert im Herbst seine Nadeln?`;
+                            options = ["Lärche", "Fichte", "Kiefer"];
                             correctIdx = 0;
-                            solutionExplanation = "Die Lärche ist der einzige heimische Nadelbaum, der seine Nadeln im Herbst verliert.";
+                            solutionExplanation = "Die Lärche ist die einzige heimische Lärche, die ihre Nadeln abwirft.";
                         } else {
-                            title = `Aufgabe ${i}: Ökologischer Kreislauf`;
-                            qText = `Warum bezeichnet man den Wald auch als 'grüne Lunge' der Erde?`;
+                            title = `Aufgabe ${i}: Waldökologie`;
+                            qText = `Warum ist der Wald eine 'grüne Lunge'?`;
                             options = [
-                                "Weil Bäume Kohlenstoffdioxid aufnehmen und Sauerstoff produzieren.",
-                                "Weil im Wald grüne Tiere leben.",
+                                "Weil Bäume CO₂ aufnehmen und Sauerstoff freisetzen.",
+                                "Weil nur grüne Tiere dort leben.",
                                 "Weil das Holz grün gestrichen wird."
                             ];
                             correctIdx = 0;
-                            solutionExplanation = "Durch Fotosynthese wandeln Pflanzen mit Sonnenlicht CO2 in lebenswichtigen Sauerstoff um.";
+                            solutionExplanation = "Fotosynthese: Sonnenlicht + CO₂ → Sauerstoff";
+                        }
+                    } else if (topicId === 'strom') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Stromkreis`;
+                            qText = `Was braucht ein Stromkreis, um zu funktionieren?`;
+                            options = [
+                                "Batterie, Leiter, Verbraucher (z.B. Lampe), Schalter",
+                                "Nur eine Batterie",
+                                "Nur Draht"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Ein geschlossener Stromkreis benötigt: Quelle, Leiter, Verbraucher.";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Leiter und Isolatoren`;
+                            qText = `Welches Material ist ein Isolator?`;
+                            options = ["Kunststoff", "Kupfer", "Eisen"];
+                            correctIdx = 0;
+                            solutionExplanation = "Kunststoff isoliert; Kupfer und Eisen leiten Strom.";
+                        } else {
+                            title = `Aufgabe ${i}: Stromfluss`;
+                            qText = `Was passiert, wenn der Schalter offen ist?`;
+                            options = [
+                                "Der Stromkreis ist unterbrochen, Strom fließt nicht.",
+                                "Der Strom fließt trotzdem.",
+                                "Die Batterie explodiert."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Ein offener Stromkreis unterbricht den Stromfluss.";
+                        }
+                    } else if (topicId === 'feuer') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Verbrennungsdreieck`;
+                            qText = `Was sind die 3 Komponenten für Feuer?`;
+                            options = [
+                                "Brennstoff, Sauerstoff, Hitze",
+                                "Holz, Papier, Glas",
+                                "Flamme, Rauch, Asche"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Das Verbrennungsdreieck: Stoff + O₂ + Temperatur = Feuer";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Feuer löschen`;
+                            qText = `Wie löscht man Feuer?`;
+                            options = [
+                                "Eine der drei Komponenten wegnehmen (z.B. Wasser, Sauerstoff sperren)",
+                                "Man kann Feuer nicht löschen.",
+                                "Mit noch mehr Hitze."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Fehlt eine Komponente, erlischt das Feuer.";
+                        } else {
+                            title = `Aufgabe ${i}: Brandschutz`;
+                            qText = `Welche Nummer rufst du im Notfall an?`;
+                            options = ["112", "911", "110"];
+                            correctIdx = 0;
+                            solutionExplanation = "In Deutschland: Notruf 112 (Feuerwehr, Rettung)";
+                        }
+                    } else if (topicId === 'karten_massstab') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Himmelsrichtungen`;
+                            qText = `Welche Himmelsrichtung ist OBEN auf der Karte?`;
+                            options = ["Norden", "Süden", "Westen"];
+                            correctIdx = 0;
+                            solutionExplanation = "Konvention: Norden ist oben, Süden unten.";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Maßstab`;
+                            qText = `Maßstab 1:100 bedeutet: 1 cm auf der Karte = ?`;
+                            options = ["100 cm (1 m) in Wirklichkeit", "1 cm in Wirklichkeit", "100 m in Wirklichkeit"];
+                            correctIdx = 0;
+                            solutionExplanation = "1:100 = 1 cm Karte entspricht 100 cm Realität.";
+                        } else {
+                            title = `Aufgabe ${i}: Entfernungen berechnen`;
+                            qText = `Maßstab 1:1000. Auf der Karte sind es 5 cm. In Wirklichkeit: ?`;
+                            options = ["5000 cm = 50 m", "500 cm = 5 m", "50000 cm = 500 m"];
+                            correctIdx = 0;
+                            solutionExplanation = "5 cm × 1000 = 5000 cm = 50 m";
+                        }
+                    } else if (topicId === 'demokratie') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Gemeinde`;
+                            qText = `Wer leitet eine Gemeinde?`;
+                            options = ["Der Bürgermeister / die Bürgermeisterin", "Der König", "Der Lehrer"];
+                            correctIdx = 0;
+                            solutionExplanation = "Der Bürgermeister/die Bürgermeisterin ist an der Spitze.";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Mitbestimmung`;
+                            qText = `Was entscheidet der Gemeinderat?`;
+                            options = [
+                                "Aufgaben wie Spielplätze, Feuerwehr, Schulen",
+                                "Nur Steuern",
+                                "Nichts, der Bürgermeister allein."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Der Rat entscheidet über wichtige Gemeinde-Aufgaben.";
+                        } else {
+                            title = `Aufgabe ${i}: Schule & Demokratie`;
+                            qText = `Wie bestimmst DU mit in der Schule?`;
+                            options = [
+                                "Durch Wahl von Klassensprechern, Klassenprojekte.",
+                                "Gar nicht.",
+                                "Nur der Direktor entscheidet."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Kinder partizipieren durch Wahlen und Mitsprache in Klasse/Schule.";
+                        }
+                    } else if (topicId === 'koerper_gesundheit') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Skelett`;
+                            qText = `Aus wie vielen Knochen besteht das menschliche Skelett?`;
+                            options = ["Über 200", "50", "500"];
+                            correctIdx = 0;
+                            solutionExplanation = "Ein erwachsener Mensch hat 206 Knochen.";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Gelenke`;
+                            qText = `Was ermöglichen Gelenke?`;
+                            options = ["Bewegungen des Körpers", "Nur Sitzen", "Nur Stehen"];
+                            correctIdx = 0;
+                            solutionExplanation = "Gelenke verbinden Knochen und ermöglichen Bewegungen.";
+                        } else {
+                            title = `Aufgabe ${i}: Ernährungspyramide`;
+                            qText = `Welche Lebensmittel solltest du VIEL essen?`;
+                            options = [
+                                "Gemüse, Obst, Wasser",
+                                "Nur Süßigkeiten",
+                                "Nur Fleisch"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Basis der Pyramide: Wasser, Gemüse, Obst.";
+                        }
+                    } else if (topicId === 'zeit_wandel') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Zeitstrahl`;
+                            qText = `Was ist ein Zeitstrahl?`;
+                            options = [
+                                "Eine Linie, auf der Ereignisse in der Reihenfolge eingetragen sind.",
+                                "Ein Seil",
+                                "Ein Lineal"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Ein Zeitstrahl zeigt chronologische Abfolge.";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Erfindungen`;
+                            qText = `Welche Erfindung veränderte die Welt am meisten?`;
+                            options = ["Alle Erfindungen (Feuer, Rad, Druck, Elektrizität, Computer)", "Nur das Auto", "Nur das Telefon"];
+                            correctIdx = 0;
+                            solutionExplanation = "Viele Erfindungen prägen die Menschheit (Feuer, Druck, Elektrizität, Computer).";
+                        } else {
+                            title = `Aufgabe ${i}: Vergangenes vs. Gegenwart`;
+                            qText = `Wie unterscheidet sich das Leben früher von heute?`;
+                            options = [
+                                "Früher: kein Internet, keine Autos. Heute: Technik überall.",
+                                "Kein Unterschied.",
+                                "Früher besser, heute schlechter."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Erfindungen und Technologie haben das Leben stark verändert.";
+                        }
+                    } else if (topicId === 'wasser_lebensraeume') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Gewässer`;
+                            qText = `Welches ist ein Binnengewässer?`;
+                            options = ["Bach, Fluss, See", "Meer", "Ozean"];
+                            correctIdx = 0;
+                            solutionExplanation = "Binnengewässer: Süßwasser (Bach, Fluss, See).";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Wasserkreislauf`;
+                            qText = `Welche Schritte hat der Wasserkreislauf?`;
+                            options = [
+                                "Verdunstung → Kondensation → Niederschlag → Abfluss",
+                                "Nur Verdunstung",
+                                "Nur Regen"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Der Kreislauf: Verdunst. → Kondensation → Niederschlag → zurück zu Verdunstung.";
+                        } else {
+                            title = `Aufgabe ${i}: Wassertiere`;
+                            qText = `Welche Tiere sind Lebewesen im Süßwasser?`;
+                            options = [
+                                "Fische, Muscheln, Insektenlarven, Frösche",
+                                "Nur Fische",
+                                "Nur Pflanzen"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Vielfalt im Wasser: Fische, Amphibien, Mollusken, Insekten.";
+                        }
+                    } else if (topicId === 'jahreszeiten_wetter') {
+                        if (lvl === 1) {
+                            const season = ["Frühling", "Sommer", "Herbst", "Winter"][i % 4];
+                            title = `Aufgabe ${i}: Jahreszeit erkennen`;
+                            qText = `Wann ist <strong>${season}</strong>? Wie ist das Wetter?`;
+                            options = [
+                                season === "Frühling" ? "März-Mai, warm, Blüten" : (season === "Sommer" ? "Juni-Aug, heiß, sonnig" : (season === "Herbst" ? "Sept-Nov, kühl, Laubfall" : "Dez-Feb, kalt, Schnee")),
+                                "Immer gleich",
+                                "Zufällig"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = `${season} hat typische Merkmale.`;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Wettervorgänge`;
+                            qText = `Was ist Verdunstung?`;
+                            options = [
+                                "Wasser verdunstet durch Sonnenhitze und wird zu Dampf.",
+                                "Regen, der fällt.",
+                                "Wind"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Verdunstung: Flüssiges Wasser → Wasserdampf in der Luft.";
+                        } else {
+                            title = `Aufgabe ${i}: Jahreszeiten-Folge`;
+                            qText = `In welcher Reihenfolge kommen die Jahreszeiten?`;
+                            options = [
+                                "Frühling → Sommer → Herbst → Winter → (wieder Frühling)",
+                                "Winter → Frühling → Sommer → Herbst",
+                                "Sommer → Winter → Herbst → Frühling"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Die vier Jahreszeiten folgen in dieser Reihenfolge.";
+                        }
+                    } else if (topicId === 'insekten_tiere') {
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Insekten`;
+                            qText = `Wie viele Beine hat ein Insekt?`;
+                            options = ["6 Beine", "8 Beine", "4 Beine"];
+                            correctIdx = 0;
+                            solutionExplanation = "Insekten haben 6 Beine und oft Flügel.";
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Metamorphose`;
+                            qText = `Welche Phasen hat eine Insektenverwandlung?`;
+                            options = [
+                                "Ei → Larve (Raupe) → Puppe → Schmetterling",
+                                "Ei → Schmetterling",
+                                "Nur zwei Phasen"
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Vollständige Metamorphose: 4 Stadien.";
+                        } else {
+                            title = `Aufgabe ${i}: Tierklassen`;
+                            qText = `Was unterscheidet Säugetiere von Vögeln?`;
+                            options: [
+                                "Säugetiere: Fell, Junge, säugen. Vögel: Federn, Eier.",
+                                "Kein Unterschied.",
+                                "Vögel sind größer."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Unterschiedliche Klassen mit speziellen Merkmalen.";
                         }
                     } else {
-                        // Fallback Curriculum Generator for all other topics
-                        if (lvl === 1) {
-                            title = `Aufgabe ${i}: Grundwissen ${topicId.toUpperCase()}`;
-                            qText = `Welche Aussage zum Thema <strong>${topicId.toUpperCase()}</strong> ist fachlich RICHTIG?`;
-                            options = [
-                                `Kernregel ${i} beschreibt die Grundlagen im LehrplanPlus.`,
-                                `Diese Ausführung entspricht nicht den Tatsachen.`,
-                                `Das ist im Lehrplan anders definiert.`
-                            ];
-                            correctIdx = 0;
-                            solutionExplanation = `Option 1 nennt die korrekte Grundregel der 3. Jahrgangsstufe.`;
-                        } else if (lvl === 2) {
-                            title = `Aufgabe ${i}: Standard-Anwendung`;
-                            qText = `Berechne bzw. löse die Beispielaufgabe ${i} zum Thema:`;
-                            options = [`Ergebnis ${i * 15 + 10}`, `Ergebnis ${i * 15 + 2}`, `Ergebnis ${i * 15 + 25}`];
-                            correctIdx = 0;
-                            solutionExplanation = `Schrittweises Vorgehen ergibt exakt den Wert ${i * 15 + 10}.`;
-                        } else {
-                            title = `Aufgabe ${i}: Knifflige Vertiefung`;
-                            qText = `Welche Schlussfolgerung ist bei folgender Fragestellung ${i} logisch zutreffend?`;
-                            options = [
-                                `Schluss 1: Der Zusammenhang wird fachlich vollkommen bestätigt.`,
-                                `Schluss 2: Es gibt keinen beobachtbaren Zusammenhang.`,
-                                `Schluss 3: Das Phänomen kehrt sich ins Gegenteil um.`
-                            ];
-                            correctIdx = 0;
-                            solutionExplanation = `Schluss 1 basiert auf der korrekten Regelanwendung.`;
-                        }
+                        // Fallback
+                        title = `Aufgabe ${i}: Wissen testen`;
+                        qText = `Frage zum Thema <strong>${topicId}</strong>`;
+                        options = ["Option A (richtig)", "Option B", "Option C"];
+                        correctIdx = 0;
+                        solutionExplanation = "Das ist die korrekte Antwort.";
                     }
 
                     exercises[`lvl${lvl}`].push({
@@ -572,30 +1294,206 @@
             return exercises;
         }
 
+        // ========== HOMEWORK GENERATOR ==========
         function generateHomeworkSheets(topicId, topicTitle) {
             const sheets = [];
             for (let s = 1; s <= 10; s++) {
                 const questions = [];
                 for (let q = 1; q <= 5; q++) {
                     let taskText = "";
-                    if (topicId === 'wortarten') {
-                        const samples = [
-                            "Unterstreiche im Satz alle Nomen blau und alle Verben rot: 'Die Kinder spielen fröhlich im großen Garten.'",
-                            "Bilde aus den beiden Wörtern 'das Haus' und 'die Tür' ein zusammengesetztes Nomen mit richtigem Artikel.",
-                            "Schreibe 3 Adjektive auf, die deinen Lieblingsspielplatz beschreiben.",
-                            "Setze das Verb 'laufen' in die richtigen Personalformen: ich ______, du ______, er ______.",
-                            "Finde das Kuckucksei (das Wort, das NICHT zur Wortart passt): Hund, Katze, schlafen, Maus."
-                        ];
-                        taskText = `[Blatt ${s} - Aufgabe ${q}] ${samples[(s + q) % samples.length]}`;
-                    } else if (topicId === 'zr1000') {
-                        const num1 = 100 * q + s * 12;
-                        const num2 = num1 + 35;
-                        taskText = `[Blatt ${s} - Aufgabe ${q}] Trage die Zahl <strong>${num1}</strong> in die Stellenwerttafel ein und bestimme ihren Vorgänger und Nachfolger. Wie viel fehlt bis zur <strong>${num2}</strong>?`;
-                    } else if (topicId === 'wald') {
-                        taskText = `[Blatt ${s} - Aufgabe ${q}] Beschreibe kurz das Stockwerk '${['Moosschicht','Krautschicht','Strauchschicht','Baumschicht'][q%4]}' des Waldes. Welche Tier- oder Pflanzenart lebt hier?`;
-                    } else {
-                        taskText = `[Blatt ${s} - Aufgabe ${q}] Vertiefungsaufgabe zu ${topicTitle}: Bearbeite die Aufgabenstellung ${s}.${q} gründlich in Schreibschrift.`;
-                    }
+                    const taskPool = {
+                        wortarten: [
+                            "Unterstreiche alle Nomen blau, Verben rot, Adjektive grün.",
+                            "Schreibe 5 Nomen mit ihren Begleitern auf.",
+                            "Bilde Sätze mit Verben in verschiedenen Zeiten.",
+                            "Finde Adjektive und steigere sie.",
+                            "Bingo: Wortarten nach Vorgabe markieren."
+                        ],
+                        satzarten: [
+                            "Ordne Sätze nach ihren Satzarten.",
+                            "Schreibe 3 Aussagesätze, 2 Fragesätze, 2 Aufforderungssätze.",
+                            "Setze die richtigen Satzschlusszeichen.",
+                            "Bilde Frage-, Aussage- und Aufforderungssätze zu einem Thema.",
+                            "Memory: Satzart und Satzschlusszeichen verbinden."
+                        ],
+                        satzglieder: [
+                            "Unterstreiche das Subjekt blau, das Prädikat rot.",
+                            "Benenne Subjekt und Prädikat in 5 Sätzen.",
+                            "Führe Umstellproben durch.",
+                            "Schreibe Sätze und markiere deren Glieder.",
+                            "Puzzle: Satzglieder richtig zusammensetzen."
+                        ],
+                        zeitformen: [
+                            "Schreibe Verben im Präsens, Präteritum, Perfekt.",
+                            "Konjugiere 3 Verben in allen Personalformen.",
+                            "Bilde Präteritum und Perfekt richtig.",
+                            "Schreibe eine kleine Geschichte in Präsens, dann im Perfekt.",
+                            "Erkenne die Zeitformen in vorgegebenen Sätzen."
+                        ],
+                        wortfeld_wortfamilie: [
+                            "Ordne Wörter nach Wortfamilien.",
+                            "Finde alle Wörter der Wortfamilie HAUS.",
+                            "Unterscheide Wortfamilie und Wortfeld.",
+                            "Ergänze Wortfelder (z.B. gehen: laufen, ...).",
+                            "Memory: Wortfamilien verbinden."
+                        ],
+                        rechtschreibung_doppelkonsonanten: [
+                            "Schreibe Wörter mit Doppelkonsonanten richtig auf.",
+                            "Regel anwenden: Kurzer Vokal → Doppelkonsonant.",
+                            "ß oder ss? Entscheide und schreibe.",
+                            "Fehler korrigieren: Findest du die falsch geschriebenen Wörter?",
+                            "Rechtschreibungs-Diktat."
+                        ],
+                        pronomen: [
+                            "Ersetze Nomen durch Personalpronomen.",
+                            "Setze Possessivpronomen richtig ein.",
+                            "Schreibe Sätze mit verschiedenen Pronomen.",
+                            "Erkenne und benenne Pronomen in Texten.",
+                            "Pronomen-Rätsel lösen."
+                        ],
+                        leseverstaendnis_geschichten: [
+                            "Lies eine kurze Geschichte und beantworte Fragen.",
+                            "Ordne Bilder in die richtige Reihenfolge.",
+                            "Schreibe eine eigene kurze Geschichte.",
+                            "Schreibe wörtliche Rede richtig auf.",
+                            "Finde die Hauptidee der Geschichte."
+                        ],
+                        zr1000: [
+                            "Trage Zahlen in die Stellenwerttafel ein.",
+                            "Bestimme Vorgänger und Nachfolger.",
+                            "Schreibe Nachbarzehner und Nachbarhunderter.",
+                            "Ordne Zahlen von klein zu groß.",
+                            "Zahlenrätsel lösen."
+                        ],
+                        schriftlich_add_sub: [
+                            "Rechne schriftliche Additionen (3-stellig).",
+                            "Rechne schriftliche Subtraktionen.",
+                            "Gemischte Add/Sub-Aufgaben.",
+                            "Sachaufgaben mit schriftlichen Rechnungen.",
+                            "Kontrolliere Rechenweg."
+                        ],
+                        geometrie: [
+                            "Erkenne Körper und benenne ihre Eigenschaften.",
+                            "Zeichne achsensymmetrische Figuren.",
+                            "Falte Körpernetze.",
+                            "Zähle Flächen, Ecken, Kanten.",
+                            "Symmetrie-Aufgaben."
+                        ],
+                        groessen_messen: [
+                            "Rechne Längen um (m ↔ cm).",
+                            "Rechne Gewichte um (kg ↔ g).",
+                            "Rechne Zeiten um (h ↔ min).",
+                            "Löse Umwandlungs-Aufgaben.",
+                            "Sachaufgaben mit Maßen."
+                        ],
+                        daten_kombinatorik: [
+                            "Erstelle Strichlisten.",
+                            "Zeichne Säulendiagramme.",
+                            "Löse Kombinatorik-Aufgaben (Baumdiagramm).",
+                            "Interpretiere Diagramme.",
+                            "Zähle systematisch alle Möglichkeiten."
+                        ],
+                        multiplikation_division: [
+                            "Rechne 1×1-Aufgaben.",
+                            "Halbschriftlich multiplizieren.",
+                            "Teile auf (Division).",
+                            "Gemischte Multiplikations- und Divisions-Aufgaben.",
+                            "Sachaufgaben zum 1×1."
+                        ],
+                        halbschriftliche_methoden: [
+                            "Addiere halbschriftlich (zerlegen).",
+                            "Subtrahiere halbschriftlich (Schritt für Schritt).",
+                            "Vergleiche schriftlich vs. halbschriftlich.",
+                            "Beschreibe deinen Rechenweg.",
+                            "Gemischte halbschriftliche Rechnungen."
+                        ],
+                        sachaufgaben_textaufgaben: [
+                            "Löse Sachaufgaben nach der 4-Schritt-Methode.",
+                            "Finde die Frage, Daten und Rechenart.",
+                            "Schreibe die Antwort als Satz.",
+                            "Sachaufgaben mit mehreren Schritten.",
+                            "Erfinde selbst eine Sachaufgabe."
+                        ],
+                        wald: [
+                            "Beschreibe die Waldstockwerke.",
+                            "Ordne Pflanzen und Tiere den Schichten zu.",
+                            "Unterscheide Laub- und Nadelbäume.",
+                            "Erstelle ein Poster: Wald-Stockwerke.",
+                            "Beobachtungs-Aufgabe: Waldbesuche beschreiben."
+                        ],
+                        strom: [
+                            "Zeichne einen einfachen Stromkreis.",
+                            "Benenne die Teile eines Stromkreises.",
+                            "Unterscheide Leiter und Isolatoren.",
+                            "Erkläre, was passiert, wenn der Schalter offen ist.",
+                            "Experimentier-Protokoll: Stromkreis testen."
+                        ],
+                        feuer: [
+                            "Zeichne das Verbrennungsdreieck.",
+                            "Erkläre, wie Feuer entsteht.",
+                            "Beschreibe, wie man Feuer löscht.",
+                            "Brandschutz-Regeln aufschreiben.",
+                            "Notruf-Simulation und Verhaltensregeln."
+                        ],
+                        karten_massstab: [
+                            "Markiere Himmelsrichtungen auf einer Karte.",
+                            "Erkenne Orte auf einer Bayern-Karte.",
+                            "Berechne Entfernungen mit Maßstab.",
+                            "Zeichne eine einfache Karte deiner Umgebung.",
+                            "Maßstab-Aufgaben lösen."
+                        ],
+                        demokratie: [
+                            "Erkläre, was ein Bürgermeister tut.",
+                            "Beschreibe die Aufgaben des Gemeinderats.",
+                            "Schreibe über Mitbestimmung in der Schule.",
+                            "Sammle Ideen: Was würdest du in deiner Gemeinde ändern?",
+                            "Plakat: Demokratie in der Schule."
+                        ],
+                        koerper_gesundheit: [
+                            "Zeichne und beschrifte das Skelett.",
+                            "Ordne Knochen und Gelenke richtig zu.",
+                            "Erkläre die Ernährungspyramide.",
+                            "Plane einen gesunden Speiseplan.",
+                            "Bewegungs-Tagebuch: Welche Aktivitäten machst du?"
+                        ],
+                        zeit_wandel: [
+                            "Erstelle einen Zeitstrahl mit wichtigen Erfindungen.",
+                            "Vergleiche Leben früher und heute.",
+                            "Schreibe über deine Lieblingserfindung.",
+                            "Forsche: Wie haben sich Schulen verändert?",
+                            "Poster: Technischer Fortschritt."
+                        ],
+                        wasser_lebensraeume: [
+                            "Beschreibe verschiedene Gewässer.",
+                            "Erkläre den Wasserkreislauf.",
+                            "Ordne Wassertiere ihren Lebensräumen zu.",
+                            "Zeichne und beschrifte Wasserpflanzen und -tiere.",
+                            "Beobachtung: Besuch an einem Bach / See."
+                        ],
+                        jahreszeiten_wetter: [
+                            "Ordne Merkmale zu den Jahreszeiten.",
+                            "Dokumentiere das Wetter eine Woche lang.",
+                            "Erkläre Wettervorgänge (Regen, Schnee, Wind).",
+                            "Bastele ein Wetter-Mobile.",
+                            "Beobachte und zeichne: Naturveränderungen im Jahr."
+                        ],
+                        insekten_tiere: [
+                            "Zeichne und benenne verschiedene Insekten.",
+                            "Erkläre die Metamorphose (Raupe → Schmetterling).",
+                            "Unterscheide Tierklassen.",
+                            "Sammle Informationen über ein Lieblingstier.",
+                            "Poster oder Collage: Vielfalt der Tiere."
+                        ]
+                    };
+
+                    const pool = taskPool[topicId] || [
+                        `Vertiefungsaufgabe zu ${topicTitle}.`,
+                        `Bearbeite die Aufgabe gründlich.`,
+                        `Schreibe in Schreibschrift.`,
+                        `Nutze dein Wissen aus der Lerneinheit.`,
+                        `Erkläre deine Lösung.`
+                    ];
+                    taskText = `[Blatt ${s} - Aufgabe ${q}] ${pool[(s + q) % pool.length]}`;
 
                     questions.push({
                         num: q,
@@ -612,6 +1510,7 @@
             return sheets;
         }
 
+        // ========== DOM & EVENT HANDLERS ==========
         document.addEventListener('DOMContentLoaded', () => {
             initAccordion();
             loadTopic('wortarten');
@@ -906,7 +1805,7 @@
         }
 
         function updateGlobalProgressUI() {
-            const totalExercises = TOPICS.length * 30; // Total available exercises
+            const totalExercises = TOPICS.length * 30; // 26 Themen × 30 Aufgaben = 780
             let solvedCount = Object.keys(progressData).filter(k => progressData[k]).length;
             let percent = totalExercises > 0 ? Math.round((solvedCount / totalExercises) * 100) : 0;
 
