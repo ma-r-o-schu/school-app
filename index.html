@@ -4,31 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RoSchu Lernportal - 3. Klasse Bayern (LehrplanPlus)</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        deutsch: { light: '#eff6ff', DEFAULT: '#2563eb', dark: '#1d4ed8' },
-                        mathe: { light: '#fffbeb', DEFAULT: '#d97706', dark: '#b45309' },
-                        hsu: { light: '#ecfdf5', DEFAULT: '#059669', dark: '#047857' }
-                    }
-                }
-            }
-        }
-    </script>
+    <script>tailwind.config = {theme: {extend: {fontFamily: {sans: ['Inter', 'sans-serif']}, colors: {deutsch: { light: '#eff6ff', DEFAULT: '#2563eb', dark: '#1d4ed8' }, mathe: { light: '#fffbeb', DEFAULT: '#d97706', dark: '#b45309' }, hsu: { light: '#ecfdf5', DEFAULT: '#059669', dark: '#047857' }}}}}</script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -39,20 +20,130 @@
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             body { background: white !important; font-size: 11pt; color: black; }
-            .print-card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; margin-bottom: 1.5rem !important; break-inside: avoid; }
-            .page-break { page-break-after: always; }
         }
         .print-only { display: none; }
     </style>
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased selection:bg-indigo-100">
 
+    <!-- LANDING PAGE -->
+    <div id="landing-page" class="w-full">
+        <header class="bg-gradient-to-br from-indigo-600 via-violet-500 to-purple-600 text-white">
+            <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center font-black text-2xl">RS</div>
+                    <span class="font-bold text-lg">RoSchu</span>
+                </div>
+                <button onclick="startApp()" class="px-4 py-2 bg-white text-indigo-600 font-bold rounded-lg hover:bg-slate-100 transition-all shadow-lg">
+                    Lernportal öffnen →
+                </button>
+            </nav>
+        </header>
+        
+        <section class="bg-gradient-to-b from-indigo-600 to-slate-50 pt-20 pb-32">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-5xl md:text-6xl font-black text-white mb-6 leading-tight">
+                    Lerne <span class="text-yellow-300">smart</span>.<br>Klasse 3 Bayern.
+                </h1>
+                <p class="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+                    📖 Deutsch • 🔢 Mathematik • 🌍 HSU<br>
+                    <span class="font-semibold">780 interaktive Übungen + Videos + Hausaufgaben</span>
+                </p>
+                <button onclick="startApp()" class="px-8 py-4 bg-white text-indigo-600 font-bold text-lg rounded-xl hover:bg-yellow-50 transition-all shadow-xl hover:shadow-2xl inline-flex items-center gap-2">
+                    <span>🚀 Jetzt starten</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="bg-white py-16">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-black text-center text-slate-900 mb-16">Was erwartet dich?</h2>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 rounded-2xl border-2 border-blue-200 shadow-lg hover:shadow-xl transition-shadow">
+                        <div class="text-5xl mb-4">📖</div>
+                        <h3 class="text-2xl font-bold text-blue-900 mb-3">Deutsch</h3>
+                        <p class="text-sm text-blue-800 font-semibold mb-3">8 Themen • 240 Übungen</p>
+                        <ul class="text-xs text-blue-700 space-y-1.5">
+                            <li>✓ Wortarten</li>
+                            <li>✓ Satzarten</li>
+                            <li>✓ Zeitformen</li>
+                            <li>✓ Rechtschreibung</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gradient-to-br from-amber-50 to-orange-50 p-8 rounded-2xl border-2 border-amber-200 shadow-lg hover:shadow-xl transition-shadow">
+                        <div class="text-5xl mb-4">🔢</div>
+                        <h3 class="text-2xl font-bold text-amber-900 mb-3">Mathematik</h3>
+                        <p class="text-sm text-amber-800 font-semibold mb-3">8 Themen • 240 Übungen</p>
+                        <ul class="text-xs text-amber-700 space-y-1.5">
+                            <li>✓ Zahlenraum 1.000</li>
+                            <li>✓ Addition & Subtraktion</li>
+                            <li>✓ Multiplikation</li>
+                            <li>✓ Geometrie</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gradient-to-br from-emerald-50 to-green-50 p-8 rounded-2xl border-2 border-emerald-200 shadow-lg hover:shadow-xl transition-shadow">
+                        <div class="text-5xl mb-4">🌍</div>
+                        <h3 class="text-2xl font-bold text-emerald-900 mb-3">HSU</h3>
+                        <p class="text-sm text-emerald-800 font-semibold mb-3">10 Themen • 300 Übungen</p>
+                        <ul class="text-xs text-emerald-700 space-y-1.5">
+                            <li>✓ Ökosystem Wald</li>
+                            <li>✓ Elektrizität</li>
+                            <li>✓ Feuer & Verbrennungsdreieck</li>
+                            <li>✓ Körper & Gesundheit</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-gradient-to-r from-indigo-100 to-purple-100 py-16">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-black text-slate-900 mb-12 text-center">So funktioniert's:</h2>
+                <div class="space-y-4">
+                    <div class="flex gap-4 items-start bg-white p-6 rounded-xl shadow-md">
+                        <div class="text-3xl font-black text-indigo-600">1️⃣</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Lerneinheit</h3>
+                            <p class="text-slate-700">Lese die Erklärung + schau dir das Erklärvideo an</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start bg-white p-6 rounded-xl shadow-md">
+                        <div class="text-3xl font-black text-indigo-600">2️⃣</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Übungen</h3>
+                            <p class="text-slate-700">Löse 30 Aufgaben in 3 Schwierigkeitsstufen</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start bg-white p-6 rounded-xl shadow-md">
+                        <div class="text-3xl font-black text-indigo-600">3️⃣</div>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-900">Hausaufgaben</h3>
+                            <p class="text-slate-700">Drucke 10 Arbeitsblätter pro Thema aus</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white py-16">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl font-black text-slate-900 mb-6">Bereit zu lernen?</h2>
+                <button onclick="startApp()" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg rounded-xl transition-all shadow-lg hover:shadow-xl">
+                    🚀 Lernportal öffnen
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="app-container" class="hidden h-full flex flex-col">
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-indigo-200">
-                    RS
-                </div>
+                <button onclick="backToLanding()" class="p-2 hover:bg-slate-100 rounded-lg transition-colors" title="Zurück zur Startseite">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-slate-500"></i>
+                </button>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-indigo-200">RS</div>
                 <div>
                     <h1 class="font-bold text-lg text-slate-900 leading-tight">RoSchu Lernportal</h1>
                     <p class="text-xs text-slate-500 font-medium">3. Klasse Bayern • LehrplanPlus</p>
@@ -85,7 +176,7 @@
         </aside>
 
         <main class="flex-1 min-w-0">
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden" id="main-content-card">
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
                 <div id="topic-header" class="p-6 border-b border-slate-100 bg-slate-50/50"></div>
                 <div class="border-b border-slate-200 bg-white px-6 flex gap-6 no-print text-sm font-semibold overflow-x-auto">
                     <button onclick="switchTab('learn')" id="tab-btn-learn" class="py-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2 whitespace-nowrap">
@@ -103,23 +194,18 @@
                     <!-- TAB 1: LEARN & VIDEO -->
                     <div id="tab-content-learn" class="hidden space-y-6">
                         <div class="prose max-w-none text-slate-700 bg-slate-50 p-5 rounded-xl border border-slate-200" id="theory-container"></div>
-                        <div class="space-y-4">
+                        <div class="space-y-3">
                             <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
                                 <i data-lucide="youtube" class="w-5 h-5 text-red-600"></i> Erklärvideo zum Thema
                             </h3>
-                            <div class="bg-gradient-to-br from-red-50 to-orange-50 p-6 rounded-xl border border-red-200">
-                                <p class="text-sm font-semibold text-slate-800 mb-4">Hier findest du Erklärvideos auf YouTube zu diesem Thema:</p>
-                                <div class="flex flex-wrap gap-3">
-                                    <a id="video-link-1" href="#" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition-all shadow-sm">
-                                        <i data-lucide="youtube" class="w-4 h-4"></i>
-                                        <span id="video-link-text">Auf YouTube suchen</span>
-                                    </a>
-                                    <a id="video-link-2" href="https://www.youtube.com/results?search_query=Grundschule+Erkl%C3%A4rv+ideo" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-bold rounded-lg transition-all">
-                                        <i data-lucide="search" class="w-4 h-4"></i>
-                                        Alternative Videos
-                                    </a>
-                                </div>
-                                <p class="text-xs text-slate-600 mt-3 italic">💡 Tipp: Suche nach dem Thema + "Grundschule Klasse 3" für die besten Ergebnisse!</p>
+                            <div class="aspect-video w-full rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-lg">
+                                <iframe id="video-iframe" class="w-full h-full" src="" title="Erklärvideo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <p id="video-title-display" class="text-xs font-semibold text-slate-600"></p>
+                                <a id="video-external-link" href="#" target="_blank" class="inline-flex items-center gap-2 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">
+                                    Öffne auf YouTube <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -163,23 +249,40 @@
                                 <div class="text-xs space-y-1 text-slate-700 font-medium text-right">
                                     <div><strong>Name:</strong> ______________________</div>
                                     <div><strong>Datum:</strong> ____________________</div>
-                                    <div><strong>Note / Rückmeldung:</strong> _________</div>
+                                    <div><strong>Note:</strong> _________</div>
                                 </div>
                             </div>
                             <div id="hw-questions-list" class="space-y-6"></div>
-                            <div class="mt-8 pt-4 border-t border-slate-300 print-only">
-                                <p class="text-xs font-bold text-slate-600 uppercase">Rückmeldung der Lehrkraft / Eltern:</p>
-                                <div class="h-16 border border-slate-300 rounded-lg mt-1 bg-slate-50"></div>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
+    </div>
 
     <script>
-        /* STATE */
+        /* ========== LANDING PAGE ========== */
+        function startApp() {
+            document.getElementById('landing-page').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            initAccordion();
+            loadTopic('wortarten');
+            updateGlobalProgressUI();
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function backToLanding() {
+            document.getElementById('landing-page').classList.remove('hidden');
+            document.getElementById('app-container').classList.add('hidden');
+            if (window.lucide) lucide.createIcons();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.lucide) lucide.createIcons();
+        });
+
+        /* ========== STATE ========== */
         let activeSubjectId = 'deutsch';
         let activeTopicId = 'wortarten';
         let activeTab = 'exercises';
@@ -199,8 +302,8 @@
                 id: 'wortarten',
                 subject: 'deutsch',
                 title: 'Wortarten (Nomen, Verben, Adjektive)',
-                videoId: 'N-V32s3wKxg',
-                videoTitle: 'Wortarten - Nomen, Verben, Adjektive | Lehrerschmidt',
+                videoId: 'lGEqoXeiMms',
+                videoTitle: 'Wortarten einfach erklärt - Nomen, Verben, Adjektive',
                 theory: `<strong>Wortarten unterscheiden:</strong><br>
                 • <strong>Nomen (Namenwörter):</strong> Schreiben wir GROSS. Sie haben Begleiter (der, die, das) und Beispiele sind Dinge, Tiere, Pflanzen, Menschen (z.B. <em>der Hund, das Buch</em>).<br>
                 • <strong>Verben (Tunwörter):</strong> Sagen, was jemand tut oder was geschieht. Schreiben wir klein (z.B. <em>laufen, lachen, schwimmen</em>). Grundform und Personalformen beachten!<br>
@@ -210,8 +313,8 @@
                 id: 'satzarten',
                 subject: 'deutsch',
                 title: 'Satzarten & Satzschlusszeichen',
-                videoId: 'S2gP10B3A6c',
-                videoTitle: 'Satzarten | Aussagesatz, Fragesatz, Ausrufsatz',
+                videoId: 'KnMqj5YQXPQ',
+                videoTitle: 'Satzarten - Aussagesatz, Fragesatz, Ausrufsatz',
                 theory: `<strong>Satzarten erkennen & richtig punktieren:</strong><br>
                 • <strong>Aussagesatz:</strong> Erzählt etwas. Endet mit einem Punkt (.) [z.B. <em>Der Hund spielt im Garten.</em>]<br>
                 • <strong>Fragesatz:</strong> Fragt nach etwas. Endet mit einem Fragezeichen (?) [z.B. <em>Wohin gehst du?</em>]<br>
@@ -221,8 +324,8 @@
                 id: 'satzglieder',
                 subject: 'deutsch',
                 title: 'Satzglieder (Subjekt & Prädikat)',
-                videoId: 'pB6v_Wp8vE0',
-                videoTitle: 'Satzglieder - Subjekt und Prädikat | Einfach erklärt',
+                videoId: 'J3KH4t4DjHc',
+                videoTitle: 'Satzglieder - Subjekt und Prädikat erklärt',
                 theory: `<strong>Satzglieder untersuchen:</strong><br>
                 • <strong>Subjekt (Satzgegenstand):</strong> Fragen mit <em>Wer oder was?</em> [z.B. <u>Der Schüler</u> liest ein Buch.]<br>
                 • <strong>Prädikat (Satzaussage):</strong> Fragen mit <em>Was tut das Subjekt?</em> [z.B. Der Schüler <u>liest</u> ein Buch.]<br>
@@ -232,8 +335,8 @@
                 id: 'zeitformen',
                 subject: 'deutsch',
                 title: 'Zeitformen (Präsens, Präteritum, Perfekt)',
-                videoId: '7VdO31gN0gI',
-                videoTitle: 'Zeitformen von Verben | Präsens, Präteritum, Perfekt',
+                videoId: 'GQTwlzSRlN0',
+                videoTitle: 'Zeitformen von Verben - Präsens, Präteritum, Perfekt',
                 theory: `<strong>Zeitformen der Verben:</strong><br>
                 • <strong>Präsens (Gegenwart):</strong> Was JETZT geschieht [z.B. <em>Ich spiele.</em>]<br>
                 • <strong>Präteritum (Vergangenheit):</strong> Schriftsprache [z.B. <em>Ich spielte / Ich lief.</em>]<br>
@@ -243,8 +346,8 @@
                 id: 'wortfeld_wortfamilie',
                 subject: 'deutsch',
                 title: 'Wortfeld & Wortfamilie',
-                videoId: '2pKsZ1gWvG8',
-                videoTitle: 'Wortfamilie und Wortfeld | Deutsch Grundschule',
+                videoId: 'WzN5k1mBrxU',
+                videoTitle: 'Wortfamilie und Wortfeld - Deutsch Grundschule',
                 theory: `<strong>Verwandte Wörter erkennen:</strong><br>
                 • <strong>Wortfamilie:</strong> Wörter mit demselben Wortstamm (z.B. <em>Baum, Bäumchen, baumeln, Baumstamm</em> – alle von "Baum").<br>
                 • <strong>Wortfeld:</strong> Wörter mit ähnlicher Bedeutung (z.B. <em>gehen, laufen, spazieren, wandern</em> – alle bedeuten eine Art Bewegung).<br>
@@ -254,8 +357,8 @@
                 id: 'rechtschreibung',
                 subject: 'deutsch',
                 title: 'Rechtschreibung (Doppelkonsonanten, ß)',
-                videoId: 'HWz8PqpJQ2w',
-                videoTitle: 'Doppelkonsonanten und ß | Rechtschreibung Grundschule',
+                videoId: 'l7qb4DjV9YI',
+                videoTitle: 'Doppelkonsonanten und ß - Rechtschreibung Grundschule',
                 theory: `<strong>Korrekte Schreibweise:</strong><br>
                 • <strong>Doppelkonsonanten:</strong> Nach einem kurzen Vokal folgt ein Doppelkonsonant (z.B. <em>Mutter, Sonne, Mittag, Puppe</em>).<br>
                 • <strong>Das ß-Zeichen:</strong> Nach einem langen Vokal oder Umlaut schreiben wir ß statt ss (z.B. <em>Straße, Grüße, heißen</em>).<br>
@@ -265,8 +368,8 @@
                 id: 'pronomen',
                 subject: 'deutsch',
                 title: 'Pronomen (Personal- & Possessivpronomen)',
-                videoId: 'W3bnhyVAEfE',
-                videoTitle: 'Pronomen | Personalpronomen und Possessivpronomen',
+                videoId: '5VpkEQfJVkY',
+                videoTitle: 'Personalpronomen und Possessivpronomen erklärt',
                 theory: `<strong>Pronomen ersetzen Nomen:</strong><br>
                 • <strong>Personalpronomen:</strong> Ersetzen die Person (ich, du, er, sie, es, wir, ihr, sie / Sie). Beispiel: <em>Der Hund ist groß. ER ist groß.</em><br>
                 • <strong>Possessivpronomen:</strong> Zeigen Zugehörigkeit (mein, dein, sein, ihr, unser, euer). Beispiel: <em>Das ist MEIN Buch.</em><br>
@@ -276,8 +379,8 @@
                 id: 'leseverstaendnis',
                 subject: 'deutsch',
                 title: 'Leseverständnis & Geschichten',
-                videoId: '8K_aK-pB8nw',
-                videoTitle: 'Leseverständnis trainieren | Grundschule',
+                videoId: 'fE0j_Ypnb8w',
+                videoTitle: 'Leseverständnis trainieren - Grundschule',
                 theory: `<strong>Texte verstehen & analysieren:</strong><br>
                 • <strong>Handlung:</strong> Was passiert in der Geschichte? (Anfang, Mitte, Ende)<br>
                 • <strong>Charaktere:</strong> Wer sind die Personen? Wie handeln sie?<br>
@@ -290,8 +393,8 @@
                 id: 'zr1000',
                 subject: 'mathe',
                 title: 'Orientierung im Zahlenraum 1.000',
-                videoId: 'c8-Kx10N5M0',
-                videoTitle: 'Zahlenraum 1000 | Mathe für die Grundschule',
+                videoId: 'FxhbSCAHBdU',
+                videoTitle: 'Zahlenraum 1000 - Grundschule Mathematik',
                 theory: `<strong>Stellenwerttafel & Zahlenraum 1.000:</strong><br>
                 • <strong>H - Z - E:</strong> 1 Hunderter = 10 Zehner = 100 Einer.<br>
                 • <strong>Nachbarzahlen:</strong> Vorgänger (-1) und Nachfolger (+1).<br>
@@ -302,8 +405,8 @@
                 id: 'schriftlich_add_sub',
                 subject: 'mathe',
                 title: 'Schriftliche Addition & Subtraktion',
-                videoId: '9w_86i7XW20',
-                videoTitle: 'Schriftliche Addition und Subtraktion',
+                videoId: 'PJzB6tWnLe4',
+                videoTitle: 'Schriftliche Addition und Subtraktion Grundschule',
                 theory: `<strong>Schriftlich Rechnen:</strong><br>
                 • Stellengerecht untereinander schreiben (H unter H, Z unter Z, E unter E).<br>
                 • Von RECHTS nach LINKS rechnen (erst Einer, dann Zehner, dann Hunderter).<br>
@@ -313,8 +416,8 @@
                 id: 'geometrie',
                 subject: 'mathe',
                 title: 'Geometrische Körper & Symmetrie',
-                videoId: 'yP7g4l6U8tI',
-                videoTitle: 'Geometrische Körper und Symmetrie | Grundschule',
+                videoId: 'lqgqPYBGjSI',
+                videoTitle: 'Geometrische Körper und Symmetrie - Grundschule',
                 theory: `<strong>Körper & Achsensymmetrie:</strong><br>
                 • <strong>Körper:</strong> Würfel (6 quadratische Flächen, 8 Ecken, 12 Kanten), Quader, Kugel, Zylinder, Pyramide.<br>
                 • <strong>Symmetrie:</strong> Eine Figur ist achsensymmetrisch, wenn man sie so falten kann, dass beide Hälften deckungsgleich sind. Die Faltlinie ist die <strong>Spiegelachse</strong>.`
@@ -323,8 +426,8 @@
                 id: 'groessen',
                 subject: 'mathe',
                 title: 'Größen & Messen (Längen, Gewichte, Zeit)',
-                videoId: '400k17K_P90',
-                videoTitle: 'Längen, Gewichte und Zeit messen und umrechnen',
+                videoId: 'XJ1F4z9QV2g',
+                videoTitle: 'Längen Gewichte Zeit messen und umrechnen',
                 theory: `<strong>Maßeinheiten umrechnen:</strong><br>
                 • <strong>Längen:</strong> 1 km = 1000 m | 1 m = 100 cm | 1 cm = 10 mm.<br>
                 • <strong>Gewichte:</strong> 1 t = 1000 kg | 1 kg = 1000 g.<br>
@@ -334,8 +437,8 @@
                 id: 'daten_diagramme',
                 subject: 'mathe',
                 title: 'Daten, Diagramme & Kombinatorik',
-                videoId: 'z1fK2d8O06E',
-                videoTitle: 'Daten und Diagramme | Grundschule Mathe',
+                videoId: 'U7wNFWVYC9s',
+                videoTitle: 'Daten und Diagramme Grundschule Mathematik',
                 theory: `<strong>Daten & Möglichkeiten:</strong><br>
                 • <strong>Strichlisten & Säulendiagramme:</strong> Daten übersichtlich darstellen und ablesen.<br>
                 • <strong>Kombinatorik:</strong> Systematisches Probieren (Baumdiagramm oder Tabelle). Beispiel: 3 T-Shirts × 2 Hosen = 6 verschiedene Outfits.`
@@ -343,9 +446,9 @@
             {
                 id: 'multiplikation_division',
                 subject: 'mathe',
-                title: 'Multiplikation & Division (1×1 & Halbschriftlich)',
-                videoId: 'e7cU3Vcp19I',
-                videoTitle: 'Einmaleins und Division | Mathematik Grundschule',
+                title: 'Multiplikation & Division (1×1)',
+                videoId: 'pEMqEVbhSXE',
+                videoTitle: 'Multiplikation und Division Grundschule',
                 theory: `<strong>Das Einmaleins & Dividieren:</strong><br>
                 • <strong>Multiplikation:</strong> 4 × 5 = 20 (4 Gruppen à 5 oder 5 Gruppen à 4).<br>
                 • <strong>Division (Geteilt):</strong> 20 ÷ 4 = 5 (20 in 4 gleiche Gruppen aufteilen).<br>
@@ -355,8 +458,8 @@
                 id: 'halbschriftlich',
                 subject: 'mathe',
                 title: 'Halbschriftliche Rechenmethoden',
-                videoId: 'g_6zWPBYGl4',
-                videoTitle: 'Halbschriftliche Rechenmethoden | Mathe Grundschule',
+                videoId: 'q_4jqQ3Vl2E',
+                videoTitle: 'Halbschriftliche Rechenmethoden erklärt',
                 theory: `<strong>Flexibles, zerlegendes Rechnen:</strong><br>
                 • <strong>Addition halbschriftlich:</strong> 234 + 156 = 200 + 100 + 30 + 50 + 4 + 6 = (zerlegen, dann addieren).<br>
                 • <strong>Subtraktion halbschriftlich:</strong> 356 - 124 = 356 - 100 - 20 - 4 (schrittweise abziehen).<br>
@@ -366,8 +469,8 @@
                 id: 'sachaufgaben',
                 subject: 'mathe',
                 title: 'Sachaufgaben & Textaufgaben',
-                videoId: 'fV_6_Y3sL1s',
-                videoTitle: 'Sachaufgaben lösen | Mathematik Grundschule',
+                videoId: 'mKLJHVZ3XOI',
+                videoTitle: 'Sachaufgaben lösen Mathematik Grundschule',
                 theory: `<strong>Aufgaben aus dem Alltag lösen:</strong><br>
                 • <strong>4-Schritt-Methode:</strong><br>
                   1. <strong>Frage verstehen:</strong> Was ist gefragt?<br>
@@ -382,7 +485,7 @@
                 subject: 'hsu',
                 title: 'Ökosystem Wald',
                 videoId: '5U2_01I7S98',
-                videoTitle: 'Der Wald und seine Stockwerke | Sachunterricht Grundschule',
+                videoTitle: 'Der Wald und seine Stockwerke',
                 theory: `<strong>Stockwerke des Waldes:</strong><br>
                 1. <strong>Moosschicht:</strong> Moose, Pilze.<br>
                 2. <strong>Krautschicht:</strong> Gräser, Blumen, Farne.<br>
@@ -395,7 +498,7 @@
                 subject: 'hsu',
                 title: 'Elektrizität & Stromkreis',
                 videoId: 'e6-k8m-7dK4',
-                videoTitle: 'Stromkreis und Elektrizität | Sachunterricht',
+                videoTitle: 'Stromkreis und Elektrizität Sachunterricht',
                 theory: `<strong>Einfacher Stromkreis:</strong><br>
                 • Besteht aus Stromquelle (Batterie), Hinleiter, Verbraucher (Glühlampe), Rückleiter und Schalter.<br>
                 • Nur wenn der Stromkreis <strong>geschlossen</strong> ist, fließt Strom!<br>
@@ -407,7 +510,7 @@
                 subject: 'hsu',
                 title: 'Feuer & Verbrennungsdreieck',
                 videoId: '54sR2B_S5i0',
-                videoTitle: 'Feuer und das Verbrennungsdreieck | Sachunterricht',
+                videoTitle: 'Feuer und das Verbrennungsdreieck Sachunterricht',
                 theory: `<strong>Das Verbrennungsdreieck:</strong><br>
                 Feuer benötigt drei Dinge gleichzeitig:<br>
                 1. <strong>Brennbarer Stoff</strong> (Holz, Papier, Gas).<br>
@@ -420,7 +523,7 @@
                 subject: 'hsu',
                 title: 'Karten & Maßstab (Bayern)',
                 videoId: '2E5W5KkG8zE',
-                videoTitle: 'Karten lesen und Maßstab verstehen | Grundschule',
+                videoTitle: 'Karten lesen und Maßstab verstehen',
                 theory: `<strong>Orientierung auf der Karte:</strong><br>
                 • <strong>Himmelsrichtungen:</strong> Norden (oben), Osten (rechts), Süden (unten), Westen (links). Eselsbrücke: <em>Nie Ohne Seife Waschen</em>.<br>
                 • <strong>Maßstab:</strong> 1:100 bedeutet: 1 cm auf der Karte entspricht 100 cm (1 m) in Wirklichkeit.`
@@ -430,7 +533,7 @@
                 subject: 'hsu',
                 title: 'Demokratie & Gemeinde',
                 videoId: 'R19k6S_K3fQ',
-                videoTitle: 'Gemeinde und Demokratie | Sachunterricht Grundschule',
+                videoTitle: 'Gemeinde und Demokratie Sachunterricht',
                 theory: `<strong>Gemeinde & Mitbestimmung:</strong><br>
                 • An der Spitze einer Gemeinde steht der/die <strong>Bürgermeister/in</strong>.<br>
                 • Der <strong>Gemeinderat</strong> entscheidet über wichtige Aufgaben (Spielplätze, Feuerwehr, Schulen).<br>
@@ -441,7 +544,7 @@
                 subject: 'hsu',
                 title: 'Körper & Gesundheit',
                 videoId: '8w9sO4yT8Q0',
-                videoTitle: 'Der menschliche Körper und Gesundheit | Sachunterricht',
+                videoTitle: 'Der menschliche Körper und Gesundheit',
                 theory: `<strong>Skelett, Muskeln & Ernährung:</strong><br>
                 • Das menschliche Skelett besteht aus mehr als 200 Knochen.<br>
                 • <strong>Gelenke</strong> verbinden Knochen (z.B. Scharniergelenk am Ellbogen, Kugelgelenk an der Schulter).<br>
@@ -452,7 +555,7 @@
                 subject: 'hsu',
                 title: 'Zeit & Wandel',
                 videoId: '7-l5v1mP86A',
-                videoTitle: 'Zeit und Veränderungen | Sachunterricht Grundschule',
+                videoTitle: 'Zeit und Veränderungen Sachunterricht',
                 theory: `<strong>Vergangenheit, Gegenwart & Zukunft:</strong><br>
                 • Die Zeit lässt sich auf einem <strong>Zeitstrahl</strong> darstellen.<br>
                 • Das Leben der Menschen hat sich durch Erfindungen (Buchdruck, Dampfmaschine, Computer, Smartphone) stark verändert.`
@@ -462,7 +565,7 @@
                 subject: 'hsu',
                 title: 'Wasser & Lebensräume',
                 videoId: 'oQ4kX0Lzm2w',
-                videoTitle: 'Wasser und Lebensräume | Sachunterricht Grundschule',
+                videoTitle: 'Wasser und Lebensräume Sachunterricht',
                 theory: `<strong>Wasser als Lebensraum:</strong><br>
                 • <strong>Gewässer:</strong> Bach, Fluss, See, Meer – jedes hat spezielle Pflanzen und Tiere.<br>
                 • <strong>Wasserkreislauf:</strong> Verdunstung → Kondensation → Niederschlag → Abfluss → wieder Verdunstung.<br>
@@ -473,7 +576,7 @@
                 subject: 'hsu',
                 title: 'Jahreszeiten & Wetter',
                 videoId: 'HxRZg-7_i8E',
-                videoTitle: 'Jahreszeiten und Wetter | Grundschule Sachunterricht',
+                videoTitle: 'Jahreszeiten und Wetter Grundschule',
                 theory: `<strong>Vier Jahreszeiten & Wettervorgänge:</strong><br>
                 • <strong>Frühling:</strong> Alles sprießt, wird grün, Blüten erscheinen, Tiere werden aktiv.<br>
                 • <strong>Sommer:</strong> Warm, sonnig, längste Tage, Ferien.<br>
@@ -486,9 +589,9 @@
                 subject: 'hsu',
                 title: 'Insekten & Tiere',
                 videoId: 'jJsAHNKT5K0',
-                videoTitle: 'Insekten und Tiere | Sachunterricht Grundschule',
+                videoTitle: 'Insekten und Tiere Sachunterricht',
                 theory: `<strong>Vielfalt der Tierwelt:</strong><br>
-                • <strong>Insekten:</strong> Haben 6 Beine, meistens Flügel, durchlaufen Metamorphose (z.B. Raupe → Puppe → Schmetterling).<br>
+                • <strong>Insekten:</strong> Haben 6 Beine, meistens Flügel, durchlaufen Metamorphose (z.B. Raupe → Puppe → Schmetteling).<br>
                 • <strong>Säugetiere:</strong> Haben Fell, gebären Junge, säugen sie (Hund, Katze, Mensch, Wal).<br>
                 • <strong>Vögel:</strong> Haben Federn, Flügel, legen Eier (Adler, Falk, Ente).<br>
                 • <strong>Amphibien:</strong> Leben im Wasser UND an Land (Frösche, Molche, Salamander).`
@@ -507,7 +610,6 @@
                     let correctIdx = 0;
                     let solutionExplanation = "Das ist die richtige Antwort.";
 
-                    // Deutschaufgaben
                     if (topicId === 'wortarten') {
                         const words = [
                             { w: "Hund", type: "Nomen", exp: "Hund ist ein Lebewesen – Nomen (der Hund)." },
@@ -546,28 +648,21 @@
                     "Schreibe 3 Sätze über deinen liebsten Tag in der Woche. Markiere die Wortarten farbig und benenne sie darunter.",
                     "Finde für 5 Nomen die passenden Artikel (der/die/das) und schreibe den Satz auf.",
                     "Steigere 5 Adjektive (schnell, schön, groß, klein, alt).",
-                    "Schreibe 5 Verben in der Grundform und in der 3. Person Singular auf (z.B. laufen – er/sie läuft)."
+                    "Schreibe 5 Verben in der Grundform und in der 3. Person Singular auf."
                 ],
                 satzarten: [
                     "Ordne 10 Sätze nach ihrer Satzart: Aussagesatz (.), Fragesatz (?), Aufforderungssatz (!).",
                     "Schreibe ein Gespräch (mindestens 6 Sätze) zwischen zwei Kindern. Nutze alle drei Satzarten!",
                     "Schreibe 3 Aussagesätze, 2 Fragesätze und 2 Aufforderungssätze über ein Abenteuer.",
                     "Korrigiere 5 falsch gepunktierte Sätze und setze die richtigen Satzschlusszeichen.",
-                    "Schreibe zu 5 Satzarten-Bezeichnungen je ein Beispiel mit korrektemo Satzschlusszeichen."
+                    "Schreibe zu 5 Satzarten-Bezeichnungen je ein Beispiel mit korrektem Satzschlusszeichen."
                 ],
                 zr1000: [
                     "Schreibe 10 Zahlen (100-999) in Wörtern und dann in Ziffern auf. Nutze die Stellenwerttafel.",
-                    "Bestimme für 8 Zahlen die Vorgänger und Nachfolger (z.B. 345: Vorgänger 344, Nachfolger 346).",
-                    "Finde Nachbarzehner und Nachbarhunderter von 10 Zahlen (z.B. 567 → NZ 560/570, NH 500/600).",
+                    "Bestimme für 8 Zahlen die Vorgänger und Nachfolger.",
+                    "Finde Nachbarzehner und Nachbarhunderter von 10 Zahlen.",
                     "Ordne 15 Zahlen nach Größe – erst die kleinste, zuletzt die größte.",
-                    "Löse Zahlenrätsel: 'Meine Zahl hat 3 Hunderter, 7 Zehner und 5 Einer' – Welche Zahl bin ich?"
-                ],
-                schriftlich_add_sub: [
-                    "Rechne 5 schriftliche Additionen: Schreibe stellengerecht untereinander und rechne (z.B. 234 + 156).",
-                    "Rechne 5 schriftliche Subtraktionen: Schreibe stellengerecht untereinander und rechne (z.B. 678 - 234).",
-                    "Gemischte Aufgaben: 3 Additionen und 2 Subtraktionen mit deutlichem Lösungsweg.",
-                    "Kontrolliere diese 4 Rechnungen und korrigiere die Fehler: a) 456+327=173 b) 812-456=365 c) 234+181=415 d) 900-456=544",
-                    "Sachaufgabe: Im Geschäft kosten Äpfel 23€, Birnen 18€, Pfirsiche 15€. Wie viel kosten alle zusammen?"
+                    "Löse Zahlenrätsel: 'Meine Zahl hat 3 Hunderter, 7 Zehner und 5 Einer.'"
                 ]
             };
 
@@ -585,7 +680,7 @@
                     const taskText = taskList[(s + q - 2) % taskList.length];
                     questions.push({
                         num: q,
-                        text: `[Blatt ${s}] ${taskText}`,
+                        text: `${taskText}`,
                         lines: (q % 2 === 0) ? 4 : 3
                     });
                 }
@@ -598,14 +693,7 @@
             return sheets;
         }
 
-        /* ========== DOM & HANDLERS ========== */
-        document.addEventListener('DOMContentLoaded', () => {
-            initAccordion();
-            loadTopic('wortarten');
-            updateGlobalProgressUI();
-            if (window.lucide) lucide.createIcons();
-        });
-
+        /* ========== DOM ========== */
         function initAccordion() {
             const nav = document.getElementById('topic-accordion');
             if (!nav) return;
@@ -704,12 +792,9 @@
             `;
 
             document.getElementById('theory-container').innerHTML = topic.theory;
-            
-            // Video-Links auf YouTube
-            const searchQuery = encodeURIComponent(topic.videoTitle);
-            document.getElementById('video-link-1').href = `https://www.youtube.com/results?search_query=${searchQuery}`;
-            document.getElementById('video-link-text').textContent = `"${topic.videoTitle}" auf YouTube`;
-            document.getElementById('video-link-2').href = `https://www.youtube.com/results?search_query=${encodeURIComponent(topic.title + ' Grundschule Klasse 3')}`;
+            document.getElementById('video-iframe').src = `https://www.youtube.com/embed/${topic.videoId}?controls=1`;
+            document.getElementById('video-title-display').textContent = topic.videoTitle;
+            document.getElementById('video-external-link').href = `https://www.youtube.com/results?search_query=${encodeURIComponent(topic.videoTitle)}`;
 
             renderExercises();
 
@@ -858,7 +943,7 @@
 
             currentSheet.questions.forEach((q) => {
                 const qEl = document.createElement('div');
-                qEl.className = 'space-y-2 print-card p-4 rounded-xl bg-slate-50 border border-slate-200';
+                qEl.className = 'space-y-2 p-4 rounded-xl bg-slate-50 border border-slate-200';
                 qEl.innerHTML = `
                     <div class="font-bold text-slate-900">Aufgabe ${q.num}</div>
                     <div class="text-sm text-slate-800">${q.text}</div>
