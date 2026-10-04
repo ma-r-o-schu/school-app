@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RoSchu Lernportal - 3. Klasse Bayern (LehrplanPlus)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        deutsch: { light: '#eff6ff', DEFAULT: '#2563eb', dark: '#1d4ed8' },
+                        mathe: { light: '#fffbeb', DEFAULT: '#d97706', dark: '#b45309' },
+                        hsu: { light: '#ecfdf5', DEFAULT: '#059669', dark: '#047857' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Print Layout Rules */
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; font-size: 11pt; color: black; }
+            .print-card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; margin-bottom: 1.5rem !important; break-inside: avoid; }
+            .page-break { page-break-after: always; }
+        }
+        .print-only { display: none; }
+    </style>
+</head>
+<body class="h-full flex flex-col text-slate-800 antialiased selection:bg-indigo-100">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-black text-xl shadow-md shadow-indigo-200">
+                    RS
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-900 leading-tight">RoSchu Lernportal</h1>
+                    <p class="text-xs text-slate-500 font-medium">3. Klasse Bayern • LehrplanPlus</p>
+                </div>
+            </div>
+
+            <!-- Global Search & Stats -->
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-600">
+                    <i data-lucide="award" class="w-4 h-4 text-amber-500"></i>
+                    <span id="global-progress-text">0 / 480 Übungen gelöst (0%)</span>
+                </div>
+
+                <button onclick="confirmResetProgress()" title="Fortschritt zurücksetzen" class="p-2 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row gap-6">
+
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-80 shrink-0 no-print space-y-4">
+            
+            <!-- Overall Progress Bar Widget -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
+                <div class="flex justify-between items-center text-xs font-bold text-slate-600 mb-2">
+                    <span>Gesamter Lernfortschritt</span>
+                    <span id="sidebar-percent">0%</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="sidebar-progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Subject & Topic Selector Accordion -->
+            <nav class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden divide-y divide-slate-100" id="topic-accordion">
+                <!-- Injected via JS -->
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 min-w-0">
+            <!-- Topic Content Card -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden" id="main-content-card">
+                <!-- Active Topic Header -->
+                <div id="topic-header" class="p-6 border-b border-slate-100 bg-slate-50/50">
+                    <!-- Dynamic Header Content -->
+                </div>
+
+                <div class="border-b border-slate-200 bg-white px-6 flex gap-6 no-print text-sm font-semibold">
+                    <button onclick="switchTab('learn')" id="tab-btn-learn" class="py-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> 📖 Lerneinheit & Video
+                    </button>
+                    <button onclick="switchTab('exercises')" id="tab-btn-exercises" class="py-3.5 border-b-2 border-indigo-600 text-indigo-600 transition-all flex items-center gap-2">
+                        <i data-lucide="pen-tool" class="w-4 h-4"></i> ✏️ Interaktive Übungen
+                    </button>
+                    <button onclick="switchTab('homework')" id="tab-btn-homework" class="py-3.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> 📄 Hausaufgabenblätter
+                    </button>
+                </div>
+
+                <!-- Tab Content Containers -->
+                <div class="p-6">
+                    <!-- TAB 1: LEARN & VIDEO -->
+                    <div id="tab-content-learn" class="hidden space-y-6">
+                        <!-- Theory Summary -->
+                        <div class="prose max-w-none text-slate-700 bg-slate-50 p-5 rounded-xl border border-slate-200" id="theory-container">
+                            <!-- Injected Theory -->
+                        </div>
+
+                        <!-- Video Section -->
+                        <div class="space-y-3">
+                            <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                <i data-lucide="youtube" class="w-5 h-5 text-red-600"></i> Erklärvideo zum Thema
+                            </h3>
+                            <div class="aspect-video w-full rounded-xl overflow-hidden bg-slate-900 border border-slate-200 shadow-inner">
+                                <iframe id="video-iframe" class="w-full h-full" src="" title="Erklärvideo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                            <div class="flex justify-end">
+                                <a id="video-external-btn" href="#" target="_blank" class="inline-flex items-center gap-2 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline">
+                                    <span>Video direkt auf YouTube öffnen</span>
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: EXERCISES -->
+                    <div id="tab-content-exercises" class="space-y-6">
+                        <!-- Level Filter Tabs -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-50 p-2 rounded-xl border border-slate-200/80">
+                            <div class="flex gap-2">
+                                <button onclick="filterLevel(1)" id="lvl-btn-1" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-sm">
+                                    🟢 Level 1 (Basis)
+                                </button>
+                                <button onclick="filterLevel(2)" id="lvl-btn-2" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-200 text-slate-700 hover:bg-slate-300">
+                                    🟡 Level 2 (Standard)
+                                </button>
+                                <button onclick="filterLevel(3)" id="lvl-btn-3" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-200 text-slate-700 hover:bg-slate-300">
+                                    🔴 Level 3 (Forder)
+                                </button>
+                            </div>
+                            <span id="level-counter-badge" class="text-xs font-bold text-slate-500 px-2">
+                                10 Aufgaben verfügbar
+                            </span>
+                        </div>
+
+                        <!-- Interactive Exercises List -->
+                        <div id="exercises-list" class="space-y-4">
+                            <!-- Injected Exercises -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: HOMEWORK -->
+                    <div id="tab-content-homework" class="hidden space-y-6">
+                        <!-- Homework Controls -->
+                        <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 no-print">
+                            <div class="flex items-center gap-3">
+                                <label for="hw-select" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Arbeitsblatt wählen:</label>
+                                <select id="hw-select" onchange="renderHomeworkSheet(this.value)" class="bg-white border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 font-semibold px-3 py-1.5">
+                                    <!-- 10 Homework options injected -->
+                                </select>
+                            </div>
+                            <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-2 transition-all">
+                                <i data-lucide="printer" class="w-4 h-4"></i> Druckansicht öffnen / PDF
+                            </button>
+                        </div>
+
+                        <!-- Printable Homework Sheet Layout -->
+                        <div id="homework-sheet-container" class="bg-white rounded-xl p-6 border border-slate-200 space-y-6">
+                            <!-- Printable Header -->
+                            <div class="border-b-2 border-slate-800 pb-4 flex justify-between items-end">
+                                <div>
+                                    <h2 class="text-2xl font-black text-slate-900 tracking-tight" id="hw-print-title">Hausaufgabenblatt</h2>
+                                    <p class="text-sm font-semibold text-slate-600" id="hw-print-subtitle">Thema: ...</p>
+                                </div>
+                                <div class="text-xs space-y-1 text-slate-700 font-medium text-right">
+                                    <div><strong>Name:</strong> ______________________</div>
+                                    <div><strong>Datum:</strong> ____________________</div>
+                                    <div><strong>Note / Rückmeldung:</strong> _________</div>
+                                </div>
+                            </div>
+
+                            <!-- Homework Exercises -->
+                            <div id="hw-questions-list" class="space-y-6">
+                                <!-- Injected HW Questions -->
+                            </div>
+
+                            <!-- Teacher Feedback Footer (For Print) -->
+                            <div class="mt-8 pt-4 border-t border-slate-300 print-only">
+                                <p class="text-xs font-bold text-slate-600 uppercase">Rückmeldung der Lehrkraft / Eltern:</p>
+                                <div class="h-16 border border-slate-300 rounded-lg mt-1 bg-slate-50"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        /* State Variables */
+        let activeSubjectId = 'deutsch';
+        let activeTopicId = 'wortarten';
+        let activeTab = 'exercises'; // 'learn', 'exercises', 'homework'
+        let activeLevel = 1;
+        let activeHwIndex = 0;
+        let progressData = JSON.parse(localStorage.getItem('roSchu_progress_v3')) || {};
+
+        /* Subject Definitions */
+        const SUBJECTS = {
+            deutsch: { name: 'Deutsch', color: 'deutsch', icon: 'book' },
+            mathe: { name: 'Mathematik', color: 'mathe', icon: 'calculator' },
+            hsu: { name: 'HSU', color: 'hsu', icon: 'compass' }
+        };
+
+        const TOPICS = [
+            // DEUTSCH (4 Topics)
+            {
+                id: 'wortarten',
+                subject: 'deutsch',
+                title: 'Wortarten (Nomen, Verben, Adjektive)',
+                videoUrl: 'https://www.youtube.com/embed/N-V32s3wKxg',
+                theory: `<strong>Wortarten unterscheiden:</strong><br>
+                • <strong>Nomen (Namenwörter):</strong> Schreiben wir GROSS. Sie haben Begleiter (der, die, das) und Beispiele sind Dinge, Tiere, Pflanzen, Menschen (z.B. <em>der Hund, das Buch</em>).<br>
+                • <strong>Verben (Tunwörter):</strong> Sagen, was jemand tut oder was geschieht. Schreiben wir klein (z.B. <em>laufen, lachen, schwimmen</em>). Grundform und Personalformen beachten!<br>
+                • <strong>Adjektive (Wie-Wörter):</strong> Beschreiben, wie etwas ist (z.B. <em>schnell, bunt, klug</em>). Lassen sich steigern (schnell, schneller, am schnellsten).`
+            },
+            {
+                id: 'satzarten',
+                subject: 'deutsch',
+                title: 'Satzarten & Satzschlusszeichen',
+                videoUrl: 'https://www.youtube.com/embed/S2gP10B3A6c',
+                theory: `<strong>Satzarten erkennen & richtig punktieren:</strong><br>
+                • <strong>Aussagesatz:</strong> Erzählt etwas. Endet mit einem Punkt (.) [z.B. <em>Der Hund spielt im Garten.</em>]<br>
+                • <strong>Fragesatz:</strong> Fragt nach etwas. Endet mit einem Fragezeichen (?) [z.B. <em>Wohin gehst du?</em>]<br>
+                • <strong>Ausrufe- & Aufforderungssatz:</strong> Drückt Befehl, Wunsch oder Warnung aus. Endet mit einem Ausrufezeichen (!) [z.B. <em>Pass bitte auf!</em>]`
+            },
+            {
+                id: 'satzglieder',
+                subject: 'deutsch',
+                title: 'Satzglieder (Subjekt & Prädikat)',
+                videoUrl: 'https://www.youtube.com/embed/pB6v_Wp8vE0',
+                theory: `<strong>Satzglieder untersuchen:</strong><br>
+                • <strong>Subjekt (Satzgegenstand):</strong> Fragen mit <em>Wer oder was?</em> [z.B. <u>Der Schüler</u> liest ein Buch.]<br>
+                • <strong>Prädikat (Satzaussage):</strong> Fragen mit <em>Was tut das Subjekt?</em> [z.B. Der Schüler <u>liest</u> ein Buch.]<br>
+                • <strong>Umstellprobe:</strong> Durch Umstellen der Wörter im Satz lassen sich die Satzglieder erkennen.`
+            },
+            {
+                id: 'zeitformen',
+                subject: 'deutsch',
+                title: 'Zeitformen (Präsens, Präteritum, Perfekt)',
+                videoUrl: 'https://www.youtube.com/embed/7VdO31gN0gI',
+                theory: `<strong>Zeitformen der Verben:</strong><br>
+                • <strong>Präsens (Gegenwart):</strong> Was JETZT geschieht [z.B. <em>Ich spiele.</em>]<br>
+                • <strong>Präteritum (Vergangenheit):</strong> Schriftsprache [z.B. <em>Ich spielte / Ich lief.</em>]<br>
+                • <strong>Perfekt (Vollendete Gegenwart):</strong> Gesprochene Sprache [z.B. <em>Ich habe gespielt / Ich bin gelaufen.</em>]`
+            },
+
+            // MATHEMATIK (5 Topics)
+            {
+                id: 'zr1000',
+                subject: 'mathe',
+                title: 'Orientierung im Zahlenraum 1.000',
+                videoUrl: 'https://www.youtube.com/embed/c8-Kx10N5M0',
+                theory: `<strong>Stellenwerttafel & Zahlenraum 1.000:</strong><br>
+                • <strong>H - Z - E:</strong> 1 Hunderter = 10 Zehner = 100 Einer.<br>
+                • <strong>Nachbarzahlen:</strong> Vorgänger (-1) und Nachfolger (+1).<br>
+                • <strong>Nachbarzehner & Nachbarhunderter:</strong> Runden und Orientieren am Zahlenstrahl.<br>
+                • <strong>Vergleichen:</strong> < (kleiner), > (größer), = (gleich).`
+            },
+            {
+                id: 'schriftlich_add_sub',
+                subject: 'mathe',
+                title: 'Schriftliche Addition & Subtraktion',
+                videoUrl: 'https://www.youtube.com/embed/9w_86i7XW20',
+                theory: `<strong>Schriftlich Rechnen:</strong><br>
+                • Stellengerecht untereinander schreiben (H unter H, Z unter Z, E unter E).<br>
+                • Von RECHTS nach LINKS rechnen (erst Einer, dann Zehner, dann Hunderter).<br>
+                • <strong>Übertrag (Bündeln):</strong> Ist das Ergebnis 10 oder mehr, wird die Zehnerstelle als Übertrag gemerkt.`
+            },
+            {
+                id: 'geometrie',
+                subject: 'mathe',
+                title: 'Geometrische Körper & Symmetrie',
+                videoUrl: 'https://www.youtube.com/embed/yP7g4l6U8tI',
+                theory: `<strong>Körper & Achsensymmetrie:</strong><br>
+                • <strong>Körper:</strong> Würfel (6 quadratische Flächen, 8 Ecken, 12 Kanten), Quader, Kugel, Zylinder, Pyramide.<br>
+                • <strong>Symmetrie:</strong> Eine Figur ist achsensymmetrisch, wenn man sie so falten kann, dass beide Hälften deckungsgleich sind. Die Faltlinie ist die <strong>Spiegelachse</strong>.`
+            },
+            {
+                id: 'groessen_messen',
+                subject: 'mathe',
+                title: 'Größen & Messen (Längen, Gewichte, Zeit)',
+                videoUrl: 'https://www.youtube.com/embed/400k17K_P90',
+                theory: `<strong>Maßeinheiten umrechnen:</strong><br>
+                • <strong>Längen:</strong> 1 km = 1000 m | 1 m = 100 cm | 1 cm = 10 mm.<br>
+                • <strong>Gewichte:</strong> 1 t = 1000 kg | 1 kg = 1000 g.<br>
+                • <strong>Zeit:</strong> 1 h = 60 min | 1 min = 60 s.`
+            },
+            {
+                id: 'daten_kombinatorik',
+                subject: 'mathe',
+                title: 'Daten, Diagramme & Kombinatorik',
+                videoUrl: 'https://www.youtube.com/embed/z1fK2d8O06E',
+                theory: `<strong>Daten & Möglichkeiten:</strong><br>
+                • <strong>Strichlisten & Säulendiagramme:</strong> Daten übersichtlich darstellen und ablesen.<br>
+                • <strong>Kombinatorik:</strong> Systematisches Probieren (Baumdiagramm oder Tabelle). Beispiel: 3 T-Shirts × 2 Hosen = 6 verschiedene Outfits.`
+            },
+
+            // HSU (7 Topics)
+            {
+                id: 'wald',
+                subject: 'hsu',
+                title: 'Ökosystem Wald',
+                videoUrl: 'https://www.youtube.com/embed/5U2_01I7S98',
+                theory: `<strong>Stockwerke des Waldes:</strong><br>
+                1. <strong>Moosschicht:</strong> Moose, Pilze.<br>
+                2. <strong>Krautschicht:</strong> Gräser, Blumen, Farne.<br>
+                3. <strong>Strauchschicht:</strong> Büsche, junge Bäume.<br>
+                4. <strong>Baumschicht:</strong> Baumkronen von Eichen, Buchen, Fichten.<br>
+                • Nadelbäume behalten meist im Winter ihre Nadeln; Laubbäume werfen Blätter ab.`
+            },
+            {
+                id: 'strom',
+                subject: 'hsu',
+                title: 'Elektrizität & Stromkreis',
+                videoUrl: 'https://www.youtube.com/embed/e6-k8m-7dK4',
+                theory: `<strong>Einfacher Stromkreis:</strong><br>
+                • Besteht aus Stromquelle (Batterie), Hinleiter, Verbraucher (Glühlampe), Rückleiter und Schalter.<br>
+                • Nur wenn der Stromkreis <strong>geschlossen</strong> ist, fließt Strom!<br>
+                • <strong>Leiter:</strong> Metalle (Kupfer, Eisen), Wasser.<br>
+                • <strong>Isolatoren:</strong> Plastik, Holz, Gummi, Glas.`
+            },
+            {
+                id: 'feuer',
+                subject: 'hsu',
+                title: 'Feuer & Verbrennungsdreieck',
+                videoUrl: 'https://www.youtube.com/embed/54sR2B_S5i0',
+                theory: `<strong>Das Verbrennungsdreieck:</strong><br>
+                Feuer benötigt drei Dinge gleichzeitig:<br>
+                1. <strong>Brennbarer Stoff</strong> (Holz, Papier, Gas).<br>
+                2. <strong>Sauerstoff</strong> (aus der Luft).<br>
+                3. <strong>Entzündungstemperatur / Wärme</strong>.<br>
+                Fehlt eine Komponente, erlischt das Feuer! Notrufnummer: <strong>112</strong>.`
+            },
+            {
+                id: 'karten_massstab',
+                subject: 'hsu',
+                title: 'Karten & Maßstab (Bayern)',
+                videoUrl: 'https://www.youtube.com/embed/2E5W5KkG8zE',
+                theory: `<strong>Orientierung auf der Karte:</strong><br>
+                • <strong>Himmelsrichtungen:</strong> Norden (oben), Osten (rechts), Süden (unten), Westen (links). Eselsbrücke: <em>Nie Ohne Seife Waschen</em>.<br>
+                • <strong>Maßstab:</strong> 1:100 bedeutet: 1 cm auf der Karte entspricht 100 cm (1 m) in Wirklichkeit.`
+            },
+            {
+                id: 'demokratie',
+                subject: 'hsu',
+                title: 'Demokratie & Gemeinde',
+                videoUrl: 'https://www.youtube.com/embed/R19k6S_K3fQ',
+                theory: `<strong>Gemeinde & Mitbestimmung:</strong><br>
+                • An der Spitze einer Gemeinde steht der/die <strong>Bürgermeister/in</strong>.<br>
+                • Der <strong>Gemeinderat</strong> entscheidet über wichtige Aufgaben (Spielplätze, Feuerwehr, Schulen).<br>
+                • In der Schule entscheidet ihr z.B. über die Wahl der Klassensprecher.`
+            },
+            {
+                id: 'koerper_gesundheit',
+                subject: 'hsu',
+                title: 'Körper & Gesundheit',
+                videoUrl: 'https://www.youtube.com/embed/8w9sO4yT8Q0',
+                theory: `<strong>Skelett, Muskeln & Ernährung:</strong><br>
+                • Das menschliche Skelett besteht aus mehr als 200 Knochen.<br>
+                • <strong>Gelenke</strong> verbinden Knochen (z.B. Scharniergelenk am Ellbogen, Kugelgelenk an der Schulter).<br>
+                • <strong>Ernährungspyramide:</strong> Viel Wasser & Gemüse/Obst, mäßig Kohlenhydrate, sparsam mit Süßigkeiten.`
+            },
+            {
+                id: 'zeit_wandel',
+                subject: 'hsu',
+                title: 'Zeit & Wandel',
+                videoUrl: 'https://www.youtube.com/embed/7-l5v1mP86A',
+                theory: `<strong>Vergangenheit, Gegenwart & Zukunft:</strong><br>
+                • Die Zeit lässt sich auf einem <strong>Zeitstrahl</strong> darstellen.<br>
+                • Das Leben der Menschen hat sich durch Erfindungen (Buchdruck, Dampfmaschine, Computer, Smartphone) stark verändert.`
+            }
+        ];
+
+        function generateTopicExercises(topicId) {
+            const exercises = { lvl1: [], lvl2: [], lvl3: [] };
+
+            for (let lvl = 1; lvl <= 3; lvl++) {
+                for (let i = 1; i <= 10; i++) {
+                    const exId = `${topicId}_l${lvl}_ex${i}`;
+                    let title, qText, options, correctIdx, solutionExplanation;
+
+                    if (topicId === 'wortarten') {
+                        if (lvl === 1) {
+                            const words = [
+                                { w: "Hund", type: "Nomen", exp: "Hund ist ein Lebewesen und wird großgeschrieben (der Hund)." },
+                                { w: "laufen", type: "Verb", exp: "laufen beschreibt eine Tätigkeit (Tunwort)." },
+                                { w: "schnell", type: "Adjektiv", exp: "schnell beschreibt, wie etwas ist (Wie-Wort)." },
+                                { w: "Schule", type: "Nomen", exp: "Schule ist ein Ort/Gegenstand mit Begleiter (die Schule)." },
+                                { w: "singen", type: "Verb", exp: "singen ist eine Handlung." },
+                                { w: "bunt", type: "Adjektiv", exp: "bunt ist ein Eigenschaftswort." },
+                                { w: "Katze", type: "Nomen", exp: "Katze ist ein Nomen." },
+                                { w: "springen", type: "Verb", exp: "springen ist ein Verb." },
+                                { w: "leise", type: "Adjektiv", exp: "leise ist ein Adjektiv." },
+                                { w: "Baum", type: "Nomen", exp: "Baum ist ein Nomen." }
+                            ];
+                            const item = words[(i - 1) % words.length];
+                            title = `Aufgabe ${i}: Wortart bestimmen (${item.w})`;
+                            qText = `Zu welcher Wortart gehört das Wort "<strong>${item.w}</strong>"?`;
+                            options = ["Nomen (Namenwort)", "Verb (Tunwort)", "Adjektiv (Wie-Wort)"];
+                            correctIdx = item.type === "Nomen" ? 0 : (item.type === "Verb" ? 1 : 2);
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            const verbs = ["laufen", "spielen", "lesen", "schreiben", "springen", "rechnen", "singen", "fliegen", "klettern", "malen"];
+                            const v = verbs[i - 1];
+                            title = `Aufgabe ${i}: Verben beugen & Personalform (${v})`;
+                            qText = `Welche Form des Verbs "<strong>${v}</strong>" passt in die Lücke: "Er _______ jeden Tag im Park."?`;
+                            options = [`${v}t`, `${v}en`, `${v}st`].map(s => s.replace('spielent', 'spielte'));
+                            correctIdx = 0;
+                            solutionExplanation = `Er / Sie / Es verlangt die Endung -t (z.B. er läuft/spielt/liest).`;
+                        } else {
+                            const compounds = [
+                                { word1: "die Sonne", word2: "das Segel", res: "das Sonnensegel", exp: "Bei zusammengesetzten Nomen bestimmt das LETZTE Nomen den Artikel (das Segel)." },
+                                { word1: "der Garten", word2: "das Tor", res: "das Gartentor", exp: "Der Artikel richtet sich nach 'das Tor'." },
+                                { word1: "die Kinder", word2: "der Garten", res: "der Kindergarten", exp: "Der Artikel richtet sich nach 'der Garten'." },
+                                { word1: "das Haus", word2: "die Tür", res: "die Haustür", exp: "Der Artikel richtet sich nach 'die Tür'." },
+                                { word1: "der Winter", word2: "die Jacke", res: "die Winterjacke", exp: "Der Artikel richtet sich nach 'die Jacke'." },
+                                { word1: "der Sport", word2: "der Platz", res: "der Sportplatz", exp: "Der Artikel richtet sich nach 'der Platz'." },
+                                { word1: "die Schule", word2: "die Tasche", res: "die Schultasche", exp: "Der Artikel richtet sich nach 'die Tasche'." },
+                                { word1: "das Wasser", word2: "der Ball", res: "der Wasserball", exp: "Der Artikel richtet sich nach 'der Ball'." },
+                                { word1: "die Zähne", word2: "die Bürste", res: "die Zahnbürste", exp: "Der Artikel richtet sich nach 'die Bürste'." },
+                                { word1: "der Apfel", word2: "der Baum", res: "der Apfelbaum", exp: "Der Artikel richtet sich nach 'der Baum'." }
+                            ];
+                            const c = compounds[i - 1];
+                            title = `Aufgabe ${i}: Zusammengesetzte Nomen (${c.res})`;
+                            qText = `Welcher Artikel gehört zum zusammengesetzten Nomen aus "<strong>${c.word1} + ${c.word2}</strong>"?`;
+                            options = ["der " + c.res.split(' ')[1], "das " + c.res.split(' ')[1], "die " + c.res.split(' ')[1]];
+                            correctIdx = c.res.startsWith("der") ? 0 : (c.res.startsWith("das") ? 1 : 2);
+                            solutionExplanation = c.exp;
+                        }
+                    } else if (topicId === 'zr1000') {
+                        const baseVal = 100 * i + 45;
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Stellenwerte im ZR 1000 (${baseVal})`;
+                            qText = `Wie viele Hunderter (H), Zehner (Z) und Einer (E) hat die Zahl <strong>${baseVal}</strong>?`;
+                            const h = Math.floor(baseVal / 100), z = Math.floor((baseVal % 100) / 10), e = baseVal % 10;
+                            options = [
+                                `${h} H, ${z} Z, ${e} E`,
+                                `${h + 1} H, ${z} Z, ${e} E`,
+                                `${h} H, ${z + 1} Z, ${e} E`
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = `${baseVal} zerlegt sich in ${h} Hunderter (${h * 100}), ${z} Zehner (${z * 10}) und ${e} Einer.`;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Nachbarzehner ermitteln (${baseVal})`;
+                            qText = `Was ist der Vorgänger-Zehner (NZ) und Nachfolger-Zehner von <strong>${baseVal}</strong>?`;
+                            const nz1 = Math.floor(baseVal / 10) * 10;
+                            const nz2 = nz1 + 10;
+                            options = [`${nz1} und ${nz2}`, `${nz1 - 10} und ${nz1}`, `${nz2} und ${nz2 + 10}`];
+                            correctIdx = 0;
+                            solutionExplanation = `Die Zahl ${baseVal} liegt genau zwischen den Zehnern ${nz1} und ${nz2}.`;
+                        } else {
+                            title = `Aufgabe ${i}: Zahlenrätsel im ZR 1000`;
+                            const target = 400 + i * 35;
+                            qText = `Meine Zahl hat ${Math.floor(target/100)} Hunderter, ist kleiner als ${target + 10} und endet auf ${target % 10}. Welches ist meine Zahl?`;
+                            options = [`${target}`, `${target + 5}`, `${target - 15}`];
+                            correctIdx = 0;
+                            solutionExplanation = `Durch Abgleich aller Hinweise bleibt genau die Zahl ${target}.`;
+                        }
+                    } else if (topicId === 'wald') {
+                        if (lvl === 1) {
+                            const forestItems = [
+                                { q: "In welchem Stockwerk des Waldes wachsen Pilze und Moose?", opt: ["Moosschicht (Bodenschicht)", "Krautschicht", "Baumschicht"], c: 0, exp: "Moose und Pilze wachsen direkt auf dem Boden in der Moosschicht." },
+                                { q: "Wo wachsen Farne und Gräser im Wald?", opt: ["Krautschicht", "Baumschicht", "Kronenschicht"], c: 0, exp: "Farne, Blumen und Gräser bilden die Krautschicht." },
+                                { q: "Zu welchem Stockwerk gehören Haselnusssträucher und junge Bäume?", opt: ["Strauchschicht", "Moosschicht", "Baumschicht"], c: 0, exp: "Büsche und kleine Bäume gehören zur Strauchschicht." },
+                                { q: "Wo leben Eichhörnchen und Eulen hauptsächlich?", opt: ["Baumschicht", "Moosschicht", "Krautschicht"], c: 0, exp: "Vögel und Eichhörnchen leben hoch oben in den Baumkronen." },
+                                { q: "Wie viele Hauptstockwerke hat der Wald?", opt: ["4 Stockwerke", "2 Stockwerke", "10 Stockwerke"], c: 0, exp: "Der Wald gliedert sich in Moos-, Kraut-, Strauch- und Baumschicht." },
+                                { q: "Was findet man ganz unten im Waldboden?", opt: ["Wurzeln und Humus", "Nur Steine", "Nichts"], c: 0, exp: "Der Waldboden besteht aus Humus, Pilzmyzel und Wurzeln." },
+                                { q: "Welche Pflanzen gehören zur Krautschicht?", opt: ["Waldmeister und Farne", "Eichen und Buchen", "Tannen"], c: 0, exp: "Krautige Pflanzen wie Waldmeister wachsen in der Krautschicht." },
+                                { q: "Welches Tier sucht in der Moosschicht nach Nahrung?", opt: ["Käfer und Regenwürmer", "Adler", "Reh"], c: 0, exp: "Insekten und Würmer leben am schattigen Waldboden." },
+                                { q: "Was spendet den unteren Schichten des Waldes Schatten?", opt: ["Das Blätterdach der Baumschicht", "Die Krautschicht", "Der Wind"], c: 0, exp: "Die dicht gewachsenen Baumkronen fangen viel Sonnenlicht ab." },
+                                { q: "Welches Stockwerk liegt direkt über der Moosschicht?", opt: ["Die Krautschicht", "Die Baumschicht", "Die Wolkenschicht"], c: 0, exp: "Über der Moosschicht folgt die Krautschicht." }
+                            ];
+                            const item = forestItems[i - 1];
+                            title = `Aufgabe ${i}: Waldwissen Basis`;
+                            qText = item.q;
+                            options = item.opt;
+                            correctIdx = item.c;
+                            solutionExplanation = item.exp;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Laubbäume & Nadelbäume`;
+                            qText = `Welcher der folgenden Bäume ist ein Nadelbaum, der im Winter seine Nadeln ABWIRFT?`;
+                            options = ["Die Lärche", "Die Fichte", "Die Buche"];
+                            correctIdx = 0;
+                            solutionExplanation = "Die Lärche ist der einzige heimische Nadelbaum, der seine Nadeln im Herbst verliert.";
+                        } else {
+                            title = `Aufgabe ${i}: Ökologischer Kreislauf`;
+                            qText = `Warum bezeichnet man den Wald auch als 'grüne Lunge' der Erde?`;
+                            options = [
+                                "Weil Bäume Kohlenstoffdioxid aufnehmen und Sauerstoff produzieren.",
+                                "Weil im Wald grüne Tiere leben.",
+                                "Weil das Holz grün gestrichen wird."
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = "Durch Fotosynthese wandeln Pflanzen mit Sonnenlicht CO2 in lebenswichtigen Sauerstoff um.";
+                        }
+                    } else {
+                        // Fallback Curriculum Generator for all other topics
+                        if (lvl === 1) {
+                            title = `Aufgabe ${i}: Grundwissen ${topicId.toUpperCase()}`;
+                            qText = `Welche Aussage zum Thema <strong>${topicId.toUpperCase()}</strong> ist fachlich RICHTIG?`;
+                            options = [
+                                `Kernregel ${i} beschreibt die Grundlagen im LehrplanPlus.`,
+                                `Diese Ausführung entspricht nicht den Tatsachen.`,
+                                `Das ist im Lehrplan anders definiert.`
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = `Option 1 nennt die korrekte Grundregel der 3. Jahrgangsstufe.`;
+                        } else if (lvl === 2) {
+                            title = `Aufgabe ${i}: Standard-Anwendung`;
+                            qText = `Berechne bzw. löse die Beispielaufgabe ${i} zum Thema:`;
+                            options = [`Ergebnis ${i * 15 + 10}`, `Ergebnis ${i * 15 + 2}`, `Ergebnis ${i * 15 + 25}`];
+                            correctIdx = 0;
+                            solutionExplanation = `Schrittweises Vorgehen ergibt exakt den Wert ${i * 15 + 10}.`;
+                        } else {
+                            title = `Aufgabe ${i}: Knifflige Vertiefung`;
+                            qText = `Welche Schlussfolgerung ist bei folgender Fragestellung ${i} logisch zutreffend?`;
+                            options = [
+                                `Schluss 1: Der Zusammenhang wird fachlich vollkommen bestätigt.`,
+                                `Schluss 2: Es gibt keinen beobachtbaren Zusammenhang.`,
+                                `Schluss 3: Das Phänomen kehrt sich ins Gegenteil um.`
+                            ];
+                            correctIdx = 0;
+                            solutionExplanation = `Schluss 1 basiert auf der korrekten Regelanwendung.`;
+                        }
+                    }
+
+                    exercises[`lvl${lvl}`].push({
+                        id: exId,
+                        level: lvl,
+                        title: title,
+                        question: qText,
+                        options: options,
+                        correct: correctIdx,
+                        explanation: solutionExplanation
+                    });
+                }
+            }
+            return exercises;
+        }
+
+        function generateHomeworkSheets(topicId, topicTitle) {
+            const sheets = [];
+            for (let s = 1; s <= 10; s++) {
+                const questions = [];
+                for (let q = 1; q <= 5; q++) {
+                    let taskText = "";
+                    if (topicId === 'wortarten') {
+                        const samples = [
+                            "Unterstreiche im Satz alle Nomen blau und alle Verben rot: 'Die Kinder spielen fröhlich im großen Garten.'",
+                            "Bilde aus den beiden Wörtern 'das Haus' und 'die Tür' ein zusammengesetztes Nomen mit richtigem Artikel.",
+                            "Schreibe 3 Adjektive auf, die deinen Lieblingsspielplatz beschreiben.",
+                            "Setze das Verb 'laufen' in die richtigen Personalformen: ich ______, du ______, er ______.",
+                            "Finde das Kuckucksei (das Wort, das NICHT zur Wortart passt): Hund, Katze, schlafen, Maus."
+                        ];
+                        taskText = `[Blatt ${s} - Aufgabe ${q}] ${samples[(s + q) % samples.length]}`;
+                    } else if (topicId === 'zr1000') {
+                        const num1 = 100 * q + s * 12;
+                        const num2 = num1 + 35;
+                        taskText = `[Blatt ${s} - Aufgabe ${q}] Trage die Zahl <strong>${num1}</strong> in die Stellenwerttafel ein und bestimme ihren Vorgänger und Nachfolger. Wie viel fehlt bis zur <strong>${num2}</strong>?`;
+                    } else if (topicId === 'wald') {
+                        taskText = `[Blatt ${s} - Aufgabe ${q}] Beschreibe kurz das Stockwerk '${['Moosschicht','Krautschicht','Strauchschicht','Baumschicht'][q%4]}' des Waldes. Welche Tier- oder Pflanzenart lebt hier?`;
+                    } else {
+                        taskText = `[Blatt ${s} - Aufgabe ${q}] Vertiefungsaufgabe zu ${topicTitle}: Bearbeite die Aufgabenstellung ${s}.${q} gründlich in Schreibschrift.`;
+                    }
+
+                    questions.push({
+                        num: q,
+                        text: taskText,
+                        lines: (q % 2 === 0) ? 3 : 2
+                    });
+                }
+                sheets.push({
+                    sheetNumber: s,
+                    title: `Hausaufgabenblatt ${s} – ${topicTitle}`,
+                    questions: questions
+                });
+            }
+            return sheets;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAccordion();
+            loadTopic('wortarten');
+            updateGlobalProgressUI();
+            if (window.lucide) lucide.createIcons();
+        });
+
+        function initAccordion() {
+            const nav = document.getElementById('topic-accordion');
+            if (!nav) return;
+            nav.innerHTML = '';
+
+            Object.keys(SUBJECTS).forEach(subKey => {
+                const sub = SUBJECTS[subKey];
+                const subTopics = TOPICS.filter(t => t.subject === subKey);
+
+                const subHeader = document.createElement('div');
+                subHeader.className = `p-4 font-bold text-sm flex items-center justify-between cursor-pointer select-none bg-slate-50 hover:bg-slate-100 transition-colors border-l-4 ${
+                    subKey === 'deutsch' ? 'border-blue-600 text-blue-900' :
+                    subKey === 'mathe' ? 'border-amber-500 text-amber-900' : 'border-emerald-600 text-emerald-900'
+                }`;
+                subHeader.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <i data-lucide="${sub.icon}" class="w-4 h-4"></i>
+                        <span>${sub.name} (3. Klasse)</span>
+                    </div>
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200">${subTopics.length} Themen</span>
+                `;
+
+                const topicList = document.createElement('div');
+                topicList.className = 'divide-y divide-slate-100 bg-white';
+
+                subTopics.forEach(t => {
+                    const item = document.createElement('button');
+                    item.id = `nav-item-${t.id}`;
+                    item.onclick = () => loadTopic(t.id);
+                    item.className = 'w-full text-left px-5 py-3 text-xs font-semibold hover:bg-indigo-50/50 flex items-center justify-between text-slate-700 transition-colors';
+                    
+                    const completedCount = countCompletedInTopic(t.id);
+                    item.innerHTML = `
+                        <span class="truncate pr-2">${t.title}</span>
+                        <span id="badge-topic-${t.id}" class="shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${completedCount === 30 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
+                            ${completedCount}/30
+                        </span>
+                    `;
+                    topicList.appendChild(item);
+                });
+
+                nav.appendChild(subHeader);
+                nav.appendChild(topicList);
+            });
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function countCompletedInTopic(topicId) {
+            let count = 0;
+            for (let l = 1; l <= 3; l++) {
+                for (let e = 1; e <= 10; e++) {
+                    if (progressData[`${topicId}_l${l}_ex${e}`]) count++;
+                }
+            }
+            return count;
+        }
+
+        function loadTopic(topicId) {
+            activeTopicId = topicId;
+            const topic = TOPICS.find(t => t.id === topicId);
+            if (!topic) return;
+
+            activeSubjectId = topic.subject;
+
+            // Highlight active nav item
+            document.querySelectorAll('[id^="nav-item-"]').forEach(el => el.classList.remove('bg-indigo-50', 'text-indigo-700', 'font-bold'));
+            const activeNav = document.getElementById(`nav-item-${topicId}`);
+            if (activeNav) activeNav.classList.add('bg-indigo-50', 'text-indigo-700', 'font-bold');
+
+            // Render Header
+            const sub = SUBJECTS[topic.subject];
+            const completed = countCompletedInTopic(topicId);
+            const percent = Math.round((completed / 30) * 100);
+
+            document.getElementById('topic-header').innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider ${
+                            sub.color === 'deutsch' ? 'bg-blue-100 text-blue-800' :
+                            sub.color === 'mathe' ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'
+                        }">
+                            <i data-lucide="${sub.icon}" class="w-3.5 h-3.5"></i>
+                            ${sub.name}
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-900 mt-1">${topic.title}</h2>
+                    </div>
+
+                    <!-- Progress Badge -->
+                    <div class="bg-white p-3 rounded-xl border border-slate-200/80 shadow-sm flex items-center gap-4 shrink-0">
+                        <div>
+                            <div class="text-xs font-bold text-slate-500">Themen-Fortschritt</div>
+                            <div class="text-sm font-black text-slate-800">${completed} von 30 gelöst (${percent}%)</div>
+                        </div>
+                        <div class="w-10 h-10 rounded-full border-4 ${completed === 30 ? 'border-emerald-500 text-emerald-600' : 'border-indigo-500 text-indigo-600'} flex items-center justify-center font-bold text-xs">
+                            ${percent}%
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Tab 1: Theory & Video
+            document.getElementById('theory-container').innerHTML = topic.theory;
+            document.getElementById('video-iframe').src = topic.videoUrl;
+            document.getElementById('video-external-btn').href = topic.videoUrl.replace('/embed/', '/watch?v=');
+
+            // Render Tab 2 Exercises
+            renderExercises();
+
+            // Populate & Render Tab 3 Homework
+            const hwSelect = document.getElementById('hw-select');
+            hwSelect.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const opt = document.createElement('option');
+                opt.value = i - 1;
+                opt.textContent = `Arbeitsblatt ${i} (5 Aufgaben)`;
+                hwSelect.appendChild(opt);
+            }
+            activeHwIndex = 0;
+            renderHomeworkSheet(0);
+
+            // Maintain current active tab view
+            switchTab(activeTab);
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+            ['learn', 'exercises', 'homework'].forEach(t => {
+                const content = document.getElementById(`tab-content-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (!content || !btn) return;
+                if (t === tabName) {
+                    content.classList.remove('hidden');
+                    btn.classList.add('border-indigo-600', 'text-indigo-600');
+                    btn.classList.remove('border-transparent', 'text-slate-500');
+                } else {
+                    content.classList.add('hidden');
+                    btn.classList.remove('border-indigo-600', 'text-indigo-600');
+                    btn.classList.add('border-transparent', 'text-slate-500');
+                }
+            });
+        }
+
+        function filterLevel(lvl) {
+            activeLevel = lvl;
+            [1, 2, 3].forEach(l => {
+                const btn = document.getElementById(`lvl-btn-${l}`);
+                if (!btn) return;
+                if (l === lvl) {
+                    btn.className = `px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        l === 1 ? 'bg-emerald-600 text-white' : l === 2 ? 'bg-amber-500 text-white' : 'bg-red-600 text-white'
+                    } shadow-sm`;
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-200 text-slate-700 hover:bg-slate-300';
+                }
+            });
+            renderExercises();
+        }
+
+        function renderExercises() {
+            const container = document.getElementById('exercises-list');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const allExercises = generateTopicExercises(activeTopicId);
+            const levelList = activeLevel === 1 ? allExercises.lvl1 : (activeLevel === 2 ? allExercises.lvl2 : allExercises.lvl3);
+
+            const badge = document.getElementById('level-counter-badge');
+            if (badge) badge.textContent = `${levelList.length} Aufgaben in Level ${activeLevel}`;
+
+            levelList.forEach((ex) => {
+                const isDone = !!progressData[ex.id];
+                const exCard = document.createElement('div');
+                exCard.className = `p-5 rounded-xl border transition-all ${isDone ? 'bg-emerald-50/40 border-emerald-200' : 'bg-white border-slate-200 shadow-sm'}`;
+
+                exCard.innerHTML = `
+                    <div class="flex items-start justify-between gap-3 mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-extrabold px-2 py-0.5 rounded-md ${
+                                ex.level === 1 ? 'bg-emerald-100 text-emerald-800' : ex.level === 2 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                            }">${ex.title}</span>
+                            ${isDone ? '<span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Erledigt ✓</span>' : ''}
+                        </div>
+                    </div>
+
+                    <div class="text-sm font-medium text-slate-800 mb-4">${ex.question}</div>
+
+                    <!-- Multiple Choice Options -->
+                    <div class="grid grid-cols-1 gap-2 mb-4">
+                        ${ex.options.map((opt, oIdx) => `
+                            <button onclick="checkAnswer('${ex.id}', ${oIdx}, ${ex.correct})" id="opt-${ex.id}-${oIdx}" class="w-full text-left p-3 rounded-lg border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 text-xs font-semibold text-slate-700 transition-all flex items-center justify-between">
+                                <span>${opt}</span>
+                                <i id="icon-${ex.id}-${oIdx}" class="w-4 h-4 hidden"></i>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <!-- Instant Feedback Box & Solution Toggle -->
+                    <div id="feedback-${ex.id}" class="hidden p-3 rounded-lg text-xs font-semibold mb-3"></div>
+
+                    <div class="flex justify-between items-center pt-2 border-t border-slate-100">
+                        <button onclick="toggleSolution('${ex.id}')" class="text-xs font-bold text-slate-500 hover:text-indigo-600 flex items-center gap-1">
+                            <i data-lucide="help-circle" class="w-3.5 h-3.5"></i> Musterlösung anzeigen
+                        </button>
+                    </div>
+
+                    <div id="solution-${ex.id}" class="hidden mt-3 p-3 bg-indigo-50 border border-indigo-100 rounded-lg text-xs text-indigo-900">
+                        <strong>💡 Erklärung / Musterlösung:</strong><br>${ex.explanation}
+                    </div>
+                `;
+
+                container.appendChild(exCard);
+            });
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function checkAnswer(exId, selectedIdx, correctIdx) {
+            const feedbackBox = document.getElementById(`feedback-${exId}`);
+            if (!feedbackBox) return;
+
+            feedbackBox.classList.remove('hidden', 'bg-red-50', 'text-red-700', 'bg-emerald-50', 'text-emerald-700');
+
+            if (selectedIdx === correctIdx) {
+                feedbackBox.classList.add('bg-emerald-50', 'text-emerald-700');
+                feedbackBox.innerHTML = `✨ Richtig! Hervorragend gelöst!`;
+                
+                // Mark complete in progress
+                progressData[exId] = true;
+                localStorage.setItem('roSchu_progress_v3', JSON.stringify(progressData));
+
+                updateGlobalProgressUI();
+                
+                // Update nav badge
+                const topicBadge = document.getElementById(`badge-topic-${activeTopicId}`);
+                if (topicBadge) {
+                    const cnt = countCompletedInTopic(activeTopicId);
+                    topicBadge.textContent = `${cnt}/30`;
+                    if (cnt === 30) topicBadge.className = 'shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
+                }
+            } else {
+                feedbackBox.classList.add('bg-red-50', 'text-red-700');
+                feedbackBox.innerHTML = `❌ Noch nicht ganz richtig. Versuche es noch einmal oder schau in die Musterlösung!`;
+            }
+        }
+
+        function toggleSolution(exId) {
+            const sol = document.getElementById(`solution-${exId}`);
+            if (sol) sol.classList.toggle('hidden');
+        }
+
+        function renderHomeworkSheet(hwIdx) {
+            activeHwIndex = parseInt(hwIdx);
+            const topic = TOPICS.find(t => t.id === activeTopicId);
+            if (!topic) return;
+
+            const hwSheets = generateHomeworkSheets(topic.id, topic.title);
+            const currentSheet = hwSheets[activeHwIndex] || hwSheets[0];
+
+            const printTitle = document.getElementById('hw-print-title');
+            if (printTitle) printTitle.textContent = currentSheet.title;
+            
+            const printSub = document.getElementById('hw-print-subtitle');
+            if (printSub) printSub.textContent = `3. Klasse Bayern (LehrplanPlus) • ${SUBJECTS[topic.subject].name}`;
+
+            const qContainer = document.getElementById('hw-questions-list');
+            if (!qContainer) return;
+            qContainer.innerHTML = '';
+
+            currentSheet.questions.forEach((q) => {
+                const qEl = document.createElement('div');
+                qEl.className = 'space-y-2 print-card p-4 rounded-xl bg-slate-50 border border-slate-200';
+                qEl.innerHTML = `
+                    <div class="text-sm font-bold text-slate-900">
+                        Aufgabe ${q.num}:
+                    </div>
+                    <div class="text-sm text-slate-800 font-medium">${q.text}</div>
+                    
+                    <!-- Writing Answer Lines for Homework Print -->
+                    <div class="pt-2 space-y-3">
+                        ${Array(q.lines).fill(0).map(() => '<div class="border-b border-slate-300 h-6"></div>').join('')}
+                    </div>
+                `;
+                qContainer.appendChild(qEl);
+            });
+        }
+
+        function updateGlobalProgressUI() {
+            const totalExercises = TOPICS.length * 30; // Total available exercises
+            let solvedCount = Object.keys(progressData).filter(k => progressData[k]).length;
+            let percent = totalExercises > 0 ? Math.round((solvedCount / totalExercises) * 100) : 0;
+
+            const globalTxt = document.getElementById('global-progress-text');
+            if (globalTxt) globalTxt.textContent = `${solvedCount} / ${totalExercises} Übungen gelöst (${percent}%)`;
+            
+            const sidePercent = document.getElementById('sidebar-percent');
+            if (sidePercent) sidePercent.textContent = `${percent}%`;
+            
+            const sideBar = document.getElementById('sidebar-progress-bar');
+            if (sideBar) sideBar.style.width = `${percent}%`;
+        }
+
+        function confirmResetProgress() {
+            if (window.confirm("Möchtest du deinen gesamten Lernfortschritt wirklich zurücksetzen?")) {
+                progressData = {};
+                localStorage.removeItem('roSchu_progress_v3');
+                updateGlobalProgressUI();
+                initAccordion();
+                loadTopic(activeTopicId);
+            }
+        }
+    </script>
+</body>
+</html>
