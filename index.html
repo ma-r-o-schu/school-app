@@ -1,955 +1,1844 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<!-- iOS Web-App Optimierung -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="RoSchu">
-<link rel="apple-touch-icon" href="https://via.placeholder.com/180/4f46e5/ffffff?text=RoSchu">  
-<meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grundschul-Lernportal RoSchu – 3. Klasse Bayern</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    @media print {
-      body * { visibility: hidden; }
-      #printable-homework, #printable-homework * { visibility: visible; }
-      #printable-homework { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; }
-      .no-print { display: none !important; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grundschul-Lernportal RoSchu - 3. Klasse Bayern (LehrplanPlus)</title>
+    
+    <!-- iOS Web-App Optimierung -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RoSchu 3">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/graduation-cap.png">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        /* Custom Schreiblinien für Grundschul-Arbeitsblätter */
+        .writing-line {
+            border-bottom: 1.5px dashed #94a3b8;
+            height: 2rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        /* Responsive Iframe Container */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Druckoptimierung für Hausaufgabenblätter */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 12pt;
+            }
+            .no-print, header, sidebar, #nav-tabs, #header-controls, .interactive-controls, #mobile-nav-toggle {
+                display: none !important;
+            }
+            #app-container {
+                display: block !important;
+            }
+            #main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .printable-sheet {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+        }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
 
-  <!-- Header -->
-  <header class="bg-indigo-900 text-white shadow-lg sticky top-0 z-30 no-print">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
-      <div class="flex items-center space-x-3">
-        <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="md:hidden p-2 rounded bg-indigo-800 hover:bg-indigo-700">
-          <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
-        <div class="bg-amber-400 text-indigo-950 font-black px-3 py-1.5 rounded-xl text-lg tracking-wider flex items-center justify-center shadow">
-          RoSchu
+    <!-- App Header -->
+    <header class="bg-indigo-900 text-white sticky top-0 z-50 shadow-md no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <button id="mobile-nav-toggle" onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg bg-indigo-800 text-indigo-200 hover:text-white focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-400 to-indigo-400 flex items-center justify-center font-black text-xl text-indigo-950 shadow-inner">
+                        🎓
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-tight leading-none">RoSchu Lernportal</h1>
+                        <p class="text-xs text-indigo-300 font-medium mt-0.5">3. Klasse Bayern • LehrplanPlus</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gesamtfortschritt & globaler Status -->
+            <div id="header-controls" class="flex items-center space-x-4">
+                <div class="hidden md:flex items-center bg-indigo-950/60 rounded-full px-4 py-1.5 border border-indigo-700/50">
+                    <i class="fas fa-trophy text-amber-400 mr-2"></i>
+                    <span class="text-xs font-semibold mr-2 text-indigo-200">Gesamtfortschritt:</span>
+                    <div class="w-28 bg-indigo-800 rounded-full h-2.5 overflow-hidden">
+                        <div id="global-progress-bar" class="bg-emerald-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <span id="global-progress-text" class="text-xs font-bold ml-2 text-emerald-300">0%</span>
+                </div>
+                
+                <button onclick="resetAllProgress()" title="Fortschritt zurücksetzen" class="p-2 text-indigo-300 hover:text-rose-400 transition-colors rounded-lg hover:bg-indigo-800/50">
+                    <i class="fas fa-rotate-left"></i>
+                </button>
+            </div>
         </div>
-        <div>
-          <h1 class="text-xl font-extrabold tracking-tight">Grundschul-Lernportal RoSchu</h1>
-          <p class="text-xs text-indigo-200">3. Klasse Bayern • LehrplanPlus (Deutsch • Mathematik • HSU)</p>
-        </div>
-      </div>
+    </header>
 
-      <!-- Suchleiste & Aktionen -->
-      <div class="flex items-center space-x-2 w-full md:w-auto">
-        <div class="relative flex-1 md:w-64">
-          <input type="text" id="search-input" placeholder="Thema suchen..." class="w-full pl-9 pr-3 py-1.5 text-sm text-slate-900 rounded-lg focus:ring-2 focus:ring-amber-400 outline-none">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3 top-2.5 text-slate-400"></i>
-        </div>
-        <button onclick="openAddContentModal()" class="bg-amber-400 hover:bg-amber-500 text-indigo-950 font-bold px-3 py-1.5 rounded-lg text-xs md:text-sm flex items-center gap-1 shadow transition">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i>
-          <span>Inhalt hinzufügen</span>
-        </button>
-        <button onclick="openJsonModal()" class="bg-indigo-800 hover:bg-indigo-700 text-white font-medium px-3 py-1.5 rounded-lg text-xs md:text-sm flex items-center gap-1 transition">
-          <i data-lucide="file-json" class="w-4 h-4"></i>
-          <span>JSON</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Haupt-Layout -->
-  <div class="max-w-7xl mx-auto w-full flex-1 flex flex-col md:flex-row gap-6 p-4 md:p-6">
-
-    <!-- Seitenleiste -->
-    <aside id="sidebar" class="w-full md:w-80 bg-white rounded-2xl shadow-md p-4 flex-shrink-0 self-start border border-slate-200 no-print hidden md:block">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-2">Lehrplan-Themen</h2>
-      
-      <div class="space-y-3" id="subject-accordion">
+    <!-- Main Content Layout -->
+    <div id="app-container" class="flex-1 max-w-7xl w-full mx-auto flex overflow-hidden">
         
-        <!-- DEUTSCH -->
-        <div class="border border-blue-100 rounded-xl overflow-hidden bg-blue-50/40">
-          <button onclick="toggleSubject('deutsch')" class="w-full p-3 font-bold text-blue-900 bg-blue-100/60 flex items-center justify-between text-left">
-            <span class="flex items-center gap-2"><i data-lucide="book-open" class="w-5 h-5 text-blue-600"></i> Deutsch</span>
-            <i id="icon-deutsch" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
-          </button>
-          <div id="list-deutsch" class="p-2 space-y-1"></div>
-        </div>
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="w-80 bg-white border-r border-slate-200 flex-shrink-0 fixed lg:relative inset-y-0 left-0 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col h-[calc(100vh-4rem)] top-16 lg:top-0 no-print">
+            
+            <!-- Suchleiste & Filter -->
+            <div class="p-4 border-b border-slate-100 bg-slate-50/50">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" oninput="filterTopics()" placeholder="Thema oder Fach suchen..." class="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder-slate-400 shadow-sm">
+                </div>
+                
+                <!-- Fach-Filter Tabs -->
+                <div class="flex mt-3 bg-slate-200/70 p-1 rounded-xl text-xs font-semibold">
+                    <button onclick="setSubjectFilter('all')" id="filter-all" class="flex-1 py-1.5 rounded-lg transition-all bg-white shadow-sm text-indigo-900">Alle</button>
+                    <button onclick="setSubjectFilter('deutsch')" id="filter-deutsch" class="flex-1 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900">📘 Deutsch</button>
+                    <button onclick="setSubjectFilter('mathe')" id="filter-mathe" class="flex-1 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900">📐 Mathe</button>
+                    <button onclick="setSubjectFilter('hsu')" id="filter-hsu" class="flex-1 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900">🍃 HSU</button>
+                </div>
+            </div>
 
-        <!-- MATHEMATIK -->
-        <div class="border border-amber-100 rounded-xl overflow-hidden bg-amber-50/40">
-          <button onclick="toggleSubject('mathe')" class="w-full p-3 font-bold text-amber-900 bg-amber-100/60 flex items-center justify-between text-left">
-            <span class="flex items-center gap-2"><i data-lucide="calculator" class="w-5 h-5 text-amber-600"></i> Mathematik</span>
-            <i id="icon-mathe" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
-          </button>
-          <div id="list-mathe" class="p-2 space-y-1"></div>
-        </div>
+            <!-- Themen-Liste -->
+            <div class="flex-1 overflow-y-auto p-3 space-y-4" id="topic-list-container">
+                <!-- Dynamisch generierte Liste aller 20 Themen -->
+            </div>
+        </aside>
 
-        <!-- HSU -->
-        <div class="border border-emerald-100 rounded-xl overflow-hidden bg-emerald-50/40">
-          <button onclick="toggleSubject('hsu')" class="w-full p-3 font-bold text-emerald-900 bg-emerald-100/60 flex items-center justify-between text-left">
-            <span class="flex items-center gap-2"><i data-lucide="compass" class="w-5 h-5 text-emerald-600"></i> HSU</span>
-            <i id="icon-hsu" data-lucide="chevron-down" class="w-4 h-4 transition-transform"></i>
-          </button>
-          <div id="list-hsu" class="p-2 space-y-1"></div>
-        </div>
-
-      </div>
-
-      <!-- Gesamtfortschritts-Info -->
-      <div class="mt-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100 text-xs text-indigo-900 space-y-2">
-        <p class="font-bold flex items-center gap-1 text-sm"><i data-lucide="award" class="w-4 h-4 text-indigo-600"></i> Lernfortschritt aktiv</p>
-        <p class="text-slate-600 leading-relaxed">Alle gelösten Aufgaben werden automatisch im Browser gespeichert.</p>
-        <button onclick="resetAllProgress()" class="text-xs text-rose-600 font-bold hover:underline pt-1 inline-block">
-          Fortschritt zurücksetzen
-        </button>
-      </div>
-    </aside>
-
-    <!-- Hauptbereich -->
-    <main class="flex-1 min-w-0">
-      
-      <div id="topic-container" class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
-        
-        <!-- Header -->
-        <div id="topic-header" class="p-6 border-b border-slate-100 bg-slate-50 flex flex-wrap justify-between items-start gap-4">
-          <div>
-            <div id="subject-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase mb-2">Fach</div>
-            <h2 id="topic-title" class="text-2xl font-black text-slate-900">Themenübersicht</h2>
-            <p id="topic-subtitle" class="text-sm text-slate-500 mt-1">Wähle ein Thema aus der Navigationsleiste aus.</p>
-          </div>
-          
-          <!-- Tabs -->
-          <div class="flex bg-slate-200/80 p-1 rounded-xl text-xs md:text-sm font-bold no-print">
-            <button onclick="switchTab('erlaeuterung')" id="tab-btn-erlaeuterung" class="px-3 md:px-4 py-2 rounded-lg flex items-center gap-2 bg-white shadow-sm text-indigo-900">
-              <i data-lucide="book-open-text" class="w-4 h-4"></i> Erläuterung & Video
-            </button>
-            <button onclick="switchTab('uebungen')" id="tab-btn-uebungen" class="px-3 md:px-4 py-2 rounded-lg flex items-center gap-2 text-slate-600 hover:text-slate-900">
-              <i data-lucide="pen-tool" class="w-4 h-4"></i> Übungen (30)
-            </button>
-            <button onclick="switchTab('hausaufgabe')" id="tab-btn-hausaufgabe" class="px-3 md:px-4 py-2 rounded-lg flex items-center gap-2 text-slate-600 hover:text-slate-900">
-              <i data-lucide="file-text" class="w-4 h-4"></i> Hausaufgabenblätter (10)
-            </button>
-          </div>
-        </div>
-
-        <!-- TAB 1: Erläuterung & Video -->
-        <div id="tab-erlaeuterung" class="p-6 space-y-6">
-          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-            <h3 class="text-lg font-bold text-amber-900 flex items-center gap-2 mb-3">
-              <i data-lucide="lightbulb" class="w-5 h-5 text-amber-600"></i> Merkkasten & Fachwissen
-            </h3>
-            <div id="explanation-content" class="prose prose-slate text-sm text-slate-700 leading-relaxed"></div>
-          </div>
-
-          <div class="space-y-3">
-            <div class="flex justify-between items-center">
-              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                <i data-lucide="video" class="w-5 h-5 text-indigo-600"></i> Passendes Erklärvideo
-              </h3>
-              <a id="video-external-link" href="#" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-indigo-600 hover:underline flex items-center gap-1 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">
-                <span>Video auf YouTube öffnen</span>
-                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
-              </a>
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 bg-slate-50" id="main-content">
+            
+            <!-- Dynamic Content Container -->
+            <div id="content-display" class="max-w-4xl mx-auto">
+                <!-- Dynamischer Inhalt wird hier gerendert -->
             </div>
             
-            <div id="video-wrapper" class="aspect-video w-full rounded-2xl overflow-hidden bg-slate-900 shadow-lg border border-slate-200 relative">
-              <iframe id="video-frame" class="w-full h-full" src="" title="Lernvideo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 2: Vertiefungsübungen (30 Aufgaben mit Fortschritts-Anzeige) -->
-        <div id="tab-uebungen" class="p-6 space-y-6 hidden">
-          
-          <!-- Fortschritts-Header -->
-          <div class="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="w-full md:w-auto">
-              <div class="flex items-center gap-2">
-                <i data-lucide="trophy" class="w-5 h-5 text-amber-500"></i>
-                <h4 class="font-bold text-indigo-950 text-sm">Dein Lernfortschritt in diesem Thema</h4>
-              </div>
-              <p id="progress-text" class="text-xs text-indigo-700 mt-1">0 von 30 Übungen gelöst (0%)</p>
-            </div>
-            <div class="w-full md:w-64 bg-indigo-200 rounded-full h-3 overflow-hidden">
-              <div id="progress-bar-fill" class="bg-indigo-600 h-full w-0% transition-all duration-500"></div>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap justify-between items-center gap-3 border-b pb-4">
-            <div>
-              <h3 class="text-lg font-bold text-slate-900">30 Vertiefungsübungen (10 pro Level)</h3>
-              <p class="text-xs text-slate-500">Wähle eine Differenzierungsstufe oder bestreite alle 30 Aufgaben.</p>
-            </div>
-            
-            <!-- Filter-Buttons -->
-            <div class="flex gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-bold">
-              <button onclick="filterLevel(0)" id="lvl-btn-0" class="px-3 py-1.5 rounded-lg bg-white text-indigo-900 shadow-sm">Alle (30)</button>
-              <button onclick="filterLevel(1)" id="lvl-btn-1" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-emerald-700">🟢 Basis (10)</button>
-              <button onclick="filterLevel(2)" id="lvl-btn-2" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-amber-700">🟡 Standard (10)</button>
-              <button onclick="filterLevel(3)" id="lvl-btn-3" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-rose-700">🔴 Forder (10)</button>
-            </div>
-          </div>
-
-          <div id="exercises-list" class="space-y-6"></div>
-        </div>
-
-        <!-- TAB 3: Hausaufgabenblätter (10 Blätter wählbar, je 5 Aufgaben) -->
-        <div id="tab-hausaufgabe" class="p-6 space-y-6 hidden">
-          <div class="flex flex-wrap justify-between items-center gap-3 no-print border-b pb-4">
-            <div class="flex items-center gap-3">
-              <label class="text-sm font-bold text-slate-700">Arbeitsblatt auswählen:</label>
-              <select id="hw-sheet-select" onchange="changeHomeworkSheet(this.value)" class="bg-indigo-50 border border-indigo-200 text-indigo-900 font-bold text-sm px-3 py-1.5 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
-              </select>
-            </div>
-            
-            <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-sm flex items-center gap-2 shadow transition">
-              <i data-lucide="printer" class="w-4 h-4"></i> Druckansicht öffnen
-            </button>
-          </div>
-
-          <!-- Druckbares Blatt -->
-          <div id="printable-homework" class="bg-white p-8 border border-slate-300 rounded-xl shadow-sm space-y-6 font-sans">
-            
-            <div class="border-b-2 border-slate-900 pb-4 flex justify-between items-end">
-              <div>
-                <span class="text-xs font-bold tracking-widest uppercase text-slate-500">Grundschul-Lernportal RoSchu • 3. Klasse Bayern</span>
-                <h2 id="hw-sheet-title" class="text-2xl font-black text-slate-900">HAUSAUFGABENBLATT 1</h2>
-                <p id="hw-sheet-topic" class="text-sm font-semibold text-indigo-700">Thema</p>
-              </div>
-              <div class="text-right text-xs space-y-1">
-                <p><strong>Name:</strong> ___________________________</p>
-                <p><strong>Datum:</strong> ___________________________</p>
-              </div>
-            </div>
-
-            <div id="hw-tasks-container" class="space-y-6"></div>
-
-            <div class="pt-8 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500">
-              <p>Rückmeldung Lehrkraft: ⚪ Super! ⚪ Gut gemacht ⚪ Bitte noch einmal üben</p>
-              <p>Unterschrift Eltern: ___________________</p>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-
-    </main>
-
-  </div>
-
-  <!-- MODAL: Neue Inhalte -->
-  <div id="add-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="plus-circle" class="w-5 h-5 text-indigo-600"></i> Inhalt zu RoSchu hinzufügen
-        </h3>
-        <button onclick="closeAddContentModal()" class="text-slate-400 hover:text-slate-600">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <form id="add-content-form" onsubmit="saveNewContent(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ziel-Thema</label>
-          <select id="add-topic-id" class="w-full p-2.5 border rounded-xl text-sm bg-slate-50"></select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Differenzierungsstufe</label>
-          <select id="add-level" class="w-full p-2.5 border rounded-xl text-sm bg-slate-50">
-            <option value="1">🟢 Stufe 1 (Basis)</option>
-            <option value="2">🟡 Stufe 2 (Standard)</option>
-            <option value="3">🔴 Stufe 3 (Forder)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Aufgabenstellung / Titel</label>
-          <input type="text" id="add-title" required placeholder="z. B. Subjekte erfragen" class="w-full p-2.5 border rounded-xl text-sm">
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Beschreibung / Anweisung</label>
-          <textarea id="add-text" rows="3" required placeholder="Genaue Aufgabenstellung..." class="w-full p-2.5 border rounded-xl text-sm"></textarea>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Musterlösung</label>
-          <textarea id="add-solution" rows="2" placeholder="Erwartete Antwort..." class="w-full p-2.5 border rounded-xl text-sm"></textarea>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-3 border-t">
-          <button type="button" onclick="closeAddContentModal()" class="px-4 py-2 text-sm font-bold text-slate-500 hover:bg-slate-100 rounded-xl">Abbrechen</button>
-          <button type="submit" class="px-5 py-2 text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow">Speichern</button>
-        </div>
-      </form>
+        </main>
     </div>
-  </div>
-
-  <!-- MODAL: JSON -->
-  <div id="json-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-4">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="file-json" class="w-5 h-5 text-amber-600"></i> RoSchu Datenverwaltung (JSON)
-        </h3>
-        <button onclick="closeJsonModal()" class="text-slate-400 hover:text-slate-600">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <textarea id="json-textarea" rows="12" class="w-full font-mono text-xs p-3 bg-slate-900 text-green-400 rounded-xl border border-slate-700"></textarea>
-
-      <div class="flex justify-between items-center pt-2">
-        <button onclick="resetDataToDefault()" class="text-xs text-red-600 font-bold hover:underline">
-          Auf Standard zurücksetzen
-        </button>
-        <div class="flex gap-2">
-          <button onclick="copyJsonToClipboard()" class="px-3 py-1.5 text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg">
-            Kopieren
-          </button>
-          <button onclick="importJsonData()" class="px-4 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow">
-            JSON Importieren & Speichern
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Generierung von 30 Übungen (10 Level 1, 10 Level 2, 10 Level 3) pro Thema
-    function generate30Exercises(topicPrefix, l1Templates, l2Templates, l3Templates) {
-      const list = [];
-      
-      // 10 Level 1 Übungen
-      for (let i = 1; i <= 10; i++) {
-        const item = l1Templates[(i - 1) % l1Templates.length](i);
-        list.push({ id: `${topicPrefix}_l1_${i}`, level: 1, title: `Übung 🟢 1.${i}: ${item.title}`, text: item.text, solution: item.solution });
-      }
-      
-      // 10 Level 2 Übungen
-      for (let i = 1; i <= 10; i++) {
-        const item = l2Templates[(i - 1) % l2Templates.length](i);
-        list.push({ id: `${topicPrefix}_l2_${i}`, level: 2, title: `Übung 🟡 2.${i}: ${item.title}`, text: item.text, solution: item.solution });
-      }
-      
-      // 10 Level 3 Übungen
-      for (let i = 1; i <= 10; i++) {
-        const item = l3Templates[(i - 1) % l3Templates.length](i);
-        list.push({ id: `${topicPrefix}_l3_${i}`, level: 3, title: `Übung 🔴 3.${i}: ${item.title}`, text: item.text, solution: item.solution });
-      }
-      
-      return list;
-    }
-
-    // Generierung von 10 Hausaufgabenblättern
-    function generate10HomeworkSheets(topicTitle, taskTemplates) {
-      const sheets = [];
-      for (let b = 1; b <= 10; b++) {
-        sheets.push({
-          id: b,
-          title: `Hausaufgabenblatt ${b}: ${topicTitle}`,
-          tasks: [
-            `1. ${taskTemplates[0](b)}`,
-            `2. ${taskTemplates[1](b)}`,
-            `3. ${taskTemplates[2](b)}`,
-            `4. ${taskTemplates[3](b)}`,
-            `5. ${taskTemplates[4](b)}`
-          ]
-        });
-      }
-      return sheets;
-    }
-
-    // LEHRPLANDATENBANK MIT KORRIGIERTEN YOUTUBE EMBEDS UND UTILS
-    const INITIAL_TOPICS_DATA = {
-      "deutsch-wortarten": {
-        subject: "deutsch",
-        subjectName: "Deutsch",
-        title: "Wortarten (Nomen, Verben, Adjektive, Pronomen)",
-        description: "Nomen, Verben, Adjektive und Pronomen sicher bestimmen.",
-        videoId: "IIhSUVdcgVU",
-        explanation: `
-          <p><strong>Die Wortarten im Überblick:</strong></p>
-          <ul class="list-disc ml-5 space-y-1 my-2">
-            <li><strong>Nomen:</strong> Dinge, Tiere, Menschen. Werden großgeschrieben (z. B. <em>Hund, Baum</em>).</li>
-            <li><strong>Verben:</strong> Tunwörter (z. B. <em>laufen, lesen</em>). Werden konjugiert.</li>
-            <li><strong>Adjektive:</strong> Wie-Wörter (z. B. <em>schnell, leise</em>). Beschreiben Nomen.</li>
-            <li><strong>Pronomen:</strong> Fürwörter (z. B. <em>ich, er, sie, wir</em>). Ersetzen Nomen.</li>
-          </ul>
-        `,
-        exercises: generate30Exercises("wortarten", 
-          [
-            (i) => ({ title: "Nomen erkennen", text: `Finde das Nomen im Satz ${i}: "Der kleine Hund läuft durch den Garten."`, solution: "Nomen: Hund, Garten." }),
-            (i) => ({ title: "Artikel zuordnen", text: `Setze den passenden Artikel ein: ___ Tisch, ___ Sonne, ___ Buch.`, solution: "der Tisch, die Sonne, das Buch." })
-          ],
-          [
-            (i) => ({ title: "Verb konjugieren", text: `Konjugiere das Verb 'schreiben' für Person ${i}: "ich schreibe, du ... "`, solution: "du schreibst, er schreibt, wir schreiben." }),
-            (i) => ({ title: "Adjektive steigern", text: `Steigere das Adjektiv: schnell – _________ – am schnellsten.`, solution: "schneller." })
-          ],
-          [
-            (i) => ({ title: "Pronomen ersetzen", text: `Ersetze das Nomen im Satz durch ein Pronomen: "Paul (${i}) spielt im Park."`, solution: "Er spielt im Park." }),
-            (i) => ({ title: "Wortarten-Analyse", text: `Bestimme alle 3 Wörter: "Sie läuft schnell."`, solution: "Sie (Pronomen), läuft (Verb), schnell (Adjektiv)." })
-          ]
-        ),
-        homeworkSheets: generate10HomeworkSheets("Wortarten", [
-          (b) => `Unterstreiche alle Nomen blau im Satz ${b}: "Der Fuchs schleicht durch den Wald."`,
-          (b) => `Setze den bestimmten Artikel für Wortgruppe ${b} ein: ___ Tisch, ___ Lampe.`,
-          (b) => `Bilde die Grundform vom Verb: läufst -> _________ | singt -> _________.`,
-          (b) => `Steigere das Adjektiv ${b}: laut -> _______________ -> am lautesten.`,
-          (b) => `Ersetze das Nomen durch ein Pronomen: "Anna baut eine Sandburg -> ___ baut eine Sandburg."`
-        ])
-      },
-
-      "deutsch-satzarten": {
-        subject: "deutsch",
-        subjectName: "Deutsch",
-        title: "Satzarten & Satzzeichen",
-        description: "Aussagesatz, Fragesatz und Ausrufesatz unterscheiden.",
-        videoId: "euRBniGGIPg",
-        explanation: `<p>Aussagesatz (.), Fragesatz (?), Ausrufesatz (!).</p>`,
-        exercises: generate30Exercises("satzarten",
-          [ (i) => ({ title: "Satzzeichen wählen", text: `Welches Satzzeichen gehört an Satz ${i}: "Wo wohnst du__"`, solution: "?" }) ],
-          [ (i) => ({ title: "Satz umformen", text: `Mache einen Fragesatz aus: "Du gehst nach Hause."`, solution: "Gehst du nach Hause?" }) ],
-          [ (i) => ({ title: "Aufforderung bilden", text: `Formuliere als Befehl: "Du räumst dein Zimmer auf."`, solution: "Räum dein Zimmer auf!" }) ]
-        ),
-        homeworkSheets: generate10HomeworkSheets("Satzarten", [
-          (b) => `Setze das richtige Satzzeichen am Satzende ${b}: "Kommst du heute ___"`,
-          (b) => `Bestimme die Satzart: "Bitte schließe das Fenster!" -> ______________`,
-          (b) => `Wandle um in Fragesatz: "Wir haben heute Sport." -> ______________`,
-          (b) => `Schreibe eine Aufforderung zum Thema Händewaschen.`,
-          (b) => `Nenne das Fragewort: "Warum ist das Gras grün?" -> ______________`
-        ])
-      },
-
-      "deutsch-satzglieder": {
-        subject: "deutsch",
-        subjectName: "Deutsch",
-        title: "Satzglieder (Subjekt, Prädikat, Objekt)",
-        description: "Sätze zerlegen und Bausteine erfragen.",
-        videoId: "0bab_ujo1Lk",
-        explanation: `<p>Subjekt (Wer/Was?), Prädikat (Was tut...?), Ortsangabe (Wo?).</p>`,
-        exercises: generate30Exercises("satzglieder",
-          [ (i) => ({ title: "Subjekt erfragen", text: `Erfrage das Subjekt im Satz ${i}: "Der Hund bellt."`, solution: "Wer oder was bellt? -> Der Hund." }) ],
-          [ (i) => ({ title: "Prädikat finden", text: `Welches Verb bildet das Prädikat in: "Paul liest ein Buch."?`, solution: "liest." }) ],
-          [ (i) => ({ title: "Umstellprobe", text: `Stelle den Satz um: "Heute geht Emma in die Schule."`, solution: "Emma geht heute in die Schule." }) ]
-        ),
-        homeworkSheets: generate10HomeworkSheets("Satzglieder", [
-          (b) => `Stelle den Satz ${b} um: "Am Abend liest Papa die Zeitung."`,
-          (b) => `Frage nach dem Subjekt: "Der Bär schläft." -> ______________`,
-          (b) => `Unterstreiche das Prädikat rot: "Lisa schreibt einen Brief."`,
-          (b) => `Frage nach dem Ort: "Die Kinder spielen im Garten." -> ______________`,
-          (b) => `Gliedere mit Strichen (|): "Morgen fährt die Klasse in den Zoo."`
-        ])
-      },
-
-      "deutsch-zeitformen": {
-        subject: "deutsch",
-        subjectName: "Deutsch",
-        title: "Zeitformen (Präsens, Präteritum, Perfekt)",
-        description: "Gegenwart und Vergangenheit im Text unterscheiden.",
-        videoId: "tY8O1j3o91Y",
-        explanation: `<p>Präsens (läuft), Präteritum (lief), Perfekt (ist gelaufen).</p>`,
-        exercises: generate30Exercises("zeitformen",
-          [ (i) => ({ title: "Präsens erkennen", text: `Steht "Er spielt Fußball" im Präsens?`, solution: "Ja, Gegenwart." }) ],
-          [ (i) => ({ title: "Präteritum bilden", text: `Bilde das Präteritum von 'laufen': er ________`, solution: "er lief." }) ],
-          [ (i) => ({ title: "Perfekt bilden", text: `Bilde das Perfekt von 'lachen': er hat ________`, solution: "er hat gelacht." }) ]
-        ),
-        homeworkSheets: generate10HomeworkSheets("Zeitformen", [
-          (b) => `Präteritum bilden: schreiben -> er _______________`,
-          (b) => `Perfekt bilden: laufen -> er ist _______________`,
-          (b) => `In Gegenwart setzen: "Der Hund bellte." -> _______________`,
-          (b) => `Unterstreiche das Hilfsverb: "Wir haben geschlafen."`,
-          (b) => `Verwandle ins Präteritum: "Der Prinz kommt." -> _______________`
-        ])
-      },
-
-      "mathe-zr1000": {
-        subject: "mathe",
-        subjectName: "Mathematik",
-        title: "Orientierung im ZR 1.000",
-        description: "Stellenwerte (H, Z, E) und Zahlenstrahl bis 1.000.",
-        videoId: "zCM0wWDB2J4",
-        explanation: `<p>10 E = 1 Z | 10 Z = 1 H | 10 H = 1 T.</p>`,
-        exercises: generate30Exercises("zr1000",
-          [ (i) => ({ title: "Zahl bilden", text: `${i} H + 3 Z + 5 E = _____?`, solution: `${i}35` }) ],
-          [ (i) => ({ title: "Vorgänger/Nachfolger", text: `Was ist der Nachfolger von ${200 + i * 10}?`, solution: `${201 + i * 10}` }) ],
-          [ (i) => ({ title: "Stellenwerte zerlegen", text: `Zerlege ${450 + i} in H, Z, E.`, solution: `4 H + 5 Z + ${i} E` }) ]
-        ),
-        homeworkSheets: generate10HomeworkSheets("Orientierung ZR 1.000", [
-          (b) => `Schreibe die Zahl: ${b} H + 2 Z + 4 E = ________`,
-          (b) => `Nenne den Nachfolger von ${300 + b * 10}: ________`,
-          (b) => `Zerlege ${500 + b * 5} = ______ + ______ + ______`,
-          (b) => `Bestimme die Nachbarzehner von ${612 + b}: ________ und ________`,
-          (b) => `Vergleiche (<, >): ${200 + b * 10} ____ ${205 + b * 8}`
-        ])
-      },
-
-      "mathe-schriftlich": {
-        subject: "mathe",
-        subjectName: "Mathematik",
-        title: "Schriftliche Addition & Subtraktion",
-        description: "Rechnen stellenwertgerecht untereinander mit Übertrag.",
-        videoId: "vE3lzRCVggU",
-        explanation: `<p>Von rechts nach links rechnen! Übertrag sauber notieren.</p>`,
-        exercises: generate30Exercises("schriftlich",
-          [ (i) => ({ title: "Schriftlich Addieren", text: `Berechne: ${120 + i * 10} + ${230 + i * 5}`, solution: `${350 + i * 15}` }) ],
-          [ (i) => ({ title: "Schriftlich Subtrahieren", text: `Berechne: ${500 + i * 20} - ${150 + i * 10}`, solution: `${350 + i * 10}` }) ],
-          [ (i) => ({ title: "Sachaufgabe Rechnen", text: `Anton spart ${100 + i * 5} € und bekommt ${50 + i} € geschenkt. Summe?`, solution: `${150 + i * 6} €` }) ]
-        ),
-        homeworkSheets: generate10HomeworkSheets("Schriftliches Rechnen", [
-          (b) => `Rechne schriftlich: ${120 + b * 10} + ${230 + b * 5} = ________`,
-          (b) => `Rechne schriftlich: ${500 + b * 10} - ${150 + b * 2} = ________`,
-          (b) => `Addition mit Übertrag: ${348 + b * 5} + ${185 + b} = ________`,
-          (b) => `Subtraktion: ${732 + b} - ${285} = ________`,
-          (b) => `Sachaufgabe: Summe aus ${200 + b * 10} und ${150 + b * 5}? -> ________ €`
-        ])
-      },
-
-      "mathe-geometrie": {
-        subject: "mathe",
-        subjectName: "Mathematik",
-        title: "Raum & Form (Geometrische Körper)",
-        description: "Würfel, Quader, Kugel, Zylinder und Pyramide.",
-        videoId: "OjL6ZEK7sC8",
-        explanation: `<p>Würfel: 6 quadratische Flächen, 8 Ecken, 12 Kanten.</p>`,
-        exercises: generate30Exercises("geometrie",
-          [ (i) => ({ title: "Ecken beim Würfel", text: `Wie viele Ecken hat ein Würfel?`, solution: "8 Ecken." }) ],
-          [ (i) => ({ title: "Kanten beim Quader", text: `Wie viele Kanten hat ein Quader?`, solution: "12 Kanten." }) ],
-          [ (i) => ({ title: "Netz des Würfels", text: `Aus wie vielen Quadraten besteht ein Würfelnetz?`, solution: "6 Quadrate." }) ]
-        ),
-        homeworkSheets: generate10HomeworkSheets("Geometrische Körper", [
-          (b) => `Anzahl der Ecken beim Würfel: ________ Ecken.`,
-          (b) => `Alltagsgegenstand Dose entspricht welchem Körper? -> ________`,
-          (b) => `Anzahl der Flächen beim Quader: ________ Flächen.`,
-          (b) => `Richtig oder Falsch? Kugel hat 8 Ecken. -> ________`,
-          (b) => `Zeichne freihändig ein Würfelnetz (6 Quadrate).`
-        ])
-      },
-
-      "hsu-wald": {
-        subject: "hsu",
-        subjectName: "HSU",
-        title: "Ökosystem Wald (Stockwerke & Tiere)",
-        description: "Die 5 Stockwerke des Waldes von Wurzel- bis Baumschicht.",
-        videoId: "-fsRdIiRyVQ",
-        explanation: `<p>Wurzel-, Moos-, Kraut-, Strauch- und Baumschicht.</p>`,
-        exercises: generate30Exercises("wald",
-          [ (i) => ({ title: "Stockwerk des Eichhörnchens", text: `In welchem Stockwerk lebt das Eichhörnchen?`, solution: "Baumschicht / Kronenschicht." }) ],
-          [ (i) => ({ title: "Bäume unterscheiden", text: `Nenne 2 heimische Nadelbäume.`, solution: "Fichte, Kiefer, Tanne." }) ],
-          [ (i) => ({ title: "Schwammfunktion Moos", text: `Welche Aufgabe hat Moos bei Regen?`, solution: "Speichert Wasser wie ein Schwamm." }) ]
-        ),
-        homeworkSheets: generate10HomeworkSheets("Ökosystem Wald", [
-          (b) => `Nenne die 5 Stockwerke des Waldes von unten nach oben.`,
-          (b) => `In welcher Schicht lebt die Haselmaus? -> ______________`,
-          (b) => `Unterscheide: Buchenblatt vs. Fichtennadel.`,
-          (b) => `Warum ist der Regenwurm nützlich für den Boden?`,
-          (b) => `Schreibe 3 Verhaltensregeln für den Wald auf.`
-        ])
-      },
-
-      "hsu-strom": {
-        subject: "hsu",
-        subjectName: "HSU",
-        title: "Elektrizität (Stromkreis & Leiter)",
-        description: "Geschlossener Stromkreis, Leiter, Isolatoren & Sicherheit.",
-        videoId: "vBC7jLv8Aik",
-        explanation: `<p>Strom fließt nur im geschlossenen Stromkreis! Metalle leiten Strom.</p>`,
-        exercises: generate30Exercises("strom",
-          [ (i) => ({ title: "Geschlossener Stromkreis", text: `Fließt Strom bei unterbrochenem Kabel?`, solution: "Nein, Stromkreis offen." }) ],
-          [ (i) => ({ title: "Leiter erkennen", text: `Leitet ein Eisennagel Strom?`, solution: "Ja, Metall leitet." }) ],
-          [ (i) => ({ title: "Isolator erkennen", text: `Leitet ein Plastiklineal Strom?`, solution: "Nein, Plastik ist ein Isolator." }) ]
-        ),
-        homeworkSheets: generate10HomeworkSheets("Elektrizität", [
-          (b) => `Offener Schalter = Ist Stromkreis offen oder geschlossen? -> ________`,
-          (b) => `Nenne 2 Metalle, die Strom leiten: 1. _______ 2. _______`,
-          (b) => `Nenne 2 Isolatoren: 1. _______ 2. _______`,
-          (b) => `Zeichne das Symbol für Batterie und Lämpchen.`,
-          (b) => `Schreibe 1 wichtige Sicherheitsregel zu Strom im Haushalt auf.`
-        ])
-      }
-    };
-
-    // Globaler Anwendungsstatus
-    let currentData = {};
-    let userProgress = {};
-    let activeTopicId = "deutsch-wortarten";
-    let activeTab = "erlaeuterung";
-    let currentLevelFilter = 0;
-
-    window.addEventListener("DOMContentLoaded", () => {
-      loadData();
-      loadProgress();
-      renderSidebar();
-      loadTopic(activeTopicId);
-      lucide.createIcons();
-
-      document.getElementById("search-input").addEventListener("input", (e) => {
-        filterSidebar(e.target.value.toLowerCase());
-      });
-    });
-
-    function loadData() {
-      const saved = localStorage.getItem("ROSCHU_LEHRPLAN_3_DATA");
-      if (saved) {
-        try { currentData = JSON.parse(saved); } 
-        catch (e) { currentData = JSON.parse(JSON.stringify(INITIAL_TOPICS_DATA)); }
-      } else {
-        currentData = JSON.parse(JSON.stringify(INITIAL_TOPICS_DATA));
-      }
-    }
-
-    function saveData() {
-      localStorage.setItem("ROSCHU_LEHRPLAN_3_DATA", JSON.stringify(currentData));
-    }
-
-    function loadProgress() {
-      const saved = localStorage.getItem("ROSCHU_PROGRESS_DATA");
-      if (saved) {
-        try { userProgress = JSON.parse(saved); } catch(e) { userProgress = {}; }
-      } else {
-        userProgress = {};
-      }
-    }
-
-    function saveProgress() {
-      localStorage.setItem("ROSCHU_PROGRESS_DATA", JSON.stringify(userProgress));
-      updateTopicProgressUI();
-    }
-
-    function markExerciseSolved(exId, isSolved) {
-      userProgress[exId] = isSolved;
-      saveProgress();
-      renderExercises(currentData[activeTopicId].exercises || []);
-    }
-
-    function resetAllProgress() {
-      if (confirm("Möchtest du wirklich deinen gesamten Übungsfortschritt zurücksetzen?")) {
-        userProgress = {};
-        saveProgress();
-        renderExercises(currentData[activeTopicId].exercises || []);
-      }
-    }
-
-    function toggleMobileMenu() {
-      document.getElementById("sidebar").classList.toggle("hidden");
-    }
-
-    function renderSidebar() {
-      const deutschContainer = document.getElementById("list-deutsch");
-      const matheContainer = document.getElementById("list-mathe");
-      const hsuContainer = document.getElementById("list-hsu");
-
-      deutschContainer.innerHTML = "";
-      matheContainer.innerHTML = "";
-      hsuContainer.innerHTML = "";
-
-      Object.keys(currentData).forEach(id => {
-        const topic = currentData[id];
-        const btn = document.createElement("button");
-        btn.className = `w-full text-left px-3 py-2 text-xs font-semibold rounded-lg transition flex items-center justify-between ${
-          id === activeTopicId ? 'bg-indigo-600 text-white shadow-sm' : 'hover:bg-white/80 text-slate-700'
-        }`;
-        btn.onclick = () => loadTopic(id);
-        btn.innerHTML = `<span>${topic.title}</span>`;
-
-        if (topic.subject === "deutsch") deutschContainer.appendChild(btn);
-        else if (topic.subject === "mathe") matheContainer.appendChild(btn);
-        else if (topic.subject === "hsu") hsuContainer.appendChild(btn);
-      });
-    }
-
-    function toggleSubject(subj) {
-      document.getElementById(`list-${subj}`).classList.toggle("hidden");
-      document.getElementById(`icon-${subj}`).classList.toggle("rotate-180");
-    }
-
-    function loadTopic(id) {
-      activeTopicId = id;
-      const topic = currentData[id];
-      if (!topic) return;
-
-      document.getElementById("topic-title").textContent = topic.title;
-      document.getElementById("topic-subtitle").textContent = topic.description;
-      
-      const badge = document.getElementById("subject-badge");
-      badge.textContent = topic.subjectName;
-      if (topic.subject === "deutsch") badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase mb-2 bg-blue-100 text-blue-800";
-      else if (topic.subject === "mathe") badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase mb-2 bg-amber-100 text-amber-800";
-      else badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold uppercase mb-2 bg-emerald-100 text-emerald-800";
-
-      // Tab 1: Erläuterung & Robuster Video-Embed
-      document.getElementById("explanation-content").innerHTML = topic.explanation;
-      
-      const vId = topic.videoId || (topic.videoUrl ? topic.videoUrl.split('/').pop() : "");
-      if (vId) {
-        document.getElementById("video-frame").src = `https://www.youtube.com/embed/${vId}?rel=0`;
-        document.getElementById("video-external-link").href = `https://www.youtube.com/watch?v=${vId}`;
-      }
-
-      // Tab 2: Übungen & Fortschritt
-      renderExercises(topic.exercises || []);
-      updateTopicProgressUI();
-
-      // Tab 3: Hausaufgaben
-      setupHomeworkDropdown(topic);
-
-      renderSidebar();
-      switchTab(activeTab);
-      lucide.createIcons();
-    }
-
-    function updateTopicProgressUI() {
-      const topic = currentData[activeTopicId];
-      if (!topic || !topic.exercises) return;
-
-      const total = topic.exercises.length;
-      let solvedCount = 0;
-
-      topic.exercises.forEach(ex => {
-        if (userProgress[ex.id]) solvedCount++;
-      });
-
-      const percent = total > 0 ? Math.round((solvedCount / total) * 100) : 0;
-      document.getElementById("progress-text").textContent = `${solvedCount} von ${total} Übungen gelöst (${percent}%)`;
-      document.getElementById("progress-bar-fill").style.width = `${percent}%`;
-    }
-
-    function switchTab(tabName) {
-      activeTab = tabName;
-      document.getElementById("tab-erlaeuterung").classList.add("hidden");
-      document.getElementById("tab-uebungen").classList.add("hidden");
-      document.getElementById("tab-hausaufgabe").classList.add("hidden");
-
-      document.getElementById("tab-btn-erlaeuterung").className = "px-3 md:px-4 py-2 rounded-lg flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      document.getElementById("tab-btn-uebungen").className = "px-3 md:px-4 py-2 rounded-lg flex items-center gap-2 text-slate-600 hover:text-slate-900";
-      document.getElementById("tab-btn-hausaufgabe").className = "px-3 md:px-4 py-2 rounded-lg flex items-center gap-2 text-slate-600 hover:text-slate-900";
-
-      document.getElementById(`tab-${tabName}`).classList.remove("hidden");
-      document.getElementById(`tab-btn-${tabName}`).className = "px-3 md:px-4 py-2 rounded-lg flex items-center gap-2 bg-white shadow-sm text-indigo-900 font-bold";
-    }
-
-    function filterLevel(lvl) {
-      currentLevelFilter = lvl;
-      for (let i = 0; i <= 3; i++) {
-        const btn = document.getElementById(`lvl-btn-${i}`);
-        if (i === lvl) btn.className = "px-3 py-1.5 rounded-lg bg-white text-indigo-900 shadow-sm font-bold";
-        else btn.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900";
-      }
-      renderExercises(currentData[activeTopicId].exercises || []);
-    }
-
-    function renderExercises(exercises) {
-      const container = document.getElementById("exercises-list");
-      container.innerHTML = "";
-
-      const filtered = currentLevelFilter === 0 
-        ? exercises 
-        : exercises.filter(ex => ex.level === currentLevelFilter);
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<p class="text-sm text-slate-400 italic">Keine Übungen für diese Differenzierungsstufe vorhanden.</p>`;
-        return;
-      }
-
-      filtered.forEach(ex => {
-        const isSolved = !!userProgress[ex.id];
-
-        let levelBadge = "";
-        if (ex.level === 1) levelBadge = `<span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">🟢 Stufe 1: Basis</span>`;
-        else if (ex.level === 2) levelBadge = `<span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">🟡 Stufe 2: Standard</span>`;
-        else levelBadge = `<span class="bg-rose-100 text-rose-800 text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">🔴 Stufe 3: Forder</span>`;
-
-        const solvedBadge = isSolved 
-          ? `<span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5 text-indigo-600"></i> Erledigt ✓</span>`
-          : '';
-
-        const card = document.createElement("div");
-        card.className = `p-5 border rounded-2xl space-y-3 transition ${
-          isSolved ? 'bg-indigo-50/30 border-indigo-200' : 'bg-white border-slate-200 shadow-sm'
-        }`;
-
-        card.innerHTML = `
-          <div class="flex justify-between items-center gap-2">
-            <div class="flex items-center gap-2">
-              ${levelBadge}
-              ${solvedBadge}
-            </div>
-            <span class="text-xs text-slate-400">${ex.id}</span>
-          </div>
-          <h4 class="font-bold text-slate-900 text-base">${ex.title}</h4>
-          <p class="text-sm text-slate-700 leading-relaxed">${ex.text}</p>
-          <div class="pt-2 space-y-2">
-            <div class="flex gap-2">
-              <input type="text" placeholder="Deine Antwort hier eingeben..." class="flex-1 p-2 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-indigo-500">
-              <button onclick="checkAnswer(this, '${ex.id}', '${encodeURIComponent(ex.solution || '')}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition">Prüfen</button>
-            </div>
-            <div class="flex justify-between items-center text-xs pt-1">
-              <button onclick="markExerciseSolved('${ex.id}', ${!isSolved})" class="font-bold text-slate-500 hover:text-indigo-600 underline">
-                ${isSolved ? 'Als ungelöst markieren' : 'Manuell als gelöst markieren ✓'}
-              </button>
-              ${ex.solution ? `
-                <details class="text-xs text-slate-500">
-                  <summary class="cursor-pointer font-bold text-indigo-600 hover:underline">Musterlösung anzeigen</summary>
-                  <div class="p-3 bg-slate-100 rounded-xl mt-1 border border-slate-200 text-slate-800 font-mono">${ex.solution}</div>
-                </details>
-              ` : ''}
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-      lucide.createIcons();
-    }
-
-    function checkAnswer(btn, exId, encodedSolution) {
-      const solution = decodeURIComponent(encodedSolution);
-      const parent = btn.parentElement.parentElement;
-      const input = parent.querySelector("input");
-
-      if (!input.value.trim()) {
-        alert("Bitte gib zuerst eine Antwort ein!");
-        return;
-      }
-
-      markExerciseSolved(exId, true);
-      alert(`Super! Deine Aufgabe wurde als gelöst gespeichert.\n\nMusterlösung: ${solution}`);
-    }
-
-    function setupHomeworkDropdown(topic) {
-      const select = document.getElementById("hw-sheet-select");
-      select.innerHTML = "";
-
-      const sheets = topic.homeworkSheets || [];
-      sheets.forEach((sheet, index) => {
-        const opt = document.createElement("option");
-        opt.value = index;
-        opt.textContent = sheet.title || `Hausaufgabenblatt ${index + 1}`;
-        select.appendChild(opt);
-      });
-
-      renderSelectedHomeworkSheet(0);
-    }
-
-    function changeHomeworkSheet(sheetIndex) {
-      renderSelectedHomeworkSheet(parseInt(sheetIndex));
-    }
-
-    function renderSelectedHomeworkSheet(sheetIndex = 0) {
-      const topic = currentData[activeTopicId];
-      const sheets = topic.homeworkSheets || [];
-      const sheet = sheets[sheetIndex] || sheets[0];
-
-      document.getElementById("hw-sheet-topic").textContent = `${topic.subjectName} • ${topic.title}`;
-      document.getElementById("hw-sheet-title").textContent = sheet ? sheet.title : "HAUSAUFGABENBLATT";
-
-      const container = document.getElementById("hw-tasks-container");
-      container.innerHTML = "";
-
-      if (!sheet || !sheet.tasks) return;
-
-      sheet.tasks.forEach((taskText) => {
-        const item = document.createElement("div");
-        item.className = "space-y-2 border-b border-slate-100 pb-4 last:border-0";
-        item.innerHTML = `
-          <p class="text-sm font-semibold text-slate-800 whitespace-pre-line leading-relaxed">${taskText}</p>
-          <div class="pt-3 space-y-2">
-            <div class="border-b border-slate-300 w-full h-3"></div>
-            <div class="border-b border-slate-300 w-full h-3"></div>
-          </div>
-        `;
-        container.appendChild(item);
-      });
-    }
-
-    function openAddContentModal() {
-      const selectTopic = document.getElementById("add-topic-id");
-      selectTopic.innerHTML = "";
-
-      Object.keys(currentData).forEach(id => {
-        const opt = document.createElement("option");
-        opt.value = id;
-        opt.textContent = `[${currentData[id].subjectName}] ${currentData[id].title}`;
-        if (id === activeTopicId) opt.selected = true;
-        selectTopic.appendChild(opt);
-      });
-
-      document.getElementById("add-modal").classList.remove("hidden");
-    }
-
-    function closeAddContentModal() {
-      document.getElementById("add-modal").classList.add("hidden");
-    }
-
-    function saveNewContent(e) {
-      e.preventDefault();
-      const targetTopicId = document.getElementById("add-topic-id").value;
-      const title = document.getElementById("add-title").value;
-      const text = document.getElementById("add-text").value;
-      const solution = document.getElementById("add-solution").value;
-      const level = parseInt(document.getElementById("add-level").value);
-
-      if (!currentData[targetTopicId]) return;
-
-      if (!currentData[targetTopicId].exercises) currentData[targetTopicId].exercises = [];
-      currentData[targetTopicId].exercises.push({
-        id: "u_" + Date.now().toString().slice(-4),
-        level: level,
-        title: title,
-        text: text,
-        solution: solution
-      });
-
-      saveData();
-      closeAddContentModal();
-      document.getElementById("add-content-form").reset();
-      
-      loadTopic(targetTopicId);
-      switchTab("uebungen");
-    }
-
-    function openJsonModal() {
-      document.getElementById("json-textarea").value = JSON.stringify(currentData, null, 2);
-      document.getElementById("json-modal").classList.remove("hidden");
-    }
-
-    function closeJsonModal() {
-      document.getElementById("json-modal").classList.add("hidden");
-    }
-
-    function copyJsonToClipboard() {
-      const textarea = document.getElementById("json-textarea");
-      textarea.select();
-      navigator.clipboard.writeText(textarea.value);
-      alert("JSON in die Zwischenablage kopiert!");
-    }
-
-    function importJsonData() {
-      try {
-        const val = document.getElementById("json-textarea").value;
-        currentData = JSON.parse(val);
-        saveData();
-        closeJsonModal();
-        renderSidebar();
-        loadTopic(activeTopicId);
-        alert("Daten erfolgreich importiert!");
-      } catch (err) {
-        alert("Ungültiges JSON-Format!");
-      }
-    }
-
-    function resetDataToDefault() {
-      if (confirm("RoSchu-Daten auf den Standard-Zustand zurücksetzen?")) {
-        currentData = JSON.parse(JSON.stringify(INITIAL_TOPICS_DATA));
-        saveData();
-        closeJsonModal();
-        renderSidebar();
-        loadTopic(activeTopicId);
-      }
-    }
-  </script>
+
+    <script>
+        /**
+         * LEHRPLANPLUS BAYERN - 3. KLASSE VOLLSTÄNDIGE DATENBANK
+         * 20 detaillierte Themen (6x Deutsch, 7x Mathematik, 7x HSU)
+         */
+        const CURRICULUM_DATA = [
+            // ==========================================
+            // 📘 DEUTSCH
+            // ==========================================
+            {
+                id: "de_wortarten",
+                subject: "deutsch",
+                subjectName: "Deutsch",
+                title: "Wortarten unterscheiden",
+                subtitle: "Nomen, Verben, Adjektive, Artikel & Pronomen",
+                videoId: "IIhSUVdcgVU",
+                explanation: {
+                    summary: "Im Deutschen unterscheiden wir Wörter nach ihrer Aufgabe im Satz. In der 3. Klasse lernen wir fünf wichtige Wortarten gründlich kennen:",
+                    points: [
+                        "<strong>Nomen (Namenwörter):</strong> Bezeichnen Lebewesen, Dinge und Pflanzen. Werden IMMER großgeschrieben! Haben oft einen Artikel davor (Begleiter). Probepaar: <em>das Haus, die Freude, der Hund</em>.",
+                        "<strong>Verben (Tunwörter):</strong> Sagen, was jemand tut oder was geschieht. Werden kleingeschrieben. Haben eine Grundform (Infinitiv) und Personalformen (<em>ich laufe, du läufst, er läuft</em>).",
+                        "<strong>Adjektive (Wie-Wörter):</strong> Beschreiben, WIE etwas ist. Werden kleingeschrieben. Lassen sich steigern (<em>schnell → schneller → am schnellsten</em>).",
+                        "<strong>Artikel (Begleiter):</strong> Stehen vor Nomen. Bestimmt (<em>der, die, das</em>) oder unbestimmt (<em>ein, eine</em>).",
+                        "<strong>Pronomen (Fürwörter):</strong> Stehen anstelle eines Nomens (<em>ich, du, er, sie, es, wir, ihr, sie</em>)."
+                    ],
+                    keyTerms: [
+                        { term: "Signale für Nomen", def: "Signalwörter wie Artikel (der/ein) oder Verstecke (zum = zu dem) verraten Nomen." },
+                        { term: "Konjugation", def: "Das Anpassen des Verbs an die Person (ich gehe, du gehst)." },
+                        { term: "Steigerung", def: "Positiv (groß), Komparativ (größer), Superlativ (am größten)." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "de_w_b1", type: "mc", task: "Welches Wort ist ein NOMEN und muss großgeschrieben werden?", options: ["schnell", "laufen", "SCHULE", "blau"], answer: "SCHULE", hint: "Man kann 'die' davor setzen.", explanation: "'Die Schule' ist ein Nomen (Ding/Ort)." },
+                        { id: "de_w_b2", type: "input", task: "Schreibe die Grundform (Infinitiv) des Verbs 'sie liest' auf:", answer: "lesen", hint: "Was tut man allgemein?", explanation: "Die Grundform endet meist auf -en." },
+                        { id: "de_w_b3", type: "mc", task: "Steigere das Adjektiv 'hoch' richtig: hoch → höher → am ___", options: ["höchsten", "hochsten", "am am höchsten", "höheren"], answer: "höchsten", hint: "Achte auf den Umlaut ö und das ch.", explanation: "Die höchste Stufe heißt 'am höchsten'." }
+                    ],
+                    standard: [
+                        { id: "de_w_s1", type: "input", task: "Setze das Pronomen ein: Das Mädchen lacht. ___ ist fröhlich.", answer: "Sie", hint: "Welches Fürwort ersetzt 'Das Mädchen'?", explanation: "'Sie' ersetzt das Mädchen im 2. Satz." },
+                        { id: "de_w_s2", type: "input", task: "Finde das Adjektiv im Satz: 'Der kleine Hund bellt laut.'", answer: "kleine", hint: "Wie ist der Hund?", explanation: "'kleine' beschreibt das Nomen Hund genauer." },
+                        { id: "de_w_s3", type: "mc", task: "Welche Wortart versteckt sich in 'zum'?", options: ["zu + dem (Präposition + Artikel)", "nur ein Verb", "ein Pronomen", "ein Nomen"], answer: "zu + dem (Präposition + Artikel)", hint: "zum Haus = zu dem Haus", explanation: "Im Wort 'zum' steckt der bestimmte Artikel 'dem'." }
+                    ],
+                    forder: [
+                        { id: "de_w_f1", type: "input", task: "Nenne das abstrakte Nomen (Gefühl): 'Vor der Prüfung hatte er große Angst.'", answer: "Angst", hint: "Auch Gefühle sind Nomen und werden großgeschrieben.", explanation: "Gefühle wie Angst, Freude, Mut sind Nomen!" },
+                        { id: "de_w_f2", type: "mc", task: "Bestimme alle Wortarten in: 'Wir kaufen süße Äpfel.'", options: ["Pronomen - Verb - Adjektiv - Nomen", "Nomen - Verb - Adjektiv - Pronomen", "Artikel - Verb - Nomen - Adjektiv"], answer: "Pronomen - Verb - Adjektiv - Nomen", hint: "Gehe Wort für Wort durch.", explanation: "Wir (Pronomen) kaufen (Verb) süße (Adjektiv) Äpfel (Nomen)." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Wortarten-Detektiv im Einsatz",
+                        tasks: [
+                            "1. Ordne die Wörter der richtigen Wortart zu: Hund, rennen, schön, die, er.\n   Nomen: ______ | Verb: ______ | Adjektiv: ______",
+                            "2. Setze den passenden unbestimmten Artikel ein: ___ Haus, ___ Katze, ___ Baum.",
+                            "3. Konjugiere das Verb 'spielen' in allen Personen (ich, du, er/sie/es, wir, ihr, sie).",
+                            "4. Unterstreiche alle Adjektive blau: 'An einem sonnigen Tag flog ein bunter Schmetterling über die grüne Wiese.'",
+                            "5. Schreibe 3 Sätze und ersetze die Nomen im 2. Satz durch Pronomen (er, sie, es)."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Profi-Training Wortarten & Großschreibung",
+                        tasks: [
+                            "1. Finde die Nomen-Signalwörter: 'Beim Laufen verstauchte er sich den Fuß.' Warum wird 'Laufen' großgeschrieben?",
+                            "2. Steigere folgende Adjektive: viel, gut, nah.",
+                            "3. Fülle die Tabelle aus: Verb (sie läuft) → Grundform: ______ → Präteritum: ______",
+                            "4. Kreise alle bestimmten Artikel rot und unbestimmten Artikel grün ein.",
+                            "5. Verwandle die Adjektive in Nomen mit den Endungen -heit, -keit oder -nis: frei → ______, sauber → ______."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "de_satzarten",
+                subject: "deutsch",
+                subjectName: "Deutsch",
+                title: "Satzarten & Satzzeichen",
+                subtitle: "Aussage-, Frage-, Ausrufe- & Aufforderungssätze",
+                videoId: "euRBniGGIPg",
+                explanation: {
+                    summary: "Jeder Satz drückt eine Absicht aus. Je nach Satzart verändert sich das Satzzeichen am Ende und die Satzmelodie:",
+                    points: [
+                        "<strong>Aussagesatz (.):</strong> Teilt eine Information mit. Das Verb steht an 2. Stelle. <em>Beispiel: Wir fahren heute nach München.</em>",
+                        "<strong>Fragesatz (?):</strong> Verlangt eine Antwort. Beginnt oft mit einem Fragewort (W-Fragen: Wer, Wie, Wo, Warum) oder dem Verb. <em>Beispiel: Fährst du mit? / Wann kommen wir an?</em>",
+                        "<strong>Ausrufesatz / Befehlssatz (!):</strong> Drückt Überraschung, Warnung oder eine Aufforderung aus. Das Verb steht oft am Anfang. <em>Beispiel: Pass gut auf! / Das ist fantastisch!</em>"
+                    ],
+                    keyTerms: [
+                        { term: "Satzmelodie", def: "Beim Fragesatz geht die Stimme am Ende nach oben." },
+                        { term: "W-Fragen", def: "Fragesätze mit Fragewörtern wie Wer, Wie, Wo, Was, Warum, Wann." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "de_s_b1", type: "mc", task: "Welches Satzzeichen gehört am Ende? 'Hast du deine Hausaufgaben gemacht'", options: ["?", ".", "!"], answer: "?", hint: "Es ist eine Frage.", explanation: "Auf Fragen folgt ein Fragezeichen." },
+                        { id: "de_s_b2", type: "mc", task: "Welche Satzart ist das? 'Halt sofort an!'", options: ["Aufforderungssatz / Ausrufesatz", "Aussagesatz", "Fragesatz"], answer: "Aufforderungssatz / Ausrufesatz", hint: "Es ist ein Befehl mit !", explanation: "Aufforderungen enden mit Ausrufezeichen." }
+                    ],
+                    standard: [
+                        { id: "de_s_s1", type: "input", task: "Wandle in einen Fragesatz um: 'Der Hund bellt im Garten.' → '___ der Hund im Garten?'", answer: "Bellt", hint: "Setze das Verb an den Anfang.", explanation: "Durch Umstellung des Verbs an Position 1 entsteht eine Frage." },
+                        { id: "de_s_s2", type: "input", task: "Ergänze das passende Fragewort: '___ alt bist du?'", answer: "Wie", hint: "Es fragt nach der Eigenschaft/Zahl.", explanation: "Die Frage lautet: Wie alt bist du?" }
+                    ],
+                    forder: [
+                        { id: "de_s_f1", type: "mc", task: "Welcher Satz ist grammatikalisch ein AUFFORDERUNGSSATZ?", options: ["Du musst bitte aufräumen.", "Räum bitte sofort dein Zimmer auf!", "Räumst du bitte auf?"], answer: "Räum bitte sofort dein Zimmer auf!", hint: "Das Verb im Imperativ steht ganz vorne.", explanation: "'Räum auf!' verwendet die Befehlsform am Satzanfang." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Die richtigen Satzzeichen setzen",
+                        tasks: [
+                            "1. Setze . ? oder ! am Satzende ein:\n   a) Morgen gehen wir in den Zoo ___\n   b) Wie viel Uhr ist es ___ \n   c) Vorsicht, da kommt ein Auto ___",
+                            "2. Bestimme jeweils die Satzart (Aussagesatz, Fragesatz, Aufforderungssatz).",
+                            "3. Schreibe zu jedem Satzzeichen (. ? !) selbst einen passenden Satz zum Thema 'Schule'.",
+                            "4. Finde 5 Fragewörter mit W am Anfang und schreibe sie auf.",
+                            "5. Verwandle den Aussagesatz 'Lisa liest ein Buch.' in eine Frage und eine Aufforderung."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Satzarten verändern & Satzmelodie",
+                        tasks: [
+                            "1. Formuliere aus den Wörtern drei verschiedene Satzarten: (Kuchen / du / bäckst / einen)",
+                            "2. Welches Satzzeichen fehlt im Dialog? Füge fehlende Satzzeichen ein.",
+                            "3. Kennzeichne Sätze, bei denen die Stimme nach oben geht, mit einem Pfeil ↗.",
+                            "4. Erstelle 3 höfliche Aufforderungen für den Unterricht.",
+                            "5. Korrigiere die falschen Satzzeichen im Text."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "de_satzglieder",
+                subject: "deutsch",
+                subjectName: "Deutsch",
+                title: "Satzglieder untersuchen",
+                subtitle: "Subjekt, Prädikat, Objekt & Ortsangaben",
+                videoId: "0bab_ujo1Lk",
+                explanation: {
+                    summary: "Sätze bestehen aus Bausteinen, die man zusammen verschieben kann – den Satzgliedern. Mit Proben überprüfen wir sie:",
+                    points: [
+                        "<strong>Subjekt (Satzgegenstand):</strong> WER oder WAS tut etwas? Steht im 1. Fall (Nominativ).",
+                        "<strong>Prädikat (Satzaussage):</strong> WAS TUT das Subjekt? Das Prädikat ist immer ein Verb und bildet den Kern des Satzes.",
+                        "<strong>Objekt (Satzergänzung):</strong> Ergänzt den Satz. Erfragbar mit WEN/WAS (Akkusativ) oder WEM (Dativ).",
+                        "<strong>Ortsangabe (Lokaladverbiale):</strong> WO oder WOHIN geschieht etwas?",
+                        "<strong>Umstellprobe:</strong> Satzglieder lassen sich nur als Ganzes im Satz verschieben, ohne dass der Sinn zerstört wird."
+                    ],
+                    keyTerms: [
+                        { term: "Umstellprobe", def: "Verschiebe Wortgruppen. Was zusammen bleibt, bildet ein Satzglied!" },
+                        { term: "Frageprobe", def: "Satzglieder bestimmt man mit der passenden Frage (Wer? Was tut? Wo?)." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "de_sg_b1", type: "mc", task: "Mit welcher Frage ermittelt man das SUBJEKT?", options: ["Wer oder was?", "Wo?", "Warum?", "Was tut?"], answer: "Wer oder was?", hint: "Es fragt nach der handelnden Person/Sache.", explanation: "Das Subjekt erfragt man mit 'Wer oder was?'." },
+                        { id: "de_sg_b2", type: "input", task: "Finde das Prädikat im Satz: 'Der Junge kickt den Ball.'", answer: "kickt", hint: "Welches Verb beschreibt die Handlung?", explanation: "'kickt' ist das Prädikat (Was tut der Junge?)." }
+                    ],
+                    standard: [
+                        { id: "de_sg_s1", type: "input", task: "Erfrage das Subjekt im Satz 'Im Wald singt ein Vogel.': Wer oder was singt?", answer: "ein Vogel", hint: "Wer führt das Singen aus?", explanation: "'ein Vogel' ist das Subjekt." },
+                        { id: "de_sg_s2", type: "mc", task: "Wie heißt die Ortsangabe in 'Die Kinder spielen auf dem Spielplatz.'?", options: ["auf dem Spielplatz", "Die Kinder", "spielen"], answer: "auf dem Spielplatz", hint: "Frage: WO spielen die Kinder?", explanation: "'auf dem Spielplatz' antwortet auf WO?" }
+                    ],
+                    forder: [
+                        { id: "de_sg_f1", type: "input", task: "Wie viele Satzglieder hat dieser Satz? 'Heute / schenkt / die Oma / dem Enkel / ein Buch.' (Zahl)", answer: "5", hint: "Zähle die durch Schrägstriche getrennten Bausteine.", explanation: "Es gibt 5 Satzglieder (Zeitangabe, Prädikat, Subjekt, Dativobjekt, Akkusativobjekt)." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Satzglieder bestimmen mit Schrägstrichen",
+                        tasks: [
+                            "1. Trenne die Satzglieder durch Schrägstriche (/): 'Der kleine Hund bellt laut im Garten.'",
+                            "2. Kreise das Subjekt rot und das Prädikat blau ein.",
+                            "3. Mache die Umstellprobe: Schreibe den Satz 'Gestern las der Lehrer eine Geschichte' auf 2 andere Weisen auf.",
+                            "4. Finde das Objekt mit der WEN-Frage: 'Der Katze fängt eine Maus.'",
+                            "5. Ergänze eine Ortsangabe: 'Wir zelten ______.'"
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Die Satzglied-Werkstatt",
+                        tasks: [
+                            "1. Erfrage alle Satzglieder im Satz: 'Anna schenkt ihrer Freundin ein Bild.' (Wer? Was tut? Wem? Was?)",
+                            "2. Bilde aus folgenden Satzgliedern einen sinnvollen Satz: [im Park] [füttert] [der alte Mann] [die Tauben].",
+                            "3. Unterstreiche das zweiteilige Prädikat: 'Er ruft seine Mutter an.'",
+                            "4. Ersetze die Ortsangabe durch eine Zeitangabe.",
+                            "5. Schreibe einen Satz mit genau 4 Satzgliedern auf."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "de_zeitformen",
+                subject: "deutsch",
+                subjectName: "Deutsch",
+                title: "Zeitformen des Verbs",
+                subtitle: "Präsens, Präteritum & Perfekt",
+                videoId: "tY8O1j3o91Y",
+                explanation: {
+                    summary: "Verben zeigen uns, WANN etwas passiert. In der 3. Klasse unterscheiden wir drei wichtige Zeitformen:",
+                    points: [
+                        "<strong>Präsens (Gegenwart):</strong> Passiert JETZT oder regelmäßig. <em>Beispiel: Ich laufe zur Schule. / Er liest ein Buch.</em>",
+                        "<strong>Präteritum (1. Vergangenheit / Schriftform):</strong> Geschieht VORHER. Wird vor allem in Geschichten und Berichten geschrieben. <em>Beispiel: Ich lief zur Schule. / Er las ein Buch.</em>",
+                        "<strong>Perfekt (2. Vergangenheit / Gesprochene Form):</strong> Verwenden wir beim Sprechen. Wird mit den Hilfsverben HABEN oder SEIN gebildet. <em>Beispiel: Ich bin gelaufen. / Er hat gelesen.</em>"
+                    ],
+                    keyTerms: [
+                        { term: "Starke Verben", def: "Verändern beim Vergangenheitsstamm ihren Vokal (fahren → fuhr, sehen → sah)." },
+                        { term: "Schwache Verben", def: "Behalten ihren Stammvokal und hängen -te an (spielen → spielte)." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "de_z_b1", type: "mc", task: "In welcher Zeitform steht: 'Er hat ein Tor geschossen'?", options: ["Perfekt", "Präsens", "Präteritum"], answer: "Perfekt", hint: "Achte auf das Hilfsverb 'hat'.", explanation: "Hilfsverb 'hat' + Partizip 'geschossen' = Perfekt." },
+                        { id: "de_z_b2", type: "input", task: "Schreibe das Verb im Präteritum: 'Er (spielen) im Garten.' → 'Er ___'", answer: "spielte", hint: "Schwaches Verb: Stamm + -te.", explanation: "Präteritum von spielen ist spielte." }
+                    ],
+                    standard: [
+                        { id: "de_z_s1", type: "input", task: "Fülle die Lücke im Präteritum (starkes Verb): 'gehen' → 'Wir ___ nach Hause.'", answer: "gingen", hint: "Der Vokal e wird zu i.", explanation: "Präteritum von gehen ist gingen." },
+                        { id: "de_z_s2", type: "mc", task: "Welches Hilfsverb gehört zum Perfekt von 'fliegen'?", options: ["sein (ist geflogen)", "haben (hat geflogen)"], answer: "sein (ist geflogen)", hint: "Bei Ortsveränderung nutzt man sein.", explanation: "Man sagt: Er ist geflogen." }
+                    ],
+                    forder: [
+                        { id: "de_z_f1", type: "input", task: "Wandle den Präsens-Satz komplett ins Perfekt um: 'Sie sieht einen Film.' → 'Sie ___ einen Film ___.' (Format: hat gesehen)", answer: "hat gesehen", hint: "Hilfsverb + Partizip am Ende.", explanation: "Perfekt: hat gesehen." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Zeitformen-Tabelle ausfüllen",
+                        tasks: [
+                            "1. Ergänze die fehlenden Formen:\n   Präsens: er lauft | Präteritum: ______ | Perfekt: er ist gelaufen\n   Präsens: er schreibt | Präteritum: er schrieb | Perfekt: ______",
+                            "2. Bestimme die Zeitform der Sätze: 'Gestern regnete es stark.' (Zeitform: ______)",
+                            "3. Schreibe 3 Sätze aus deinem Tagesablauf im Perfekt auf.",
+                            "4. Kreise die Hilfsverben (hat/ist) in den Perfekt-Sätzen rot ein.",
+                            "5. Verwandle den Satz 'Der Hund bellt' ins Präteritum."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Geschichten im Präteritum verfassen",
+                        tasks: [
+                            "1. Setze die Verben in Klammern ins Präteritum: 'Es (sein) einmal ein König. Er (wohnen) in einem Schloss.'",
+                            "2. Unterstreiche alle Präteritum-Formen im Märchentext grün.",
+                            "3. Warum benutzt man in Briefen oft das Perfekt und in Märchen das Präteritum? Erkläre kurz.",
+                            "4. Finde die Präteritum-Form von: finden, bringen, denken, rennen.",
+                            "5. Schreibe 5 Sätze über dein letztes Wochenende im Perfekt."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "de_lesen",
+                subject: "deutsch",
+                subjectName: "Deutsch",
+                title: "Lesen – Sachtexte & 5-Schritt-Methode",
+                subtitle: "Informationen entnehmen & Verstehen",
+                videoId: "BvZIWweX6ww",
+                explanation: {
+                    summary: "Um Sachtexte, Diagramme und Anleitungen gut zu verstehen, hilft die 5-Schritt-Lesemethode:",
+                    points: [
+                        "<strong>1. Vorbereiten & Überfliegen:</strong> Titel, Überschriften, Bilder und Tabellen ansehen.",
+                        "<strong>2. Fragen stellen:</strong> Was weiß ich schon? Was will ich erfahren?",
+                        "<strong>3. Gründlich lesen:</strong> Unbekannte Wörter klären (Wörterbuch/Nachfragen).",
+                        "<strong>4. Abschnitte zusammenfassen & Schlüsselwörter markieren:</strong> Wichtige Begriffe mit Textmarker hervorheben.",
+                        "<strong>5. Rückblick & Kontrollieren:</strong> Kann ich die Fragen zum Text mit eigenen Worten beantworten?"
+                    ],
+                    keyTerms: [
+                        { term: "Schlüsselwörter", def: "Die wichtigsten Wörter im Text, die den Kern der Aussage tragen." },
+                        { term: "Sachtext", def: "Ein Text, der echte Fakten und Sachinformationen liefert." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "de_l_b1", type: "mc", task: "Was ist der 1. Schritt der 5-Schritt-Lesemethode?", options: ["Überschrift & Bilder überfliegen", "Auswendig lernen", "Fragen beantworten"], answer: "Überschrift & Bilder überfliegen", hint: "Erst einen ersten Eindruck verschaffen.", explanation: "Schritt 1 ist das Überfliegen des Textes." },
+                        { id: "de_l_b2", type: "mc", task: "Was sind Schlüsselwörter?", options: ["Die wichtigsten Fachbegriffe/Nomen im Text", "Satzzeichen", "Kurze Wörter wie 'und'"], answer: "Die wichtigsten Fachbegriffe/Nomen im Text", hint: "Wörter, die den Inhalt tragen.", explanation: "Schlüsselwörter fassen den Kern zusammen." }
+                    ],
+                    standard: [
+                        { id: "de_l_s1", type: "mc", task: "Lies den Mini-Sachtext: 'Biber sind nagende Säugetiere. Sie bauen Dämme aus Holz.' Was bauen Biber?", options: ["Dämme aus Holz", "Nester aus Gras", "Höhlen aus Stein"], answer: "Dämme aus Holz", hint: "Suche im 2. Satz.", explanation: "Laut Text bauen sie Dämme aus Holz." }
+                    ],
+                    forder: [
+                        { id: "de_l_f1", type: "input", task: "Finde das Schlüsselwort für das Thema: 'Das Herz pumpt täglich etwa 7000 Liter Blut durch den Körper.' Hauptbegriff: ___", answer: "Herz", hint: "Um welches Organ geht es?", explanation: "Das Herz ist der zentral genannte Schlüsselbegriff." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Sachtext-Analyse 'Das Eichhörnchen'",
+                        tasks: [
+                            "1. Lies den Sachtext über das Eichhörnchen sorgfältig durch.",
+                            "2. Markiere 5 wichtige Schlüsselwörter im Text mit einem Leuchtstift.",
+                            "3. Beantworte die W-Fragen zum Text:\n   a) Wo schläft das Eichhörnchen? ______\n   b) Was frisst es im Winter? ______",
+                            "4. Erstelle eine kleine Steckbrief-Tabelle mit: Nahrung, Feinde, Lebensraum.",
+                            "5. Formulieren eine eigene Überschrift für den 2. Abschnitt."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Diagramme & Tabellen lesen",
+                        tasks: [
+                            "1. Betrachte das Balkendiagramm 'Lieblingstiere der Klasse 3b'.",
+                            "2. Welches Tier wurde am häufigsten gewählt? ______",
+                            "3. Wie viele Kinder wählten den Hund? ______",
+                            "4. Erstelle aus den Daten der Tabelle einen kurzen Sachtext.",
+                            "5. Erkläre in 2 Sätzen, warum Überschriften in Sachtexten wichtig sind."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "de_schreiben",
+                subject: "deutsch",
+                subjectName: "Deutsch",
+                title: "Schreiben & Textsorten",
+                subtitle: "Personenbeschreibung & Anleitungen",
+                videoId: "RVTT_Lw-X-k",
+                explanation: {
+                    summary: "Beim Verfassen von Texten nutzen wir klare Kriterien, damit der Leser sich alles genau vorstellen kann:",
+                    points: [
+                        "<strong>Personenbeschreibung:</strong> Geordnet vorgehen (von Kopf bis Fuß / von außen nach innen). Treffende Adjektive nutzen (<em>lockiges Haar, ovale Brille, gestreifter Pullover</em>). Keine Wiederholungen von 'er hat' / 'sie trägt'!",
+                        "<strong>Vorgangsbeschreibung / Anleitung:</strong> Chronologische Reihenfolge einhalten. Signalwörter nutzen (<em>Zuerst, Danach, Anschließend, Zum Schluss</em>). Präzise Verben verwenden."
+                    ],
+                    keyTerms: [
+                        { term: "Treffende Adjektive", def: "Anstelle von 'gut' lieber 'hilfsbereit, freundlich, ordentlich'." },
+                        { term: "Satzanfänge variieren", def: "Zuerst, Danach, Später, Schließlich, Im Anschluss." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "de_sch_b1", type: "mc", task: "Wie geht man bei einer Personenbeschreibung geordnet vor?", options: ["Von oben nach unten (Kopf bis Fuß)", "Wild durcheinander", "Erst die Schuhe, dann die Haare"], answer: "Von oben nach unten (Kopf bis Fuß)", hint: "Bringe Struktur in den Text.", explanation: "Eine geordnete Struktur geht von Kopf bis Fuß." },
+                        { id: "de_sch_b2", type: "mc", task: "Welches Wort ist ein gutes Signalwort für eine Anleitung?", options: ["Anschließend", "Vielleicht", "Plötzlich"], answer: "Anschließend", hint: "Es zeigt den nächsten Schritt.", explanation: "'Anschließend' verbindet Handlungsschritte." }
+                    ],
+                    standard: [
+                        { id: "de_sch_s1", type: "input", task: "Ersetze das langweilige Wort 'gut' durch ein präziseres Adjektiv: 'Ein (guter) Kuchen' → 'Ein ___ Kuchen'", answer: "köstlicher", hint: "Wie schmeckt Kuchen?", explanation: "'köstlicher' oder 'leckerer' beschreibt Essen viel treffender." }
+                    ],
+                    forder: [
+                        { id: "de_sch_f1", type: "mc", task: "Welche Zeitform muss bei einer Anleitung durchgehend verwendet werden?", options: ["Präsens (Gegenwart)", "Präteritum", "Perfekt"], answer: "Präsens (Gegenwart)", hint: "Anleitungen gelten immer allgemein.", explanation: "Anleitungen und Vorgangsbeschreibungen stehen im Präsens." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Eine Personenbeschreibung überarbeiten",
+                        tasks: [
+                            "1. Lies den Entwurf: 'Das ist Tom. Tom hat blaue Augen. Tom hat eine Jeans an.' Verbesse die Wortwiederholungen!",
+                            "2. Finde 5 treffende Adjektive zur Beschreibung von Haaren (z.B. schulterlang, kraus...).",
+                            "3. Bringe die Stichpunkte zur Personenbeschreibung in die richtige Reihenfolge (1 bis 5).",
+                            "4. Beschreibe deinen besten Freund / deine beste Freundin in 5 Sätzen von Kopf bis Fuß.",
+                            "5. Kontrolliere deinen Text mit der Schreibkonferenz-Checkliste."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Vorgangsbeschreibung 'Rezept / Bastelei'",
+                        tasks: [
+                            "1. Ordne die Handlungsschritte zum Händewaschen in der richtigen Reihenfolge.",
+                            "2. Unterstreiche alle Reihenfolge-Signalwörter (Zuerst, Danach...).",
+                            "3. Schreibe eine Bauanleitung für ein Papierboot mit genau 4 Schritten.",
+                            "4. Welche Zutaten/Materialien gehören an den Anfang einer Anleitung? Erstelle eine Liste.",
+                            "5. Welcher Fehler ist im Text? 'Mische den Teig. Backe den Kuchen. Wiege das Mehl ab.'"
+                        ]
+                    }
+                ]
+            },
+
+            // ==========================================
+            // 📐 MATHEMATIK
+            // ==========================================
+            {
+                id: "ma_zr1000",
+                subject: "mathe",
+                subjectName: "Mathematik",
+                title: "Orientierung im Tausenderraum",
+                subtitle: "Stellenwerttafel, Zahlenstrahl & Nachbarn",
+                videoId: "zCM0wWDB2J4",
+                explanation: {
+                    summary: "Im Tausenderraum (ZR 1.000) bauen wir Zahlen aus drei Stellenbausteinen auf:",
+                    points: [
+                        "<strong>Hunderter (H), Zehner (Z) und Einer (E):</strong> 1 Hunderter = 10 Zehner = 100 Einer. 1 Tausender (T) = 10 Hunderter = 1000 Einer.",
+                        "<strong>Stellenwerttafel:</strong> Die Zahl 473 besteht aus 4 Hundertern (400), 7 Zehnern (70) und 3 Einern (3).",
+                        "<strong>Nachbarzahlen:</strong> Nachbareiner (NE: -1/+1), Nachbarzehner (NZ: -10/+10), Nachbarhunderter (NH: -100/+100).",
+                        "<strong>Zahlenstrahl:</strong> Dient zum Einordnen, Vergleichen (<, >, =) und Runden."
+                    ],
+                    keyTerms: [
+                        { term: "Bündeln", def: "10 Einer werden zu 1 Zehner gebündelt, 10 Zehner zu 1 Hunderter." },
+                        { term: "Stellenwert", def: "Der Wert einer Ziffer hängt von ihrer Stelle ab (z.B. 7 an Zehnerstelle = 70)." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "ma_z10_b1", type: "input", task: "Welche Zahl ist gemeint? 3 Hunderter + 5 Zehner + 2 Einer = ___", answer: "352", hint: "Schreibe die Ziffern nebeneinander.", explanation: "3H 5Z 2E ergibt 352." },
+                        { id: "ma_z10_b2", type: "input", task: "Nenne den Vorgänger (Einer-Nachbar) der Zahl 600:", answer: "599", hint: "Rechne 600 - 1.", explanation: "Der Vorgänger von 600 ist 599." }
+                    ],
+                    standard: [
+                        { id: "ma_z10_s1", type: "input", task: "Welche Nachbarzehner (NZ) umschließen die Zahl 437? Der kleinere NZ heißt:", answer: "430", hint: "Runde ab auf den nächsten Zehner.", explanation: "Die Nachbarzehner von 437 sind 430 und 440." },
+                        { id: "ma_z10_s2", type: "mc", task: "Setze das richtige Zeichen ein: 708 ___ 780", options: ["<", ">", "="], answer: "<", hint: "Vergleiche die Zehnerstelle (0 Zehner vs 8 Zehner).", explanation: "708 ist kleiner als 780 (<)." }
+                    ],
+                    forder: [
+                        { id: "ma_z10_f1", type: "input", task: "Ich habe 4 Hunderter, doppelt so viele Zehner wie Hunderter und 3 Einer weniger als Zehner. Wie heiße ich?", answer: "485", hint: "H = 4. Z = 4 * 2 = 8. E = 8 - 3 = 5.", explanation: "H=4, Z=8, E=5 → Zahl 485." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Entdeckungen im Tausenderbuch",
+                        tasks: [
+                            "1. Trage die Zahlen in die Stellenwerttafel ein (H | Z | E):\n   a) 624  |  b) 809  |  c) 150",
+                            "2. Bestimme Nachbarzahlen (Vorgänger / Nachfolger):\n   ___ < 390 < ___  |  ___ < 799 < ___",
+                            "3. Welcher Nachbarhunderter liegt näher? Runde auf Hunderter:\n   420 ≈ ______ | 680 ≈ ______",
+                            "4. Fülle die Lücken am Zahlenstrahl in 50er-Schritten: 200, 250, ___, ___, 400.",
+                            "5. Bilde aus den Ziffern 3, 7, 1 die größte und die kleinste dreistellige Zahl."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Rätsel & Muster im Tausenderraum",
+                        tasks: [
+                            "1. Zerlege in H, Z, E: 947 = ___ H + ___ Z + ___ E.",
+                            "2. Zähle rückwärts in 20er-Schritten von 1000 bis 800.",
+                            "3. Zahlenrätsel: Meine Hunderterziffer ist 5. Meine Zehnerziffer ist um 2 kleiner. Meine Einerziffer ist 0. Wer bin ich?",
+                            "4. Vergleiche mit <, > oder =: 5H 3Z ___ 530 | 400 + 60 ___ 406.",
+                            "5. Zeichne ein Hunderterfeld-Ausschnitt für die Zahl 345 und ihre Nachbarn."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "ma_halbschriftlich",
+                subject: "mathe",
+                subjectName: "Mathematik",
+                title: "Halbschriftliches Rechnen",
+                subtitle: "Schrittweise Addition & Subtraktion im ZR 1000",
+                videoId: "zCM0wWDB2J4",
+                explanation: {
+                    summary: "Große Aufgaben lösen wir halbschriftlich, indem wir sie in einfache Schritte zerlegen:",
+                    points: [
+                        "<strong>Schrittweise Addition (z.B. 340 + 250):</strong> Hunderter zu Hunderter, Zehner zu Zehner. Oder: Erst Hunderter addieren (340 + 200 = 540), dann Zehner addieren (540 + 50 = 590).",
+                        "<strong>Schrittweise Subtraktion (z.B. 680 - 240):</strong> Erst Hunderter abziehen (680 - 200 = 480), dann Zehner abziehen (480 - 40 = 440).",
+                        "<strong>Hilfsaufgabe / Vorteilhaftes Rechnen:</strong> Nahe Hunderter nutzen (z.B. 398 + 150 = 400 + 150 - 2 = 548)."
+                    ],
+                    keyTerms: [
+                        { term: "Rechenweg aufschreiben", def: "Alle Zwischenschritte untereinander festhalten." },
+                        { term: "Stellenweise rechnen", def: "H+H, Z+Z, E+E getrennt rechnen und Ergebnisse zusammenfügen." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "ma_hs_b1", type: "input", task: "Rechne schrittweise: 400 + 300 + 50 = ___", answer: "750", hint: "400+300=700, dann +50.", explanation: "400 + 300 = 700; 700 + 50 = 750." },
+                        { id: "ma_hs_b2", type: "input", task: "Rechne: 850 - 300 = ___", answer: "550", hint: "Ziehe 3 Hunderter ab.", explanation: "8 Hunderter - 3 Hunderter = 5 Hunderter → 550." }
+                    ],
+                    standard: [
+                        { id: "ma_hs_s1", type: "input", task: "Rechne halbschriftlich: 360 + 280 (Tipp: 360 + 200 = 560; 560 + 80 = ___)", answer: "640", hint: "560 + 80 = 640.", explanation: "360 + 200 = 560. 560 + 80 = 640." },
+                        { id: "ma_hs_s2", type: "input", task: "Rechne halbschriftlich: 730 - 450 (730 - 400 = 330; 330 - 50 = ___)", answer: "280", hint: "330 - 30 - 20.", explanation: "730 - 400 = 330; 330 - 50 = 280." }
+                    ],
+                    forder: [
+                        { id: "ma_hs_f1", type: "input", task: "Nutze eine Hilfsaufgabe: 498 + 235 = (500 + 235 - 2) = ___", answer: "733", hint: "500 + 235 = 735, minus 2.", explanation: "735 - 2 = 733." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Schrittweise im Tausenderraum",
+                        tasks: [
+                            "1. Schreibe deinen Rechenweg auf:\n   a) 240 + 350\n   240 + 300 = ___\n   ___ + 50 = ___",
+                            "2. Löse schrittweise Subtraktionen: 670 - 240.",
+                            "3. Ergänze auf den nächsten Hunderter: 340 + ___ = 400 | 780 + ___ = 800.",
+                            "4. Finde zwei verschiedene Rechenwege für die Aufgabe 450 + 280.",
+                            "5. Sachaufgabe: Im Baumarkt liegen 430 Latten. 260 werden verkauft. Wie viele Latten bleiben übrig?"
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Rechentricks & Hilfsaufgaben",
+                        tasks: [
+                            "1. Nutze den 99er/199er-Trick: 350 + 199 = 350 + 200 - 1 = ___",
+                            "2. Rechne Vorteilhaft durch Vertauschen: 120 + 340 + 80 = (120 + 80) + 340 = ___",
+                            "3. Fülle die Ergebnismauer aus (unten zwei Bausteine addieren ergibt den oberen).",
+                            "4. Kontrolliere mit der Überschlagsrechnung: Ist 512 + 391 ungefähr 900?",
+                            "5. Erfinde eine eigene Sachaufgabe zum Ergebnis 820 €."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "ma_s_addition",
+                subject: "mathe",
+                subjectName: "Mathematik",
+                title: "Schriftliche Addition",
+                subtitle: "Untereinanderschreiben & Übertrag verwalten",
+                videoId: "vE3lzRCVggU",
+                explanation: {
+                    summary: "Die schriftliche Addition ist das sicherste Verfahren für große Zahlen:",
+                    points: [
+                        "<strong>Regel 1: Stellenwertgerecht schreiben:</strong> Einer unter Einer, Zehner unter Zehner, Hunderter unter Hunderter.",
+                        "<strong>Regel 2: Von rechts nach links rechnen:</strong> Wir beginnen IMMER bei den Einern!",
+                        "<strong>Übertrag (Bündeln):</strong> Wenn die Summe einer Spalte 10 oder mehr ergibt (z.B. 7 + 8 = 15), schreiben wir die 5 unten an und merken uns die 1 als kleinen Übertrag in der nächsten Spalte."
+                    ],
+                    keyTerms: [
+                        { term: "Übertrag", def: "Der gemerkte Zehner/Hunderter wird als kleine Ziffer über den Strich geschrieben." },
+                        { term: "Summanden", def: "Zahl + Zahl = Summe." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "ma_sa_b1", type: "input", task: "Rechne schriftlich ohne Übertrag: 324 + 153 = ___", answer: "477", hint: "E: 4+3=7, Z: 2+5=7, H: 3+1=4.", explanation: "Einer: 7, Zehner: 7, Hunderter: 4 → 477." },
+                        { id: "ma_sa_b2", type: "mc", task: "Wo beginnen wir beim schriftlichen Addieren?", options: ["Immer ganz rechts bei den Einern", "Ganz links bei den Hundertern", "In der Mitte"], answer: "Immer ganz rechts bei den Einern", hint: "Damit Überträge richtig mitgenommen werden.", explanation: "Immer bei den Einern starten!" }
+                    ],
+                    standard: [
+                        { id: "ma_sa_s1", type: "input", task: "Rechne schriftlich mit Übertrag: 468 + 275 = ___", answer: "743", hint: "E: 8+5=13 (3 hin, 1 Übertrag). Z: 6+7+1=14 (4 hin, 1 Ü). H: 4+2+1=7.", explanation: "Das Ergebnis lautet 743." },
+                        { id: "ma_sa_s2", type: "input", task: "Addiere drei Zahlen schriftlich: 125 + 204 + 318 = ___", answer: "647", hint: "E: 5+4+8=17 (7 hin, 1 Ü). Z: 2+0+1+1=4. H: 1+2+3=6.", explanation: "Summe: 647." }
+                    ],
+                    forder: [
+                        { id: "ma_sa_f1", type: "input", task: "Klexaufgabe (Fehlende Ziffer X):  3 X 7 + 2 4 5 = 6 1 2. Welchen Wert hat X?", answer: "6", hint: "E: 7+5=12 (2 hin, 1 Ü). Z: X+4+1=11 → X=6.", explanation: "X = 6, denn 6 + 4 + 1 = 11." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Schriftliche Addition im Kästchenraster",
+                        tasks: [
+                            "1. Schreibe stellenwertgerecht untereinander und rechne:\n   a) 345 + 214   b) 567 + 285   c) 409 + 393",
+                            "2. Vergiss den Übertrag nicht! Kennzeichne alle Überträge mit roter Farbe.",
+                            "3. Addiere drei Summanden: 142 + 208 + 355.",
+                            "4. Finde den Fehler in der Rechnung: Warum ist 45 + 123 = 573 falsch aufgeschrieben?",
+                            "5. Sachaufgabe: Herr Müller kauft einen Fernseher für 459 € und ein Radio für 128 €. Wie viel bezahlt er insgesamt?"
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Klexaufgaben & Rechnen mit Geld",
+                        tasks: [
+                            "1. Ergänze die fehlenden Klex-Ziffern in den Rechnungen.",
+                            "2. Führe erst einen Überschlag durch (z.B. 390 + 410 ≈ 800) und rechne dann genau.",
+                            "3. Erstelle eine Rechnung mit zwei Überträgen.",
+                            "4. Tabellenaufgabe: Berechne die Gesamteinnahmen der Schuldisco an drei Tagen.",
+                            "5. Erfinde eine eigene Klexaufgabe für deinen Sitznachbarn."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "ma_s_subtraktion",
+                subject: "mathe",
+                subjectName: "Mathematik",
+                title: "Schriftliche Subtraktion",
+                subtitle: "Abzieh- & Ergänzungsverfahren mit Entbündeln",
+                videoId: "vE3lzRCVggU",
+                explanation: {
+                    summary: "Bei der schriftlichen Subtraktion ziehen wir von rechts nach links ab:",
+                    points: [
+                        "<strong>Ergänzungsverfahren (Von unten nach oben):</strong> 'Von X bis Y fehlen...'. Beispiel bei 7 - 3: Von 3 bis 7 fehlen 4.",
+                        "<strong>Entbündeln / Übertrag:</strong> Reicht die Ziffer oben nicht aus (z.B. 3 - 8), 'entbündeln' wir 1 Zehner von der nächsten Spalte. Wir schreiben 1 als Übertrag unten hin und rechnen 13 - 8 = 5.",
+                        "<strong>Probe mit der Umkehraufgabe:</strong> Ergebnis + abgezogene Zahl = Ausgangszahl!"
+                    ],
+                    keyTerms: [
+                        { term: "Minuend - Subtrahend", def: "Minuend (oben) minus Subtrahend (unten) = Differenz." },
+                        { term: "Umkehraufgabe", def: "Überprüfung durch Addition." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "ma_ss_b1", type: "input", task: "Rechne schriftlich ohne Übertrag: 789 - 245 = ___", answer: "544", hint: "E: 9-5=4, Z: 8-4=4, H: 7-2=5.", explanation: "Differenz: 544." },
+                        { id: "ma_ss_b2", type: "input", task: "Probe durchführen: Wenn 500 - 200 = 300 ist, wie lautet die Plus-Probe?", answer: "300 + 200 = 500", hint: "Differenz + Subtrahend = Minuend.", explanation: "Die Probe heißt: 300 + 200 = 500." }
+                    ],
+                    standard: [
+                        { id: "ma_ss_s1", type: "input", task: "Rechne mit Übertrag: 632 - 275 = ___", answer: "357", hint: "E: 12-5=7 (1 Ü). Z: 13-8=5 (1 Ü). H: 6-3=3.", explanation: "Ergebnis: 357." },
+                        { id: "ma_ss_s2", type: "input", task: "Rechne über die Null: 500 - 234 = ___", answer: "266", hint: "Achte besonders auf die Entbündelung bei den Nullen.", explanation: "500 - 234 = 266." }
+                    ],
+                    forder: [
+                        { id: "ma_ss_f1", type: "input", task: "Ein Wanderer geht eine Strecke von 1000 m. Nach 648 m macht er Pause. Wie viele Meter fehlen ihm noch?", answer: "352", hint: "1000 - 648 = ___", explanation: "Es fehlen noch 352 Meter." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Schriftlich Subtrahieren üben",
+                        tasks: [
+                            "1. Rechne schriftlich im Heft:\n   a) 856 - 324   b) 731 - 458   c) 904 - 267",
+                            "2. Führe bei Aufgabe b) die Plus-Probe durch.",
+                            "3. Achte auf Nullen im Minuenden: 600 - 342.",
+                            "4. Textaufgabe: Von 850 Schülerheften sind 485 verteilt. Wie viele Hefte liegen noch im Lager?",
+                            "5. Vergleiche die Ergebnisse von 724 - 315 und 824 - 415."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Fehler-Detektiv & Sachrechnen",
+                        tasks: [
+                            "1. Finde den Fehler in der Rechnung und korrigiere ihn.",
+                            "2. Berechne die Differenz der Zahlen 912 und 478.",
+                            "3. Ergänze die fehlenden Ziffern in den Subtraktions-Klexaufgaben.",
+                            "4. Familie Jung hatte 950 € gespart. Nach dem Kauf eines Fahrrads für 389 € bleiben wie viel € übrig?",
+                            "5. Erfinde eine Rechengeschichte zur Aufgabe 500 - 175."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "ma_geometrie",
+                subject: "mathe",
+                subjectName: "Mathematik",
+                title: "Raum und Form",
+                subtitle: "Geometrische Körper & Symmetrie",
+                videoId: "OjL6ZEK7sC8",
+                explanation: {
+                    summary: "In der Geometrie untersuchen wir 3D-Körper und spiegelbildliche Figuren:",
+                    points: [
+                        "<strong>Geometrische Körper:</strong> Würfel, Quader, Kugel, Zylinder, Pyramide, Prisma.",
+                        "<strong>Eigenschaften untersuchen:</strong> Anzahl der Ecken (E), Kanten (K) und Begrenzungsflächen (F). Beispiel Würfel: 8 Ecken, 12 Kanten, 6 quadratische Flächen.",
+                        "<strong>Körpernetze:</strong> Entstehen, wenn man einen Hohlkörper an den Kanten aufklappt.",
+                        "<strong>Achsensymmetrie:</strong> Eine Figur ist achsensymmetrisch, wenn man sie an der Spiegelachse deckungsgleich falten kann."
+                    ],
+                    keyTerms: [
+                        { term: "Spiegelachse", def: "Gerade Linie, an der das Spiegelbild exakt gespiegelt wird." },
+                        { term: "Würfelnetz", def: "Besteht aus 6 zusammenhängenden Quadraten." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "ma_g_b1", type: "input", task: "Wie viele Ecken hat ein Würfel? (Zahl)", answer: "8", hint: "Zähle 4 oben und 4 unten.", explanation: "Ein Würfel hat exakt 8 Ecken." },
+                        { id: "ma_g_b2", type: "mc", task: "Welcher Körper besitzt KEINE Ecken und keine Kanten?", options: ["Kugel", "Würfel", "Quader", "Pyramide"], answer: "Kugel", hint: "Er rollt rund in alle Richtungen.", explanation: "Die Kugel hat 0 Ecken und 0 Kanten." }
+                    ],
+                    standard: [
+                        { id: "ma_g_s1", type: "input", task: "Aus wie vielen Quadraten besteht ein vollständiges Würfelnetz? (Zahl)", answer: "6", hint: "Ein Würfel hat 6 Flächen.", explanation: "Ein Würfelnetz hat 6 quadratische Begrenzungsflächen." },
+                        { id: "ma_g_s2", type: "mc", task: "Welcher Buchstabe ist achsensymmetrisch?", options: ["A", "F", "R", "G"], answer: "A", hint: "Man kann ihn senkrecht spiegeln.", explanation: "Der Buchstabe A lässt sich senkrecht spiegeln." }
+                    ],
+                    forder: [
+                        { id: "ma_g_f1", type: "input", task: "Ein Quader hat 8 Ecken und 6 Flächen. Wie viele Kanten hat er? (Zahl)", answer: "12", hint: "Genauso viele Kanten wie ein Würfel.", explanation: "Ein Quader hat 12 Kanten." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Steckbriefe geometrischer Körper",
+                        tasks: [
+                            "1. Fülle die Körper-Tabelle aus:\n   Würfel: ___ Ecken | ___ Kanten | ___ Flächen\n   Quader: ___ Ecken | ___ Kanten | ___ Flächen\n   Kugel:  ___ Ecken | ___ Kanten | ___ Flächen",
+                            "2. Nenne für jeden Körper einen Alltagsgegenstand (z.B. Zylinder = Konservendose).",
+                            "3. Zeichne die Spiegelachse in die symmetrischen Figuren ein.",
+                            "4. Welche dieser Netze lassen sich zu einem Würfel falten? Kreuze an.",
+                            "5. Ergänze das Figuren-Muster spiegelbildlich am Karoraster."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Symmetrie-Profis & Körperformen",
+                        tasks: [
+                            "1. Wie viele Spiegelachsen hat ein Quadrat? (Tipp: Mehr als 2!).",
+                            "2. Zeichne das vollständige Spiegelbild des angegebenen Hauses.",
+                            "3. Beschreibe die Unterschiede zwischen einer Pyramide und einem Prisma.",
+                            "4. Experiment: Welche Körperform rollt, welche kippt?",
+                            "5. Erstelle dein eigenes symmetrisches Klexbild mit Wasserfarben."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "ma_groessen",
+                subject: "mathe",
+                subjectName: "Mathematik",
+                title: "Größen und Messen",
+                subtitle: "Längen, Gewichte & Zeitspannen",
+                videoId: "r6OBgFetm_A",
+                explanation: {
+                    summary: "Größen helfen uns, unsere Umwelt exakt zu vermessen und zu vergleichen:",
+                    points: [
+                        "<strong>Längen:</strong> Kilometer (km), Meter (m), Zentimeter (cm), Millimeter (mm). Umrechnung: 1 m = 100 cm | 1 cm = 10 mm | 1 km = 1000 m.",
+                        "<strong>Gewichte:</strong> Tonne (t), Kilogramm (kg), Gramm (g). Umrechnung: 1 t = 1000 kg | 1 kg = 1000 g.",
+                        "<strong>Zeit:</strong> Stunden (h), Minuten (min), Sekunden (s). Umrechnung: 1 h = 60 min | 1 min = 60 s."
+                    ],
+                    keyTerms: [
+                        { term: "Stützpunktvorstellung", def: "Ein Paket Mehl wiegt ca. 1 kg. Ein Türrahmen ist ca. 2 m hoch." },
+                        { term: "Zeitspanne", def: "Dauer zwischen Anfangszeitpunkt und Endzeitpunkt." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "ma_gr_b1", type: "input", task: "Wandle um in Zentimeter: 2 m = ___ cm", answer: "200", hint: "1 m = 100 cm.", explanation: "2 m * 100 = 200 cm." },
+                        { id: "ma_gr_b2", type: "input", task: "Wie viele Minuten hat eine halbe Stunde? (Zahl)", answer: "30", hint: "60 min geteilt durch 2.", explanation: "Eine halbe Stunde hat 30 Minuten." }
+                    ],
+                    standard: [
+                        { id: "ma_gr_s1", type: "input", task: "Wandle um: 1 kg 300 g = ___ g", answer: "1300", hint: "1 kg = 1000 g.", explanation: "1000 g + 300 g = 1300 g." },
+                        { id: "ma_gr_s2", type: "input", task: "Ein Film beginnt um 14:15 Uhr und dauert 45 Minuten. Wann endet er?", answer: "15:00", hint: "14:15 + 45 min = ___", explanation: "14:15 + 45 Minuten = 15:00 Uhr." }
+                    ],
+                    forder: [
+                        { id: "ma_gr_f1", type: "input", task: "Ein Seil ist 3 m 40 cm lang. Es werden 85 cm abgeschnitten. Wie lang ist der Rest in cm?", answer: "255", hint: "340 cm - 85 cm = ___", explanation: "340 cm - 85 cm = 255 cm (oder 2 m 55 cm)." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Gewichte & Längen umrechnen",
+                        tasks: [
+                            "1. Wandle um in die kleinere Einheit:\n   a) 4 m 20 cm = ___ cm   b) 2 kg 500 g = ___ g   c) 3 cm 5 mm = ___ mm",
+                            "2. Setze passend ein (km, m, cm, g, kg, t):\n   a) Ein Bleistift wiegt ca. 10 ___\n   b) Die Strecke von München nach Nürnberg ist 170 ___ lang.",
+                            "3. Ordne nach der Größe (starte mit dem kleinsten Wert): 150 cm, 1 m 5 cm, 2 m, 90 cm.",
+                            "4. Sachaufgabe: Die Sportstunde beginnt um 10:30 Uhr und dauert 90 Minuten. Wann ist sie zu Ende?",
+                            "5. Wie viel fehlt bis zu 1 Kilometer? 650 m + ___ m = 1 km."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Fahrpläne & Sachrechnen mit Zeit",
+                        tasks: [
+                            "1. Berechne die Fahrzeit des Schulbusses: Abfahrt 07:12 Uhr, Ankunft 07:48 Uhr. Dauer: ___ min.",
+                            "2. Ein Bäcker benötigt für ein Brot 450 g Mehl. Wie viel Mehl braucht er für 4 Brote in kg und g?",
+                            "3. Ergänze auf 1 Stunde: 24 min + ___ min = 1 h.",
+                            "4. Schreibe drei verschiedene Uhrzeiten in digitaler Form auf.",
+                            "5. Wiegt zusammen mehr als 1 Tonne? 400 kg + 650 kg. Begründe!"
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "ma_daten",
+                subject: "mathe",
+                subjectName: "Mathematik",
+                title: "Daten, Häufigkeit & Zufall",
+                subtitle: "Kombinatorik, Diagramme & Wahrscheinlichkeit",
+                videoId: "OzSA27VTMxE",
+                explanation: {
+                    summary: "Daten erfassen und Wahrscheinlichkeiten untersuchen hilft bei klugen Entscheidungen:",
+                    points: [
+                        "<strong>Strichlisten & Säulendiagramme:</strong> Daten übersichtlich darstellen und ablesen.",
+                        "<strong>Systematisches Kombinieren:</strong> Wie viele Möglichkeiten gibt es? Beispiel: 3 T-Shirts (Rot, Blau, Grün) und 2 Hosen (Schwarz, Weiß) ergeben 3 * 2 = 6 Kombinationen.",
+                        "<strong>Baumdiagramm:</strong> Dient zum übersichtlichen Verzweigen aller Möglichkeiten.",
+                        "<strong>Zufall & Wahrscheinlichkeit:</strong> Ereignisse sind <em>sicher</em> (Sonne geht auf), <em>möglich</em> (eine 6 würfeln) oder <em>unmöglich</em> (eine 7 mit einem normalen Würfel würfeln)."
+                    ],
+                    keyTerms: [
+                        { term: "Kombinatorik", def: "Systematische Bestimmung der Anzahl von Möglichkeiten." },
+                        { term: "Säulendiagramm", def: "Höhe der Säule zeigt die Häufigkeit an." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "ma_d_b1", type: "mc", task: "Ist es möglich, mit einem normalen Spielwürfel (1-6) eine 7 zu würfeln?", options: ["Unmöglich", "Möglich", "Sicher"], answer: "Unmöglich", hint: "Ein Würfel hat nur Ziffern von 1 bis 6.", explanation: "Da es keine 7 auf dem Würfel gibt, ist es unmöglich." },
+                        { id: "ma_d_b2", type: "input", task: "Du hast 2 Mützen und 3 Schals. Wie viele Kombinationen kannst du bilden? (Zahl)", answer: "6", hint: "Multipliziere 2 * 3.", explanation: "2 * 3 = 6 verschiedene Kombinationen." }
+                    ],
+                    standard: [
+                        { id: "ma_d_s1", type: "input", task: "An einer Eisdiele gibt es 4 Eissorten und 2 Sorten Becher (Waffel oder Glas). Wie viele Kombinationen aus 1 Sorte + Becher gibt es?", answer: "8", hint: "4 * 2 = ___", explanation: "4 * 2 = 8 Möglichkeiten." },
+                        { id: "ma_d_s2", type: "mc", task: "In einer Urne liegen 10 rote Kugeln. Wie wahrscheinlich ist es, eine rote Kugel zu ziehen?", options: ["Sicher", "Möglich", "Unmöglich"], answer: "Sicher", hint: "Es liegen NUR rote Kugeln darin.", explanation: "Da nur rote Kugeln vorhanden sind, ist das Ereignis sicher." }
+                    ],
+                    forder: [
+                        { id: "ma_d_f1", type: "input", task: "Aus den Ziffern 1, 2, 3 sollen alle zweistelligen Zahlen gebildet werden (Ziffern dürfen sich nicht wiederholen). Wie viele gibt es? (Zahl)", answer: "6", hint: "12, 13, 21, 23, 31, 32.", explanation: "Es gibt genau 6 Zahlen." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Kombinatorik & Baumdiagramme",
+                        tasks: [
+                            "1. Mia hat 3 Oberteile (rot, gelb, blau) und 2 Röcke (schwarz, weiß). Zeichne ein Baumdiagramm aller Outfit-Kombinationen.",
+                            "2. Wie viele verschiedene 3-stellige Zahlen kannst du aus 4, 5, 6 bilden?",
+                            "3. Bewerte die Ereignisse mit 'sicher', 'möglich' oder 'unmöglich':\n   a) Im Sommer schneit es in München. ______\n   b) Der Februar hat 28 oder 29 Tage. ______",
+                            "4. Wende die Produktregel an: 3 Vorspeisen * 4 Hauptspeisen = ___ Menüs.",
+                            "5. Führe ein Würfelexperiment durch: Würfele 20-mal und erstelle eine Strichliste."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Diagramme auswerten & Statistik",
+                        tasks: [
+                            "1. Zeichne aus folgender Strichliste ein Säulendiagramm auf Karopapier:\n   Fußball: |||| ||| (8) | Schwimmen: |||| (5) | Reiten: ||| (3).",
+                            "2. Welches Hobby ist am beliebtesten?",
+                            "3. Wie viele Kinder wurden insgesamt befragt?",
+                            "4. Ein Glücksrad hat 4 rote und 1 blaues Feld. Welches Feld trifft der Zeiger wahrscheinlicher?",
+                            "5. Erfinde eine eigene Umfrage für deine Klasse."
+                        ]
+                    }
+                ]
+            },
+
+            // ==========================================
+            // 🍃 HSU (Heimat- und Sachunterricht)
+            // ==========================================
+            {
+                id: "hsu_wald",
+                subject: "hsu",
+                subjectName: "HSU",
+                title: "Ökosystem Wald",
+                subtitle: "Die Stockwerke des Waldes & Naturschutz",
+                videoId: "-fsRdIiRyVQ",
+                explanation: {
+                    summary: "Der Wald ist wie ein mehrstöckiges Haus aufgebaut, in dem viele Pflanzen und Tiere zusammenleben:",
+                    points: [
+                        "<strong>1. Wurzel- & Bodenschicht:</strong> Pilze, Bakterien, Würmer, Ameisen, Wurzeln der Bäume. Zersetzen totes Laub zu humosem Boden.",
+                        "<strong>2. Moosschicht (bis 10 cm):</strong> Moose, Flechten, Käfer, Spinnen, Kröten.",
+                        "<strong>3. Krautschicht (bis 1 m):</strong> Gräser, Farne, Waldblumen (z.B. Buschwindröschen), Hasen, Rehe.",
+                        "<strong>4. Strauchschicht (bis 3 m):</strong> Sträucher (z.B. Holunder, Himbeere), junge Bäume, Singvögel, Schmetterlinge.",
+                        "<strong>5. Kronenschicht (über 3 m):</strong> Baumkronen von Eiche, Buche, Fichte, Kiefer. Spechte, Eichhörnchen, Eulen.",
+                        "<strong>Fotosynthese:</strong> Bäume wandeln mithilfe von Sonnenlicht Kohlenstoffdioxid in wertvollen Sauerstoff um!"
+                    ],
+                    keyTerms: [
+                        { term: "Laub- vs. Nadelbäume", def: "Laubbäume (Buche, Eiche) werfen Blätter im Herbst ab. Nadelbäume (Fichte, Kiefer) behalten Nadeln meist winterüber." },
+                        { term: "Fotosynthese", def: "Sauerstoffproduktion der Pflanzen durch Sonnenlicht." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "hsu_w_b1", type: "mc", task: "Welche Schicht liegt am höchsten im Wald?", options: ["Kronenschicht", "Strauchschicht", "Moosschicht", "Krautschicht"], answer: "Kronenschicht", hint: "Dort befinden sich die Wipfel der Bäume.", explanation: "Die Kronenschicht bildet das 'Dach' des Waldes." },
+                        { id: "hsu_w_b2", type: "mc", task: "Welcher Baum ist ein NADELBAUM?", options: ["Fichte", "Eiche", "Buche", "Ahorn"], answer: "Fichte", hint: "Er besitzt spitze Nadeln.", explanation: "Die Fichte ist ein heimischer Nadelbaum." }
+                    ],
+                    standard: [
+                        { id: "hsu_w_s1", type: "input", task: "Welchen lebenswichtigen Gas-Baustein produzieren Pflanzen bei der Fotosynthese für uns Menschen?", answer: "Sauerstoff", hint: "Wir brauchen ihn zum Atmen.", explanation: "Pflanzen erzeugen Sauerstoff." },
+                        { id: "hsu_w_s2", type: "mc", task: "In welcher Schicht brennen und nisten Rehe und Hasen hauptsächlich?", options: ["Krautschicht", "Kronenschicht", "Wurzelschicht"], answer: "Krautschicht", hint: "Dort wachsen hochgewachsene Gräser und Sträucher.", explanation: "Die Krautschicht bietet Deckung für Feldhasen und Rehe." }
+                    ],
+                    forder: [
+                        { id: "hsu_w_f1", type: "input", task: "Nenne die Frucht der Eiche:", answer: "Eichel", hint: "Lieblingsnahrung des Eichhörnchens.", explanation: "Die Frucht der Eiche heißt Eichel." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Das Fünf-Etagen-Haus des Waldes",
+                        tasks: [
+                            "1. Beschrifte die 5 Schichten des Waldes von unten nach oben.",
+                            "2. Ordne die Tiere der passenden Schicht zu: Specht, Regenwurm, Reh, Eichhörnchen, Waldameise.",
+                            "3. Unterscheide Fichte und Tanne anhand von Zapfen und Nadeln.",
+                            "4. Warum wird der Wald auch als 'grüne Lunge der Erde' bezeichnet?",
+                            "5. Verhalte dich richtig im Wald: Nenne 3 Verhaltensregeln für den Naturschutz."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Baumsteckbriefe & Wald im Jahreslauf",
+                        tasks: [
+                            "1. Erstelle einen Steckbrief für die Stieleiche (Blattform, Frucht, Rinde).",
+                            "2. Erklärung der Fotosynthese: Zeichne ein Schaubild mit Sonne, CO2, Wasser und Sauerstoff.",
+                            "3. Was unterscheidet die Lärche von allen anderen einheimischen Nadelbäumen im Winter?",
+                            "4. Welche Aufgaben hat der Förster / die Försterin im Wald?",
+                            "5. Sammle 3 verschiedene Blätter im Wald und forme ein Rinden-Abreibe-Bild."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "hsu_strom",
+                subject: "hsu",
+                subjectName: "HSU",
+                title: "Elektrizität & Stromkreise",
+                subtitle: "Leiter, Isolatoren & Sicherheit",
+                videoId: "vBC7jLv8Aik",
+                explanation: {
+                    summary: "Strom fließt nur in einem geschlossenen Stromkreis. Um Gefahren zu vermeiden, müssen wir wissen, wie er wirkt:",
+                    points: [
+                        "<strong>Der einfache Stromkreis:</strong> Besteht aus einer Stromquelle (Batterie), Hinleiter, Verbraucher (Glühlampe) und Rückleiter.",
+                        "<strong>Schalter:</strong> Unterbricht oder schließt den Stromkreis gezielt.",
+                        "<strong>Elektrische Leiter:</strong> Materialien, die Strom gut leiten (alle Metalle wie Kupfer, Eisen, Aluminium, Silber sowie Salzwasser).",
+                        "<strong>Isolatoren:</strong> Materialien, die den Strom Sperren/nicht leiten (Plastik, Holz, Glas, Gummi, Luft).",
+                        "<strong>Wichtige Sicherheitsregel:</strong> Niemals mit Gegenständen in Steckdosen greifen! Steckdosenstrom (230 Volt) ist lebensgefährlich!"
+                    ],
+                    keyTerms: [
+                        { term: "Elektrischer Leiter", def: "Stoffe, durch die Elektronen fließen können (Metalle)." },
+                        { term: "Isolator", def: "Stoffe, die den Stromfluss verhindern (Kunststoff, Gummi)." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "hsu_st_b1", type: "mc", task: "Welches Material ist ein guter elektrischer LEITER?", options: ["Kupferdraht", "Holzlöffel", "Plastiklineal", "Radiergummi"], answer: "Kupferdraht", hint: "Metalle leiten Strom.", explanation: "Kupfer ist ein hervorragender Metall-Leiter." },
+                        { id: "hsu_st_b2", type: "mc", task: "Was passiert, wenn man einen Schalter im Stromkreis ÖFFNET?", options: ["Der Stromkreis wird unterbrochen (Licht geht aus)", "Das Licht leuchtet heller", "Die Batterie lädt sich auf"], answer: "Der Stromkreis wird unterbrochen (Licht geht aus)", hint: "Strom kann nur in geschlossenen Kreisen fließen.", explanation: "Ein offener Schalter unterbricht den Stromfluss." }
+                    ],
+                    standard: [
+                        { id: "hsu_st_s1", type: "input", task: "Wie nennt man Materialien, die Strom NICHT leiten? Begriff: ___", answer: "Isolatoren", hint: "Zum Beispiel Plastik oder Gummi.", explanation: "Nicht-leitende Stoffe nennt man Isolatoren." },
+                        { id: "hsu_st_s2", type: "mc", task: "Wie viel Volt Spannung hat der normale Haushaltsstrom aus der Steckdose?", options: ["230 Volt", "4,5 Volt", "12 Volt"], answer: "230 Volt", hint: "Batterien haben ca. 1,5 bis 9V, Steckdosen viel mehr.", explanation: "Steckdosen liefern lebensgefährliche 230 Volt." }
+                    ],
+                    forder: [
+                        { id: "hsu_st_f1", type: "input", task: "Warum sind Kabel außen immer mit Plastik ummantelt? (Kurze Antwort: Plastik ist ein ___)", answer: "Isolator", hint: "Damit man keinen Stromschlag bekommt.", explanation: "Plastik isoliert den inneren Metallleiter vor Berührung." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Stromkreis-Werkstatt",
+                        tasks: [
+                            "1. Zeichne einen einfachen Stromkreis mit Batterie, Schalter und Glühlampe mit Schaltsymbolen.",
+                            "2. Sortiere die Gegenstände in Leiter oder Isolator: Büroklammer, Alufolie, Holzstab, Wollschnur, Eisennagel.",
+                            "3. Beschreibe, warum Wasser Strom leitet und weshalb Elektrogeräte nie im Bad in die Wanne fallen dürfen.",
+                            "4. Nenne 5 Geräte im Haushalt, die mit elektrischem Strom betrieben werden.",
+                            "5. Formuliere 3 goldene Verhaltensregeln zum sicheren Umgang mit Strom."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Energiesparen & Erneuerbare Energien",
+                        tasks: [
+                            "1. Woher kommt der Strom in unserer Steckdose? (Nenne 3 Kraftwerksarten).",
+                            "2. Was versteht man unter 'Erneuerbaren Energien' (Sonne, Wind, Wasser)?",
+                            "3. Schreibe 3 Tipps auf, wie du zu Hause Strom sparen kannst.",
+                            "4. Erkläre den Unterschied zwischen einer Batterie und einem Akkumulator (Akku).",
+                            "5. Was bedeutet das CE-Zeichen auf elektrischen Geräten?"
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "hsu_feuer",
+                subject: "hsu",
+                subjectName: "HSU",
+                title: "Feuer & Feuerwehr",
+                subtitle: "Verbrennungsdreieck & Verhalten im Brandfall",
+                videoId: "24g5cgvQzos",
+                explanation: {
+                    summary: "Feuer spendet Wärme und Licht, kann aber auch gefährlich werden. Wir lernen die Bedingungen für Feuer kennen:",
+                    points: [
+                        "<strong>Das Verbrennungsdreieck:</strong> Ein Feuer brennt nur, wenn DREI Dinge gleichzeitig vorhanden sind:\n1. Brennstoff (Holz, Papier, Gas)\n2. Sauerstoff (Luft)\n3. Zündtemperatur (Ausreichende Hitze)",
+                        "<strong>Löschen von Feuer:</strong> Entzieht man dem Feuer mindestens ein Element aus dem Dreieck, erlischt es! (Kühlen mit Wasser entzieht Hitze; Decke/Sand ersticken Sauerstoff).",
+                        "<strong>Notruf 112 – Die 5 W-Fragen:</strong>\n1. WER meldet?\n2. WO ist es passiert?\n3. WAS ist passiert?\n4. WIE VIELE Verletzte gibt es?\n5. WARTEN auf Rückfragen!"
+                    ],
+                    keyTerms: [
+                        { term: "Verbrennungsdreieck", def: "Brennstoff + Sauerstoff + Zündtemperatur." },
+                        { term: "Notrufnummer", def: "112 gilt europaweit für Feuerwehr und Rettungsdienst!" }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "hsu_f_b1", type: "input", task: "Wie lautet die Notrufnummer der Feuerwehr in Deutschland? (Zahl)", answer: "112", hint: "Eins - Eins - Zwei.", explanation: "Die Feuerwehr erreicht man unter der 112." },
+                        { id: "hsu_f_b2", type: "mc", task: "Welche DREI Dinge gehören zum Verbrennungsdreieck?", options: ["Brennstoff, Sauerstoff, Zündtemperatur", "Wasser, Holz, Erde", "Rauch, Feuerlöscher, CO2"], answer: "Brennstoff, Sauerstoff, Zündtemperatur", hint: "Ohne diese 3 brennt nichts.", explanation: "Brennstoff, Sauerstoff und Zündtemperatur erzeugen Feuer." }
+                    ],
+                    standard: [
+                        { id: "hsu_f_s1", type: "mc", task: "Warum erlischt ein Feuer, wenn man eine Löschdecke darüber wirft?", options: ["Dem Feuer wird der Sauerstoff entzogen (Ersticken)", "Das Feuer kühlt ab", "Der Brennstoff wird vernichtet"], answer: "Dem Feuer wird der Sauerstoff entzogen (Ersticken)", hint: "Es bekommt keine Luft mehr.", explanation: "Eine Decke schneidet die Zufuhr von Sauerstoff ab." },
+                        { id: "hsu_f_s2", type: "input", task: "Wie lautet die 5. W-Frage beim Notruf? ___ auf Rückfragen!", answer: "Warten", hint: "Nicht sofort auflegen!", explanation: "Warten auf Rückfragen der Leitstelle." }
+                    ],
+                    forder: [
+                        { id: "hsu_f_f1", type: "mc", task: "Warum darf brennendes Speiseöl in der Küche NIEMALS mit Wasser gelöscht werden?", options: ["Es entsteht eine lebensgefährliche Fettexplosion", "Das Öl brennt dadurch langsamer", "Wasser kühlt das Öl zu stark ab"], answer: "Es entsteht eine lebensgefährliche Fettexplosion", hint: "Wasser verdampft schlagartig und reißt brennendes Fett mit sich.", explanation: "Wasser verdampft blitzartig unter Öl → Fettexplosion!" }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Das Verbrennungsdreieck & Notruf 112",
+                        tasks: [
+                            "1. Zeichne und beschrifte das Verbrennungsdreieck.",
+                            "2. Wie verhältst du dich richtig, wenn es im Schulhaus brennt? (Nenne 4 Schritte).",
+                            "3. Schreibe ein Notruf-Gespräch auf mit allen 5 W-Fragen.",
+                            "4. Warum kriecht man bei starkem Rauch am besten flach auf dem Boden?",
+                            "5. Erkläre den Unterschied zwischen Nutzwirkung und Schadwirkung von Feuer."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Ausrüstung & Aufgaben der Feuerwehr",
+                        tasks: [
+                            "1. Nenne die vier Hauptaufgaben der Feuerwehr (Retten, Löschen, Bergen, Schützen).",
+                            "2. Beschreibe die Schutzkleidung eines Feuerwehrmanns / einer Feuerwehrfrau.",
+                            "3. Welcher Feuerlöscher-Typ wird für welche Brandklasse verwendet?",
+                            "4. Was unterscheidet die Freiwillige Feuerwehr von der Berufsfeuerwehr?",
+                            "5. Zeichne einen Flucht- und Rettungsplan deines Klassenzimmers."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "hsu_raum",
+                subject: "hsu",
+                subjectName: "HSU",
+                title: "Raum & Mobilität",
+                subtitle: "Karten lesen, Maßstab & Himmelsrichtungen",
+                videoId: "1X7WC1EcVGI",
+                explanation: {
+                    summary: "Zur Orientierung auf der Erde nutzen wir Landkarten, Kompasse und den Maßstab:",
+                    points: [
+                        "<strong>Die 4 Haupt-Himmelsrichtungen:</strong> Norden (N), Osten (O), Süden (S), Westen (W). Merksatz: <strong>N</strong>icht <strong>O</strong>hne <strong>S</strong>eife <strong>W</strong>aschen!",
+                        "<strong>Die 4 Nebenhimmelsrichtungen:</strong> Nordosten (NO), Südosten (SO), Südwesten (SW), Nordwesten (NW).",
+                        "<strong>Legende:</strong> Zeigt Symbole und Farben der Karte (z.B. Blau = Gewässer, Grün = Wald, Rote Linien = Straßen).",
+                        "<strong>Maßstab (z.B. 1:100):</strong> 1 cm auf der Karte entspricht 100 cm (1 Meter) in der Wirklichkeit."
+                    ],
+                    keyTerms: [
+                        { term: "Kompass", def: "Die Magnetnadel zeigt immer nach Norden." },
+                        { term: "Maßstab", def: "Verkleinerungsverhältnis der Wirklichkeit auf der Karte." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "hsu_r_b1", type: "input", task: "Ergänze den Merksatz für die Himmelsrichtungen im Uhrzeigersinn: Nicht Ohne Seife ___", answer: "Waschen", hint: "Beginnt mit W für Westen.", explanation: "Norden, Osten, Süden, Westen → Waschen." },
+                        { id: "hsu_r_b2", type: "mc", task: "Wohin zeigt die rote Nadel eines Kompasses immer?", options: ["Norden", "Süden", "Osten", "Westen"], answer: "Norden", hint: "Zum magnetischen Nordpol.", explanation: "Die Magnetnadel richtet sich nach Norden aus." }
+                    ],
+                    standard: [
+                        { id: "hsu_r_s1", type: "input", task: "Der Maßstab lautet 1:100. 5 cm auf der Karte entsprechen wie vielen Metern in der Wirklichkeit? (Zahl)", answer: "5", hint: "5 cm * 100 = 500 cm = ___ m.", explanation: "500 cm = 5 Meter." },
+                        { id: "hsu_r_s2", type: "mc", task: "Welche Nebenhimmelsrichtung liegt exakt zwischen Süden und Westen?", options: ["Südwesten (SW)", "Nordwesten (NW)", "Südosten (SO)"], answer: "Südwesten (SW)", hint: "Süd + West = Südwest.", explanation: "Südwesten liegt zwischen Süden und Westen." }
+                    ],
+                    forder: [
+                        { id: "hsu_r_f1", type: "input", task: "Auf einer Karte mit Maßstab 1:50.000 misst die Strecke zwischen zwei Orten 2 cm. Wie viele Kilometer sind das in echt? (Zahl)", answer: "1", hint: "2 cm * 50.000 = 100.000 cm = 1.000 m = ___ km.", explanation: "100.000 cm = 1 km." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Orientierung mit der Windrose",
+                        tasks: [
+                            "1. Trage alle 8 Himmelsrichtungen in die Windrose ein.",
+                            "2. Wo geht die Sonne auf, wo wandert sie, wo geht sie unter? Ergänze den Spruch.",
+                            "3. Kartenaufgabe: Bestimme, in welcher Himmelsrichtung München von deiner Heimatstadt aus liegt.",
+                            "4. Rechne um: Maßstab 1:200. Ein Raum ist auf dem Plan 4 cm lang. In Wirklichkeit: ___ m.",
+                            "5. Zeichne einen Grundriss deines Kinderzimmers im Maßstab 1:50."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Bayernkarte & Legendensymbole",
+                        tasks: [
+                            "1. Zeichne die Wappen-Symbole für Landeshauptstadt, Fluss, Eisenbahn und Autobahn nach.",
+                            "2. Finde auf der Bayernkarte: Die Donau, die Isar und die Alpen.",
+                            "3. Wie heißen die 7 Regierungsbezirke in Bayern?",
+                            "4. Erkläre, wie ein Kompass funktioniert.",
+                            "5. Plane eine Fahrradroute mit Hilfe einer Wanderkarte."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "hsu_demokratie",
+                subject: "hsu",
+                subjectName: "HSU",
+                title: "Demokratie & Gemeinschaft",
+                subtitle: "Die Gemeinde & Klassensprecherwahl",
+                videoId: "-eGxTu2rpbk",
+                explanation: {
+                    summary: "In einer Demokratie bestimmen alle Bürgerinnen und Bürger gemeinsam über das Zusammenleben:",
+                    points: [
+                        "<strong>Aufgaben der Gemeinde (Kommune):</strong> Baut und pflegt Grundschulen, Spielplätze, Straßen, Feuerwehr, Müllabfuhr und Bibliotheken.",
+                        "<strong>Erster Bürgermeister / Erste Bürgermeisterin:</strong> Leitet die Gemeindeverwaltung.",
+                        "<strong>Gemeinderat / Stadtrat:</strong> Von den Bürgern gewählte Vertreter, die Entscheidungen für den Ort treffen.",
+                        "<strong>Die Grundsätze demokratischer Wahlen:</strong> Wahlen müssen frei, geheim, gleich und unmittelbar sein! (Beispiel: Klassensprecherwahl)."
+                    ],
+                    keyTerms: [
+                        { term: "Geheime Wahl", def: "Niemand sieht, wen man auf dem Stimmzettel ankreuzt." },
+                        { term: "Gemeinderat", def: "Das Parlament der Gemeinde." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "hsu_d_b1", type: "mc", task: "Wer leitet eine Gemeinde oder Stadt?", options: ["Erster Bürgermeister / Bürgermeisterin", "Klassensprecher", "Polizeichef"], answer: "Erster Bürgermeister / Bürgermeisterin", hint: "Das höchste Amt im Rathaus.", explanation: "Der/die Bürgermeister/in leitet das Rathaus." },
+                        { id: "hsu_d_b2", type: "mc", task: "Was bedeutet 'geheime Wahl'?", options: ["Man füllt den Stimmzettel unbeobachtet in einer Kabine aus", "Nur der Lehrer erfährt das Ergebnis", "Die Wahl ist ein Geheimnis und findet nachts statt"], answer: "Man füllt den Stimmzettel unbeobachtet in einer Kabine aus", hint: "Niemand schaut einem auf den Zettel.", explanation: "Man kreuzt verdeckt an." }
+                    ],
+                    standard: [
+                        { id: "hsu_d_s1", type: "input", task: "Welche Einrichtung gehört NICHT zu den Aufgaben der Gemeinde? (Schule, Feuerwehr, Bundeswehr)", answer: "Bundeswehr", hint: "Die Bundeswehr ist Aufgabe des Staates/Bundes.", explanation: "Die Bundeswehr ist Bundessache, nicht Gemeindesache." },
+                        { id: "hsu_d_s2", type: "mc", task: "Wie oft treffen sich Gemeinderäte zu Sitzungen im Rathaus?", options: ["Regelmäßig (z.B. monatlich)", "Nur einmal alle 10 Jahre", "Nie"], answer: "Regelmäßig (z.B. monatlich)", hint: "Sie beschließen laufende Projekte.", explanation: "Gemeinderäte tagen regelmäßig." }
+                    ],
+                    forder: [
+                        { id: "hsu_d_f1", type: "input", task: "Wie nennt man die gewählten Vertreter aller Schülerinnen und Schüler einer Klasse? Begriff: ___", answer: "Klassensprecher", hint: "Oder Klassensprecherin.", explanation: "Klassensprecher/in vertritt die Interessen der Mitschüler." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Entdeckungen im Rathaus",
+                        tasks: [
+                            "1. Wie heißt dein Heimatort und wer ist aktuell Bürgermeister/in?",
+                            "2. Welche Aufgaben hat die Gemeinde? Nenne 4 konkrete Beispiele.",
+                            "3. Erkläre die vier Wahlgrundsätze: frei, geheim, gleich, unmittelbar.",
+                            "4. Führe eine Miniumfrage durch: Was würden Kinder in deiner Gemeinde gerne verbessern?",
+                            "5. Wie wird das Geld genannt, das Bürger an die Gemeinde zahlen? (S______n)."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Die Klassensprecherwahl als Vorbild",
+                        tasks: [
+                            "1. Welche Eigenschaften sollte ein guter Klassensprecher / eine Klassensprecherin haben?",
+                            "2. Erstelle einen Wahlzettel für eure nächste Klassenrat-Wahl.",
+                            "3. Beschreibe den Ablauf einer Wahl von der Kandidatur bis zur Auszählung.",
+                            "4. Was ist der 'Klassenrat' und welche Aufgaben übernimmt er?",
+                            "5. Entwirf ein Plakat für mehr Mitbestimmung in der Schule."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "hsu_koerper",
+                subject: "hsu",
+                subjectName: "HSU",
+                title: "Körper & Gesundheit",
+                subtitle: "Skelett, Muskeln & Gesunde Ernährung",
+                videoId: "bS6kLQE-5Vk",
+                explanation: {
+                    summary: "Unser Körper ist ein Wunderwerk aus über 200 Knochen, Gelenken und Muskeln:",
+                    points: [
+                        "<strong>Das Skelett:</strong> Gibt dem Körper Halt und schützt innere Organe (z.B. Schädel schützt das Gehirn, Brustkorb schützt Herz und Lunge).",
+                        "<strong>Gelenke:</strong> Verbinden Knochen beweglich miteinander (Scharniergelenk am Ellbogen, Kugelgelenk an der Schulter).",
+                        "<strong>Muskeln & Gegenspielerprinzip:</strong> Muskeln können sich nur zusammenziehen! Deshalb arbeiten sie immer in Paaren (Beuger zieht an, Strecker streckt).",
+                        "<strong>Ernährungspyramide:</strong> Viel Wasser/Ungesüßter Tee & Gemüse/Obst als Basis; wenig Zucker und Fette an der Spitze."
+                    ],
+                    keyTerms: [
+                        { term: "Wirbelsäule", def: "Das bewegliche Stützelement unseres Körpers." },
+                        { term: "Beuger & Strecker", def: "Das Gegenspielerprinzip der Muskeln (Bizeps & Trizeps)." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "hsu_k_b1", type: "input", task: "Aus wie vielen Knochen besteht das menschliche Skelett etwa? (Zahl: ca. ___)", answer: "206", hint: "Etwas mehr als 200.", explanation: "Ein erwachsener Mensch hat ca. 206 Knochen." },
+                        { id: "hsu_k_b2", type: "mc", task: "Welches Gelenk befindet sich in der Schulter?", options: ["Kugelgelenk", "Scharniergelenk", "Sattelgelenk"], answer: "Kugelgelenk", hint: "Man kann den Arm kreisförmig drehen.", explanation: "Die Schulter ist ein frei bewegliches Kugelgelenk." }
+                    ],
+                    standard: [
+                        { id: "hsu_k_s1", type: "mc", task: "Wie arbeiten Muskeln zusammen?", options: ["Nach dem Gegenspielerprinzip (Beuger & Strecker)", "Ein Muskel macht alle Bewegungen alleine", "Muskeln drücken die Knochen weg"], answer: "Nach dem Gegenspielerprinzip (Beuger & Strecker)", hint: "Einer zieht zusammen, der andere entspannt.", explanation: "Muskeln arbeiten paarweise als Beuger und Strecker." },
+                        { id: "hsu_k_s2", type: "mc", task: "Was steht an der untersten breiten Stufe der Ernährungspyramide?", options: ["Wasser & ungesüßte Getränke", "Süßigkeiten & Chips", "Fleisch & Wurst"], answer: "Wasser & ungesüßte Getränke", hint: "Davon brauchen wir am allermeisten.", explanation: "Flüssigkeit (Wasser) bildet die gesunde Basis." }
+                    ],
+                    forder: [
+                        { id: "hsu_k_f1", type: "input", task: "Welches Organ schützt der knöcherne Brustkorb aus Rippen? (Nenne eines der zwei Hauptorgane):", answer: "Herz", hint: "Pumpt Blut durch den Körper.", explanation: "Der Brustkorb schützt Herz und Lunge." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Skelett & Gelenke des Menschen",
+                        tasks: [
+                            "1. Beschrifte das Skelett: Schädel, Wirbelsäule, Rippen, Becken, Oberschenkelknochen.",
+                            "2. Welches Gelenk ermöglicht Bewegungen wie eine Tür? (________gelenk).",
+                            "3. Teste am eigenen Arm: Welcher Muskel wird dick, wenn du den Arm beugst?",
+                            "4. Warum ist die S-Form der Wirbelsäule beim Springen so wichtig?",
+                            "5. Notiere 3 Tipps für eine gesunde Haltung beim Sitzen in der Schule."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Die Ernährungspyramide im Check",
+                        tasks: [
+                            "1. Zeichne die Ernährungspyramide mit ihren 6 Stufen auf.",
+                            "2. Trage dein heutiges Frühstück in die Pyramide ein. Ist es gesund?",
+                            "3. Erkläre, warum Vollkornbrot länger satt macht als Weißbrot.",
+                            "4. Wie viel Liter Wasser sollte ein Grundschulkind täglich trinken?",
+                            "5. Entwirf einen ausgewogenen Speiseplan für einen Schultag."
+                        ]
+                    }
+                ]
+            },
+
+            {
+                id: "hsu_zeit",
+                subject: "hsu",
+                subjectName: "HSU",
+                title: "Zeit & Wandel",
+                subtitle: "Zeitleisten, Geschichte & Früher vs. Heute",
+                videoId: "ozBkAirvQvQ",
+                explanation: {
+                    summary: "Zeit vergeht unaufhaltsam. Wir teilen Geschichte in Epochen ein und vergleichen früher mit heute:",
+                    points: [
+                        "<strong>Zeiteinheiten:</strong> 1 Jahrzehnt = 10 Jahre | 1 Jahrhundert = 100 Jahre | 1 Jahrtausend = 1000 Jahre.",
+                        "<strong>Die drei Zeitformen des Lebens:</strong> Vergangenheit (bereits geschehen) → Gegenwart (jetzt) → Zukunft (kommt noch).",
+                        "<strong>Schule früher (vor 100 Jahren):</strong> Schiefertafeln mit Griffel, Kurrentschrift, strenge Regeln, Rohrstock.",
+                        "<strong>Schule heute:</strong> Hefte, Tablets, digitale Tafeln, Partnerarbeit und Mitbestimmung."
+                    ],
+                    keyTerms: [
+                        { term: "Zeitleiste", def: "Chronologische Anordnung von Ereignissen von links nach rechts." },
+                        { term: "Jahrhundert", def: "Ein Zeitraum von 100 Jahren (z.B. 21. Jahrhundert)." }
+                    ]
+                },
+                exercises: {
+                    basis: [
+                        { id: "hsu_z_b1", type: "input", task: "Wie viele Jahre hat ein JAHRHUNDERT? (Zahl)", answer: "100", hint: "Hundert Jahre = 1 Jahrhundert.", explanation: "1 Jahrhundert umfasst 100 Jahre." },
+                        { id: "hsu_z_b2", type: "mc", task: "Womit schrieben Kinder vor 100 Jahren in der Schule?", options: ["Schiefertafel und Griffel", "Füller auf Papier", "Tablet und Tastatur"], answer: "Schiefertafel und Griffel", hint: "Man konnte es mit einem Schwamm abwischen.", explanation: "Damals nutzte man Schiefertafeln." }
+                    ],
+                    standard: [
+                        { id: "hsu_z_s1", type: "input", task: "In welchem Jahrhundert leben wir aktuell im Jahr 2026? (Zahl: ___. Jahrhundert)", answer: "21", hint: "Nach dem Jahr 2000 begann das 21. Jahrhundert.", explanation: "Wir befinden uns im 21. Jahrhundert." },
+                        { id: "hsu_z_s2", type: "mc", task: "Was versteht man unter 'Gegenwart'?", options: ["Der heutige Tag / der jetzige Moment", "Das Leben unserer Großeltern", "Das Jahr 2050"], answer: "Der heutige Tag / der jetzige Moment", hint: "Das, was genau jetzt passiert.", explanation: "Gegenwart ist das Jetzt." }
+                    ],
+                    forder: [
+                        { id: "hsu_z_f1", type: "input", task: "Wie viele Jahrzehnte stecken in einem Jahrhundert? (Zahl)", answer: "10", hint: "100 geteilt durch 10.", explanation: "10 Jahrzehnte = 100 Jahre = 1 Jahrhundert." }
+                    ]
+                },
+                homework: [
+                    {
+                        title: "Arbeitsblatt 1: Meine persönliche Zeitleiste",
+                        tasks: [
+                            "1. Erstelle eine Zeitleiste deines Lebens von der Geburt bis heute.",
+                            "2. Ordne die Begriffe ordnungsgemäß zu: Vergangenheit, Gegenwart, Zukunft.",
+                            "3. Interviewe deine Großeltern: Wie war der Schulweg früher ohne Autos?",
+                            "4. Vergleiche Kleidung, Werkzeuge und Lichtquellen von früher und heute.",
+                            "5. Zeichne eine Erfindung, die es deiner Meinung nach im Jahr 2050 geben wird."
+                        ]
+                    },
+                    {
+                        title: "Arbeitsblatt 2: Schule & Alltag im Wandel",
+                        tasks: [
+                            "1. Nenne 3 Unterschiede zwischen der Grundschule vor 100 Jahren und heute.",
+                            "2. Was war die 'Kurrentschrift'?",
+                            "3. Rechne historische Zeitspannen aus: Von 1912 bis 2026 vergehen wie viele Jahre?",
+                            "4. Welche Haushaltsgeräte erleichterten den Menschen früher die Arbeit?",
+                            "5. Schreibe einen kurzen Tagebucheintrag aus der Perspektive eines Schulkindes im Jahr 1920."
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        // STATE MANAGEMENT
+        let currentTopicId = CURRICULUM_DATA[0].id;
+        let activeTab = 'explanation'; // 'explanation' | 'exercises' | 'homework'
+        let currentDifficulty = 'basis'; // 'basis' | 'standard' | 'forder'
+        let activeHomeworkIndex = 0;
+        let currentSubjectFilter = 'all';
+        let searchQuery = '';
+
+        // LocalStorage Schlüssel
+        const STORAGE_KEY = 'roschu_progress_v1';
+        let completedExercises = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+
+        window.onload = function() {
+            renderTopicList();
+            renderActiveTopic();
+            updateGlobalProgress();
+        };
+
+        function setSubjectFilter(subject) {
+            currentSubjectFilter = subject;
+            ['all', 'deutsch', 'mathe', 'hsu'].forEach(s => {
+                const btn = document.getElementById(`filter-${s}`);
+                if (s === subject) {
+                    btn.className = 'flex-1 py-1.5 rounded-lg transition-all bg-white shadow-sm text-indigo-900 font-bold';
+                } else {
+                    btn.className = 'flex-1 py-1.5 rounded-lg transition-all text-slate-600 hover:text-slate-900 font-medium';
+                }
+            });
+            renderTopicList();
+        }
+
+        function filterTopics() {
+            searchQuery = document.getElementById('search-input').value.toLowerCase();
+            renderTopicList();
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function renderTopicList() {
+            const container = document.getElementById('topic-list-container');
+            container.innerHTML = '';
+
+            const filtered = CURRICULUM_DATA.filter(t => {
+                const matchesSubject = currentSubjectFilter === 'all' || t.subject === currentSubjectFilter;
+                const matchesSearch = t.title.toLowerCase().includes(searchQuery) || 
+                                      t.subtitle.toLowerCase().includes(searchQuery) ||
+                                      t.subjectName.toLowerCase().includes(searchQuery);
+                return matchesSubject && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="p-4 text-center text-slate-400 text-sm">Kein Thema gefunden.</div>`;
+                return;
+            }
+
+            filtered.forEach(topic => {
+                const isActive = topic.id === currentTopicId;
+                
+                // Fortschritt für dieses Thema berechnen
+                let totalEx = 0;
+                let doneEx = 0;
+                ['basis', 'standard', 'forder'].forEach(diff => {
+                    topic.exercises[diff].forEach(ex => {
+                        totalEx++;
+                        if (completedExercises[ex.id]) doneEx++;
+                    });
+                });
+                const percent = Math.round((doneEx / totalEx) * 100);
+
+                let badgeColor = 'bg-slate-100 text-slate-600';
+                if (topic.subject === 'deutsch') badgeColor = 'bg-blue-100 text-blue-700';
+                if (topic.subject === 'mathe') badgeColor = 'bg-amber-100 text-amber-800';
+                if (topic.subject === 'hsu') badgeColor = 'bg-emerald-100 text-emerald-800';
+
+                const card = document.createElement('div');
+                card.onclick = () => {
+                    currentTopicId = topic.id;
+                    activeTab = 'explanation';
+                    renderTopicList();
+                    renderActiveTopic();
+                    // On mobile, close sidebar
+                    if (window.innerWidth < 1024) toggleSidebar();
+                };
+
+                card.className = `p-3.5 rounded-2xl cursor-pointer transition-all border ${
+                    isActive 
+                    ? 'bg-indigo-50 border-indigo-300 shadow-sm ring-2 ring-indigo-500/20' 
+                    : 'bg-white border-slate-200/80 hover:border-indigo-200 hover:bg-slate-50'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-1.5">
+                        <span class="text-[10px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded-md ${badgeColor}">
+                            ${topic.subjectName}
+                        </span>
+                        ${percent === 100 
+                            ? '<span class="text-xs text-emerald-600 font-bold"><i class="fas fa-check-circle"></i> Fertig</span>' 
+                            : `<span class="text-xs font-semibold text-slate-400">${percent}%</span>`
+                        }
+                    </div>
+                    <h3 class="text-sm font-bold text-slate-800 leading-snug">${topic.title}</h3>
+                    <p class="text-xs text-slate-500 line-clamp-1 mt-0.5">${topic.subtitle}</p>
+                    
+                    <div class="w-full bg-slate-100 rounded-full h-1.5 mt-2.5 overflow-hidden">
+                        <div class="bg-indigo-600 h-1.5 rounded-full transition-all duration-300" style="width: ${percent}%"></div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function renderActiveTopic() {
+            const topic = CURRICULUM_DATA.find(t => t.id === currentTopicId);
+            if (!topic) return;
+
+            const display = document.getElementById('content-display');
+
+            display.innerHTML = `
+                <!-- Topic Header -->
+                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80 mb-6 no-print">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full ${
+                            topic.subject === 'deutsch' ? 'bg-blue-100 text-blue-800' :
+                            topic.subject === 'mathe' ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-800'
+                        }">
+                            Bayern • LehrplanPlus • ${topic.subjectName}
+                        </span>
+                        <div class="flex items-center space-x-2 text-xs font-semibold text-slate-500">
+                            <i class="fas fa-book-open"></i>
+                            <span>3. Klasse</span>
+                        </div>
+                    </div>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">${topic.title}</h2>
+                    <p class="text-slate-600 text-base mt-1">${topic.subtitle}</p>
+
+                    <!-- Navigation Tabs -->
+                    <div class="flex flex-wrap border-b border-slate-200 mt-6 gap-2" id="nav-tabs">
+                        <button onclick="switchTab('explanation')" class="pb-3 px-4 font-bold text-sm transition-all border-b-2 ${
+                            activeTab === 'explanation' 
+                            ? 'border-indigo-600 text-indigo-600' 
+                            : 'border-transparent text-slate-500 hover:text-slate-800'
+                        }">
+                            📖 1. Erläuterung & Video
+                        </button>
+                        <button onclick="switchTab('exercises')" class="pb-3 px-4 font-bold text-sm transition-all border-b-2 ${
+                            activeTab === 'exercises' 
+                            ? 'border-indigo-600 text-indigo-600' 
+                            : 'border-transparent text-slate-500 hover:text-slate-800'
+                        }">
+                            ✏️ 2. Vertiefungsübungen
+                        </button>
+                        <button onclick="switchTab('homework')" class="pb-3 px-4 font-bold text-sm transition-all border-b-2 ${
+                            activeTab === 'homework' 
+                            ? 'border-indigo-600 text-indigo-600' 
+                            : 'border-transparent text-slate-500 hover:text-slate-800'
+                        }">
+                            📄 3. Hausaufgabenblätter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Content Render Zone -->
+                <div id="tab-content-zone"></div>
+            `;
+
+            if (activeTab === 'explanation') renderExplanationTab(topic);
+            if (activeTab === 'exercises') renderExercisesTab(topic);
+            if (activeTab === 'homework') renderHomeworkTab(topic);
+        }
+
+        function switchTab(tabName) {
+            activeTab = tabName;
+            renderActiveTopic();
+        }
+
+        function renderExplanationTab(topic) {
+            const zone = document.getElementById('tab-content-zone');
+            
+            let pointsHtml = topic.explanation.points.map(p => `
+                <li class="flex items-start space-x-3 text-slate-700">
+                    <span class="text-indigo-500 mt-1"><i class="fas fa-check-circle"></i></span>
+                    <span class="text-base leading-relaxed">${p}</span>
+                </li>
+            `).join('');
+
+            let termsHtml = topic.explanation.keyTerms.map(kt => `
+                <div class="bg-indigo-50/70 p-4 rounded-2xl border border-indigo-100">
+                    <span class="font-bold text-indigo-950 text-sm block">${kt.term}</span>
+                    <span class="text-slate-600 text-xs mt-1 block">${kt.def}</span>
+                </div>
+            `).join('');
+
+            zone.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Merkkasten -->
+                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-lg">
+                                💡
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-900">Merkwissen & Erklärungen</h3>
+                        </div>
+                        
+                        <p class="text-slate-700 font-medium mb-4">${topic.explanation.summary}</p>
+                        
+                        <ul class="space-y-3 mb-6">
+                            ${pointsHtml}
+                        </ul>
+
+                        <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wider mb-3">Wichtige Fachbegriffe:</h4>
+                        <div class="grid sm:grid-cols-2 gap-3">
+                            ${termsHtml}
+                        </div>
+                    </div>
+
+                    <!-- Video Container -->
+                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200/80">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-lg">
+                                    <i class="fab fa-youtube"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-900">Erklärvideo zum Thema</h3>
+                                    <p class="text-xs text-slate-500">Anschauliche Erklärung für Grundschüler</p>
+                                </div>
+                            </div>
+                            <a href="https://www.youtube.com/watch?v=${topic.videoId}" target="_blank" class="hidden sm:flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 px-3 py-2 rounded-xl">
+                                <span>Auf YouTube öffnen</span>
+                                <i class="fas fa-external-link-alt ml-1.5"></i>
+                            </a>
+                        </div>
+
+                        <div class="video-container shadow-lg rounded-2xl">
+                            <iframe src="https://www.youtube.com/embed/${topic.videoId}" title="Lernvideo ${topic.title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+
+                        <div class="mt-4 sm:hidden text-center">
+                            <a href="https://www.youtube.com/watch?v=${topic.videoId}" target="_blank" class="inline-flex items-center text-xs font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl">
+                                <span>Video extern auf YouTube öffnen</span>
+                                <i class="fas fa-external-link-alt ml-1.5"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderExercisesTab(topic) {
+            const zone = document.getElementById('tab-content-zone');
+
+            const diffList = topic.exercises[currentDifficulty] || [];
+
+            let exercisesHtml = diffList.map((ex, index) => {
+                const isDone = completedExercises[ex.id] || false;
+
+                let inputHtml = '';
+                if (ex.type === 'mc') {
+                    inputHtml = `
+                        <div class="grid sm:grid-cols-2 gap-2 mt-3">
+                            ${ex.options.map(opt => `
+                                <button onclick="checkMC('${ex.id}', '${opt}', '${ex.answer}')" class="p-3 text-left rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/50 font-semibold text-slate-700 transition-all text-sm flex items-center justify-between">
+                                    <span>${opt}</span>
+                                    <i class="far fa-circle text-slate-300"></i>
+                                </button>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    inputHtml = `
+                        <div class="flex gap-2 mt-3">
+                            <input type="text" id="input-${ex.id}" placeholder="Deine Antwort hier eingeben..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                            <button onclick="checkInput('${ex.id}', '${ex.answer}')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-sm">
+                                Prüfen
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div id="ex-card-${ex.id}" class="bg-white rounded-3xl p-6 shadow-sm border ${isDone ? 'border-emerald-300 bg-emerald-50/20' : 'border-slate-200/80'} transition-all">
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Aufgabe ${index + 1}</span>
+                            <span id="badge-${ex.id}" class="${isDone ? 'inline-block' : 'hidden'} text-xs font-extrabold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">
+                                <i class="fas fa-check"></i> Richtig gelöst
+                            </span>
+                        </div>
+                        
+                        <p class="text-base font-bold text-slate-900">${ex.task}</p>
+                        
+                        ${ex.hint ? `<p class="text-xs text-amber-700 bg-amber-50 px-3 py-1.5 rounded-lg inline-block mt-2 font-medium"><i class="far fa-lightbulb mr-1"></i> Tipp: ${ex.hint}</p>` : ''}
+
+                        ${inputHtml}
+
+                        <!-- Solution & Explanation Box -->
+                        <div id="feedback-${ex.id}" class="hidden mt-4 p-4 rounded-2xl text-sm"></div>
+                    </div>
+                `;
+            }).join('');
+
+            zone.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Difficulty Selector Header -->
+                    <div class="bg-white rounded-3xl p-4 sm:p-6 shadow-sm border border-slate-200/80 flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-lg">Differenzierte Übungen</h3>
+                            <p class="text-xs text-slate-500">Wähle deine passende Anforderungsstufe</p>
+                        </div>
+
+                        <div class="flex bg-slate-100 p-1 rounded-2xl text-xs font-bold">
+                            <button onclick="setDifficulty('basis')" class="px-4 py-2 rounded-xl transition-all ${
+                                currentDifficulty === 'basis' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                            }">
+                                🟢 Basis
+                            </button>
+                            <button onclick="setDifficulty('standard')" class="px-4 py-2 rounded-xl transition-all ${
+                                currentDifficulty === 'standard' ? 'bg-amber-500 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                            }">
+                                🟡 Standard
+                            </button>
+                            <button onclick="setDifficulty('forder')" class="px-4 py-2 rounded-xl transition-all ${
+                                currentDifficulty === 'forder' ? 'bg-rose-500 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+                            }">
+                                🔴 Forder
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Exercises List -->
+                    <div class="space-y-4">
+                        ${exercisesHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function setDifficulty(diff) {
+            currentDifficulty = diff;
+            renderActiveTopic();
+        }
+
+        // Check logic for Multiple Choice
+        function checkMC(exId, selectedOpt, correctAns) {
+            const topic = CURRICULUM_DATA.find(t => t.id === currentTopicId);
+            let ex = null;
+            ['basis', 'standard', 'forder'].forEach(d => {
+                const found = topic.exercises[d].find(e => e.id === exId);
+                if (found) ex = found;
+            });
+
+            const feedback = document.getElementById(`feedback-${exId}`);
+            feedback.classList.remove('hidden', 'bg-rose-50', 'text-rose-900', 'bg-emerald-50', 'text-emerald-900');
+
+            if (selectedOpt === correctAns) {
+                feedback.classList.add('bg-emerald-50', 'text-emerald-900', 'border', 'border-emerald-200');
+                feedback.innerHTML = `
+                    <div class="font-bold mb-1"><i class="fas fa-check-circle text-emerald-600"></i> Perfekt, das ist richtig!</div>
+                    <div class="text-xs text-emerald-800">${ex.explanation}</div>
+                `;
+                markExerciseCompleted(exId);
+            } else {
+                feedback.classList.add('bg-rose-50', 'text-rose-900', 'border', 'border-rose-200');
+                feedback.innerHTML = `
+                    <div class="font-bold mb-1"><i class="fas fa-times-circle text-rose-600"></i> Noch nicht ganz. Versuche es gleich noch einmal!</div>
+                    <div class="text-xs text-rose-800">Tipp: Lies die Frage und den Merkkasten noch einmal aufmerksam durch.</div>
+                `;
+            }
+        }
+
+        // Check logic for Text Input
+        function checkInput(exId, correctAns) {
+            const valInput = document.getElementById(`input-${exId}`).value.trim();
+            const topic = CURRICULUM_DATA.find(t => t.id === currentTopicId);
+            let ex = null;
+            ['basis', 'standard', 'forder'].forEach(d => {
+                const found = topic.exercises[d].find(e => e.id === exId);
+                if (found) ex = found;
+            });
+
+            const feedback = document.getElementById(`feedback-${exId}`);
+            feedback.classList.remove('hidden', 'bg-rose-50', 'text-rose-900', 'bg-emerald-50', 'text-emerald-900');
+
+            // Normalized string comparison
+            const normUser = valInput.toLowerCase().replace(/\s+/g, '');
+            const normCorrect = correctAns.toLowerCase().replace(/\s+/g, '');
+
+            if (normUser === normCorrect || (normUser.length > 2 && normCorrect.includes(normUser))) {
+                feedback.classList.add('bg-emerald-50', 'text-emerald-900', 'border', 'border-emerald-200');
+                feedback.innerHTML = `
+                    <div class="font-bold mb-1"><i class="fas fa-check-circle text-emerald-600"></i> Hervorragend! Richtiges Ergebnis.</div>
+                    <div class="text-xs text-emerald-800">${ex.explanation}</div>
+                `;
+                markExerciseCompleted(exId);
+            } else {
+                feedback.classList.add('bg-rose-50', 'text-rose-900', 'border', 'border-rose-200');
+                feedback.innerHTML = `
+                    <div class="font-bold mb-1"><i class="fas fa-times-circle text-rose-600"></i> Das stimmt leider noch nicht.</div>
+                    <div class="text-xs text-rose-800">Deine Eingabe: "${valInput}". Überprüfe deinen Rechenweg oder deine Schreibweise.</div>
+                `;
+            }
+        }
+
+        function markExerciseCompleted(exId) {
+            completedExercises[exId] = true;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(completedExercises));
+            
+            const badge = document.getElementById(`badge-${exId}`);
+            if (badge) badge.classList.remove('hidden');
+
+            const card = document.getElementById(`ex-card-${exId}`);
+            if (card) card.className = "bg-white rounded-3xl p-6 shadow-sm border border-emerald-300 bg-emerald-50/20 transition-all";
+
+            updateGlobalProgress();
+            renderTopicList();
+        }
+
+        function renderHomeworkTab(topic) {
+            const zone = document.getElementById('tab-content-zone');
+            const sheet = topic.homework[activeHomeworkIndex] || topic.homework[0];
+
+            let tasksHtml = sheet.tasks.map((taskText, idx) => `
+                <div class="mb-6">
+                    <p class="font-bold text-slate-900 text-sm sm:text-base leading-snug whitespace-pre-line mb-3">${taskText}</p>
+                    <div class="space-y-2">
+                        <div class="writing-line"></div>
+                        <div class="writing-line"></div>
+                    </div>
+                </div>
+            `).join('');
+
+            zone.innerHTML = `
+                <div class="space-y-6">
+                    <!-- Homework Selection Controls -->
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 flex flex-wrap items-center justify-between gap-4 no-print">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-lg">Arbeitsblatt auswählen</h3>
+                            <p class="text-xs text-slate-500">Druckfertig aufbereitet für Hausaufgaben & Unterricht</p>
+                        </div>
+
+                        <div class="flex items-center space-x-3">
+                            <select onchange="changeHomeworkIndex(this.value)" class="bg-slate-100 font-bold text-slate-800 text-xs py-2.5 px-4 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                ${topic.homework.map((h, i) => `
+                                    <option value="${i}" ${i === activeHomeworkIndex ? 'selected' : ''}>${h.title}</option>
+                                `).join('')}
+                            </select>
+
+                            <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md flex items-center space-x-2">
+                                <i class="fas fa-print"></i>
+                                <span>Arbeitsblatt drucken</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Printable Worksheet Container -->
+                    <div class="printable-sheet bg-white rounded-3xl p-8 sm:p-12 shadow-sm border border-slate-200/80">
+                        
+                        <!-- Header für gedrucktes Blatt -->
+                        <div class="border-b-2 border-slate-900 pb-4 mb-8">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h1 class="text-xl font-extrabold text-slate-900 uppercase tracking-tight">Grundschule RoSchu Bayern</h1>
+                                    <p class="text-xs font-bold text-slate-600 mt-0.5">Fach: ${topic.subjectName} • 3. Klasse • LehrplanPlus</p>
+                                </div>
+                                <div class="text-right text-xs font-semibold text-slate-700 space-y-1">
+                                    <p>Name: ___________________________</p>
+                                    <p>Datum: __________________________</p>
+                                </div>
+                            </div>
+                            <h2 class="text-lg font-bold text-indigo-900 mt-2">${sheet.title}</h2>
+                        </div>
+
+                        <!-- Tasks List -->
+                        <div class="mt-6">
+                            ${tasksHtml}
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="mt-12 pt-4 border-t border-slate-200 flex justify-between text-[10px] text-slate-400">
+                            <span>RoSchu Lernportal Bayern • 3. Klasse</span>
+                            <span>Seite 1 von 1</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function changeHomeworkIndex(idx) {
+            activeHomeworkIndex = parseInt(idx, 10);
+            renderHomeworkTab(CURRICULUM_DATA.find(t => t.id === currentTopicId));
+        }
+
+        function updateGlobalProgress() {
+            let total = 0;
+            let done = 0;
+
+            CURRICULUM_DATA.forEach(topic => {
+                ['basis', 'standard', 'forder'].forEach(diff => {
+                    topic.exercises[diff].forEach(ex => {
+                        total++;
+                        if (completedExercises[ex.id]) done++;
+                    });
+                });
+            });
+
+            const percent = Math.round((done / total) * 100);
+
+            const bar = document.getElementById('global-progress-bar');
+            const text = document.getElementById('global-progress-text');
+
+            if (bar) bar.style.width = `${percent}%`;
+            if (text) text.innerText = `${percent}%`;
+        }
+
+        function resetAllProgress() {
+            if (confirm("Möchtest du deinen gesamten Lernfortschritt wirklich zurücksetzen?")) {
+                completedExercises = {};
+                localStorage.removeItem(STORAGE_KEY);
+                updateGlobalProgress();
+                renderTopicList();
+                renderActiveTopic();
+            }
+        }
+    </script>
 </body>
 </html>
